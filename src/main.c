@@ -12,7 +12,9 @@ int main()
 {
 	while(1){
 		// do smth important
-        //
+		// 0. poll teletype
+        // 1. poll RS232 Port
+		// 2. signalize ESP8266 for transmit
 	}
 	return 0;
 }
