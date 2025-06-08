@@ -38,26 +38,40 @@ int Button = 0;
 
 // --- GOBLAL VARIABLES --------------------------------------------
 
-char* writeBuffer = malloc(1);	// Create empty writeBuffer
+char* writeBuffer;	// Create empty writeBuffer
+
 // Teletype Variables
-int rx_figs = 0; // wether or not currently in figs or ltrs mode
-int tx_figs = 0; // ebd.
+int rx_figs = 0; 	// wether or not currently in figs or ltrs mode
+int tx_figs = 0; 	// ebd.
 
 
 // Mode-specific vars
 int mode = 0; // 0 -> Local != 0 -> Serial
 
 
-// ----------------------------------------------------------------
+// -----------------------------------------------------------------
+void setMode(){
+}
 
-void manageIO{
+int getMode(){
+	return 0;
+}
+
+void manageIO(){
 	setMode(); 			// Set LEDs according to current mode
 	mode = getMode();	// Get Mode from button
 }
 
+void _mode(){
+}
+
 int main()
 {
+	writeBuffer = malloc(0);
+
 	while(1){
+		manageIO();	// Like toggle LEDs, poll Button, etc.
+		_mode();
 		// do smth important
 		// 0. poll teletype
         // 1. poll RS232 Port
