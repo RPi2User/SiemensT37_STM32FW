@@ -23,6 +23,6 @@ I wanted the Siemens T37 to be an IoT Device. So the ESP8266 will
 funciton as a WiFi-Bridge for the STM32.
 
 Via a simple `POST / <data>` the ESP8266 will send via 
-`<insert protocol>` to the STM32. The STM32 will send it to the TTY.
+`RS232 9600N1` to the STM32. The STM32 will send it to the TTY.
 
 
