@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 /* This project is the main source for the STM32 Firmware
  * This source has 3 Main objectives
@@ -7,6 +8,52 @@
  *  3. Get Data from WiFi (via ESP8266)
  *
  */
+
+
+// --- PIN DEFINITIONS ---------------------------------------------
+// over here there are the functions to toggle those pescy pins
+// ignore the integers pls…
+
+
+// TTY
+int ttySend = 0;
+int ttyReceive = 0;
+
+
+// LEDs
+int LED_MLOCAL = 0;
+int LED_MSERIAL = 0;
+int LED_ERROR = 0;
+
+
+// ESP8266, UART 9600N1
+int WiFi1 = 0;
+int WiFi2 = 0;
+
+// Button
+int Button = 0; 
+
+
+// -----------------------------------------------------------------
+
+// --- GOBLAL VARIABLES --------------------------------------------
+
+char* writeBuffer = malloc(1);	// Create empty writeBuffer
+// Teletype Variables
+int rx_figs = 0; // wether or not currently in figs or ltrs mode
+int tx_figs = 0; // ebd.
+
+
+// Mode-specific vars
+int mode = 0; // 0 -> Local != 0 -> Serial
+
+
+// ----------------------------------------------------------------
+
+void manageIO{
+	setMode(); 			// Set LEDs according to current mode
+	mode = getMode();	// Get Mode from button
+}
 
 int main()
 {
