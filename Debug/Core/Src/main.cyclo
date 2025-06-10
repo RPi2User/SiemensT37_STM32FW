@@ -1,0 +1,10 @@
+../Core/Src/main.c:29:6:setMode	1
+../Core/Src/main.c:32:5:getMode	1
+../Core/Src/main.c:36:6:manageIO	1
+../Core/Src/main.c:41:6:_mode	1
+../Core/Src/main.c:44:5:main	1
+../Core/Src/main.c:70:6:SystemClock_Config	4
+../Core/Src/main.c:113:13:MX_USART1_UART_Init	2
+../Core/Src/main.c:148:13:MX_USART2_UART_Init	2
+../Core/Src/main.c:183:13:MX_GPIO_Init	1
+../Core/Src/main.c:223:6:Error_Handler	1
