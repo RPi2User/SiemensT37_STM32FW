@@ -27,6 +27,8 @@ int mode = 0; // 0 -> Local != 0 -> Serial
 
 // -----------------------------------------------------------------
 
+
+// ---I/O SECTION---------------------------------------------------
 void setLED_MLOCAL(int state){	// LED @ A0
 	if (state != 0) {
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
@@ -53,7 +55,10 @@ void setLED_BSY(int state){		// LED @ A2
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
 	}
 }
+// -----------------------------------------------------------------
 
+
+// ---STR MANIPULATION----------------------------------------------
 int strLen(char* str){
 	int n = 0;
 	while(*str != '\0') {
@@ -62,28 +67,49 @@ int strLen(char* str){
 	}
 	return n;
 }
+// -----------------------------------------------------------------
 
-uint8_t convertToTTY(char c){
 
+// ---TTY-FUNCTIONS-------------------------------------------------
+void TTY_WRITE(int symbol){
+
+}
+
+int convertToTTY(char c){
+	// writeBuffer.lower();
+	return 0;
 }
 
 void SEND_TTYC(char c){
 	// writes a 7Bit ASCII to CCITT-2
 	int out = (int) c;
-	out = & ( 11111 << 0)	// Let just the 5 lower bits through
+	out &= ( 11111 << 0);	// Let just the 5 lower bits through
 							// out should be between 0-31
 	out = convertToTTY(c);
 	TTY_WRITE(out);
 }
 
+// ---SENDERS-------------------------------------------------------
 void SEND_TTY(){
 	// sends writeBuffer to tty @ A3
+
+	// foreach char in writeBuffer…
 	int i = 0;
-	while(*writeBuffer != '\0') {
-		// foreach char in writeBuffer…
+	while(*writeBuffer != '\0') {	
+		// 1. writeBuffer.toLower();
+		char c = writeBuffer[i];
+        if (writeBuffer[i] >= 'A' && writeBuffer[i] <= 'Z') 
+            c += 'a' - 'A'; 	// offset via the difference a-A
+        writeBuffer[i] = c; 	// replace c in writeBuffer
+        
+		
 		SEND_TTYC(writeBuffer[i]);
 		i++;
 	}
+
+}
+
+void SEND_SERIAL(){
 
 }
 
@@ -95,8 +121,10 @@ void SEND(){
 		SEND_SERIAL();
 	}
 }
+// -----------------------------------------------------------------
 
 
+// ---INTERNAL LOGIC------------------------------------------------
 void manageIO(){
 
 	// poll Button @ D10
@@ -147,7 +175,7 @@ int main(void)
     while(1){
         manageIO();    // Like toggle LEDs, poll Button, etc.
         _mode();
-        // do smth important
+        // do smth important, like initializing
         // 0. poll teletype
         // 1. poll RS232 Port
         // 2. signalize ESP8266 for transmit
@@ -158,6 +186,7 @@ int main(void)
 }
 
 
+// ---SCARY ST STUFF :C---------------------------------------------
 void SystemClock_Config(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -338,3 +367,4 @@ void assert_failed(uint8_t *file, uint32_t line)
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+// -----------------------------------------------------------------
