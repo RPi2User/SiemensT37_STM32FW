@@ -54,6 +54,48 @@ void setLED_BSY(int state){		// LED @ A2
 	}
 }
 
+int strLen(char* str){
+	int n = 0;
+	while(*str != '\0') {
+		n++;
+		str++;
+	}
+	return n;
+}
+
+uint8_t convertToTTY(char c){
+
+}
+
+void SEND_TTYC(char c){
+	// writes a 7Bit ASCII to CCITT-2
+	int out = (int) c;
+	out = & ( 11111 << 0)	// Let just the 5 lower bits through
+							// out should be between 0-31
+	out = convertToTTY(c);
+	TTY_WRITE(out);
+}
+
+void SEND_TTY(){
+	// sends writeBuffer to tty @ A3
+	int i = 0;
+	while(*writeBuffer != '\0') {
+		// foreach char in writeBuffer…
+		SEND_TTYC(writeBuffer[i]);
+		i++;
+	}
+
+}
+
+void SEND(){
+	if (mode != 0){ // LOCAL MODE
+		SEND_TTY();
+	}
+	else {			// SERIAL MODE
+		SEND_SERIAL();
+	}
+}
+
 
 void manageIO(){
 
@@ -292,7 +334,7 @@ void assert_failed(uint8_t *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,
-       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     * printf("Wrong parameters value: file %s on line %d\r\n", file, line); */
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
