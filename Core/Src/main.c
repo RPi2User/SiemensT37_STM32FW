@@ -19,6 +19,7 @@ char* writeBuffer;  // Create empty writeBuffer
 // Teletype Variables
 int rx_figs = 0;    // whether or not currently in figs or ltrs mode
 int tx_figs = 0;    // ebd.
+int tty_baud = 100;	// default Baudrate for TTYs
 
 
 // Mode-specific vars
@@ -55,6 +56,16 @@ void setLED_BSY(int state){		// LED @ A2
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
 	}
 }
+
+void setTTY(int state){			// TTY @ A3
+	if (state != 0) {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+	}
+	else {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+	}
+}
+
 // -----------------------------------------------------------------
 
 
@@ -71,8 +82,32 @@ int strLen(char* str){
 
 
 // ---TTY-FUNCTIONS-------------------------------------------------
-void TTY_WRITE(int symbol){
+void TTY_DELAY(int cycles){
+	HAL_Delay(cycles * ( 1000 / tty_baud));
+}
 
+void TTY_WRITE(int symbol){
+	setTTY(0);		// Startbit
+	TTY_DELAY(1);	// wait for transmit
+
+	// send those 5 bits
+	for (int i = 0; i < 5; i++){
+		int current_bit = (symbol >> i) & 1; // take first bit
+		setTTY(current_bit);
+		TTY_DELAY(1); 	// wait for transmit
+	}
+
+	// stop bits
+	setTTY(1);
+	TTY_DELAY(2); 	// send two stop bits
+	setTTY(0);		// set to zero , or new startbit
+}
+
+void ryLoop(){
+	while (1){
+		TTY_WRITE(10); 	// send 'r'
+		TTY_WRITE(21);	// send 'y'
+	}
 }
 
 int convertToTTY(char c){
@@ -88,6 +123,7 @@ void SEND_TTYC(char c){
 	out = convertToTTY(c);
 	TTY_WRITE(out);
 }
+
 
 // ---SENDERS-------------------------------------------------------
 void SEND_TTY(){
@@ -110,7 +146,7 @@ void SEND_TTY(){
 }
 
 void SEND_SERIAL(){
-
+	// placeholder for future code
 }
 
 void SEND(){
@@ -147,6 +183,10 @@ void manageIO(){
 	}
 }
 
+void debugger(){
+	ryLoop();
+}
+
 void _mode(){
     return;
 }
@@ -171,9 +211,12 @@ int main(void)
     setLED_MLOCAL(0);
     setLED_MSERIAL(0);
 
+    setTTY(0);
+
     // init ESP8266 uart
     while(1){
         manageIO();    // Like toggle LEDs, poll Button, etc.
+		debugger();
         _mode();
         // do smth important, like initializing
         // 0. poll teletype
