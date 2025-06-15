@@ -78,6 +78,23 @@ int strLen(char* str){
 	}
 	return n;
 }
+
+// This appends Tail to writeBuffer
+void append(char* tail){
+    int len1 = strLen(writeBuffer);
+    int len2 = strLen(tail);
+    char* newBuffer = malloc(len1 + len2 + 1);
+    if (!newBuffer) return;
+
+    for (int i = 0; i < len1; i++) newBuffer[i] = writeBuffer[i];
+    for (int i = 0; i <= len2; i++) newBuffer[len1 + i] = tail[i];  
+	// inkl. '\0'
+
+    free(writeBuffer);
+    free(tail);
+    writeBuffer = newBuffer;
+}
+
 // -----------------------------------------------------------------
 
 
@@ -129,7 +146,7 @@ void SEND_TTYC(char c){
 void SEND_TTY(){
 	// sends writeBuffer to tty @ A3
 
-	// foreach char in writeBuffer…
+	// foreach ASCII-char in writeBuffer…
 	int i = 0;
 	while(*writeBuffer != '\0') {	
 		// 1. writeBuffer.toLower();
@@ -138,7 +155,7 @@ void SEND_TTY(){
             c += 'a' - 'A'; 	// offset via the difference a-A
         writeBuffer[i] = c; 	// replace c in writeBuffer
         
-	// TODO: Insert ASCII to Baudot conversion!
+		// TODO: Insert ASCII to Baudot conversion!
 		
 		SEND_TTYC(writeBuffer[i]);
 		i++;
