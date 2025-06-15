@@ -138,6 +138,7 @@ void SEND_TTY(){
             c += 'a' - 'A'; 	// offset via the difference a-A
         writeBuffer[i] = c; 	// replace c in writeBuffer
         
+	// TODO: Insert ASCII to Baudot conversion!
 		
 		SEND_TTYC(writeBuffer[i]);
 		i++;
@@ -149,7 +150,7 @@ void SEND_SERIAL(){
 	// placeholder for future code
 }
 
-void SEND(){
+void SEND(){ // TODO: this goes into _mode()…
 	if (mode != 0){ // LOCAL MODE
 		SEND_TTY();
 	}
@@ -184,10 +185,58 @@ void manageIO(){
 }
 
 void debugger(){
-	ryLoop();
+	// this is a debug-entrypoint useful for debugging stuff
+	//ryLoop();
+}
+
+void io(){
+	/* 1. Print 'LTRS,CRLF,?' -> CLR BSY
+	*  2. accept 'b50' (for baudrate=50) or 
+	*		'w80' for 80 Col Width or
+	*		'n' for network-stats
+	*  3. wait for 'CRLF' or 'LFCR'
+	*	-> SET BSY
+	*  4. print 'RDY'
+	*/
+	
 }
 
 void _mode(){
+	// fetch input Data, maybe do some stuff, print and send
+
+	/* 1. INPUT
+	*	- clr bsy
+	*	- rec Data from ESP||SERIAL
+	*	- if empty -> wait for tty
+	*	- set bsy
+	*/
+
+	/* 2. OUTPUT
+	*	- write SERIAL
+	*	- write TTY
+	*/
+	setLED_BSY(0); // SIG µC and User: "System RDY to Receive"	
+	if (mode != 0){
+		// SERIAL
+		getSerialData();
+		if (strLen(writeBuffer) != 0){
+			getTTYData();
+		}
+		setLED_BSY(1);
+		SEND_SERIAL();	
+	}
+	else { // LOCAL
+				
+		// Input section
+		getIoTData();
+		if (strLen(writeBuffer) != 0){
+			// If writeBuffer empty...
+			getTTYData();
+		}
+		setLED_BSY(1);
+		SEND_TTY();		
+
+	}
     return;
 }
 
@@ -201,22 +250,27 @@ int main(void)
     MX_GPIO_Init();
     MX_USART2_UART_Init();
     MX_USART1_UART_Init();
-    //--------------------------------------------------------------
+    // -------------------------------------------------------------
 
     // init vars
     writeBuffer = malloc(0);
 
     // init i/o stuff
-    setLED_BSY(0);
+    setLED_BSY(1);
     setLED_MLOCAL(0);
     setLED_MSERIAL(0);
 
     setTTY(0);
+	
+    //TODO: init ESP8266 uart
 
-    // init ESP8266 uart
+	// now we can do some UI-Stuff, like ask for bd-rate, esp-ip,
+	// termminal-width, etc.
+	ui();
+
     while(1){
         manageIO();    // Like toggle LEDs, poll Button, etc.
-		debugger();
+		debugger(); 
         _mode();
         // do smth important, like initializing
         // 0. poll teletype
