@@ -20,6 +20,7 @@ char* writeBuffer;  // Create empty writeBuffer
 int rx_figs = 0;    // whether or not currently in figs or ltrs mode
 int tx_figs = 0;    // ebd.
 int tty_baud = 100;	// default Baudrate for TTYs
+int tty_symbols[];	// field for all symbols (I/O), -1 Terminated
 
 
 // Mode-specific vars
@@ -94,9 +95,81 @@ void append(char* tail){
     free(tail);
     writeBuffer = newBuffer;
 }
-
 // -----------------------------------------------------------------
 
+// ---BUFFER MANIPULATION-------------------------------------------
+void appendSymbol(int sym){
+	int i = 0;
+	if (!tty_symbols[i]) return 0;
+	while (tty_symbols[i] != -1){
+		i++;
+	}
+	return i;
+
+}
+int getBufferLength(){
+	// 
+}
+int toSymbol(char c) {
+    static const unsigned char lut[128] = {
+        [0x07] = 11,    // BELL
+        [0x0A] = 2,     // \n
+        [0x0D] = 8,     // \r
+        [0x11] = 9,     // DC1 (WhoThere?)
+        [' ']  = 4,
+        ['\''] = 5,
+        ['(']  = 15,
+        [')']  = 18,
+        [',']  = 12,
+        ['-']  = 3,
+        ['.']  = 28,
+        ['/']  = 29,
+        ['0']  = 22,
+        ['1']  = 23,
+        ['2']  = 19,
+        ['3']  = 1,
+        ['4']  = 10,
+        ['5']  = 16,
+        ['6']  = 21,
+        ['7']  = 7,
+        ['8']  = 6,
+        ['9']  = 24,
+        [':']  = 14,
+        ['=']  = 30,
+        ['?']  = 25,
+        ['A']  = 3,  ['a'] = 3,
+        ['B']  = 25, ['b'] = 25,
+        ['C']  = 14, ['c'] = 14,
+        ['D']  = 9,  ['d'] = 9,
+        ['E']  = 1,  ['e'] = 1,
+        ['F']  = 13, ['f'] = 13,
+        ['G']  = 26, ['g'] = 26,
+        ['H']  = 20, ['h'] = 20,
+        ['I']  = 6,  ['i'] = 6,
+        ['J']  = 11, ['j'] = 11,
+        ['K']  = 15, ['k'] = 15,
+        ['L']  = 18, ['l'] = 18,
+        ['M']  = 28, ['m'] = 28,
+        ['N']  = 12, ['n'] = 12,
+        ['O']  = 24, ['o'] = 24,
+        ['P']  = 22, ['p'] = 22,
+        ['Q']  = 23, ['q'] = 23,
+        ['R']  = 10, ['r'] = 10,
+        ['S']  = 5,  ['s'] = 5,
+        ['T']  = 16, ['t'] = 16,
+        ['U']  = 7,  ['u'] = 7,
+        ['V']  = 30, ['v'] = 30,
+        ['W']  = 19, ['w'] = 19,
+        ['X']  = 29, ['x'] = 29,
+        ['Y']  = 21, ['y'] = 21,
+        ['Z']  = 17, ['z'] = 17,
+        ['+']  = 17,
+    };
+    if ((unsigned char)c < 128)
+        return lut[(unsigned char)c];
+    return 0;
+}
+// -----------------------------------------------------------------
 
 // ---TTY-FUNCTIONS-------------------------------------------------
 void TTY_DELAY(int cycles){
@@ -128,7 +201,9 @@ void ryLoop(){
 }
 
 int convertToTTY(char c){
-	// writeBuffer.lower();
+	for (int i = 0; writeBuffer[i] != '\n'; i++){
+        
+    }
 	return 0;
 }
 
