@@ -20,7 +20,7 @@ char* writeBuffer;  // Create empty writeBuffer
 int rx_figs = 0;    // whether or not currently in figs or ltrs mode
 int tx_figs = 0;    // ebd.
 int tty_baud = 100;	// default Baudrate for TTYs
-int tty_symbols[];	// field for all symbols (I/O), -1 Terminated
+int* tty_symbols;	// field for all symbols (I/O), -1 Terminated
 
 
 // Mode-specific vars
@@ -100,16 +100,16 @@ void append(char* tail){
 // ---BUFFER MANIPULATION-------------------------------------------
 void appendSymbol(int sym){
 	int i = 0;
-	if (!tty_symbols[i]) return 0;
+	if (!tty_symbols[i]) return;
 	while (tty_symbols[i] != -1){
 		i++;
 	}
-	return i;
 
 }
 int getBufferLength(){
-	// 
+	return 0;
 }
+
 int toSymbol(char c) {
     static const unsigned char lut[128] = {
         [0x07] = 11,    // BELL
@@ -310,9 +310,9 @@ void _mode(){
 	setLED_BSY(0); // SIG µC and User: "System RDY to Receive"	
 	if (mode != 0){
 		// SERIAL
-		getSerialData();
+		//getSerialData();
 		if (strLen(writeBuffer) != 0){
-			getTTYData();
+			//getTTYData();
 		}
 		setLED_BSY(1);
 		SEND_SERIAL();	
@@ -320,10 +320,10 @@ void _mode(){
 	else { // LOCAL
 				
 		// Input section
-		getIoTData();
+		//getIoTData();
 		if (strLen(writeBuffer) != 0){
 			// If writeBuffer empty...
-			getTTYData();
+			//getTTYData();
 		}
 		setLED_BSY(1);
 		SEND_TTY();		
@@ -346,6 +346,7 @@ int main(void)
 
     // init vars
     writeBuffer = malloc(0);
+    tty_symbols = malloc(0);
 
     // init i/o stuff
     setLED_BSY(1);
@@ -358,7 +359,7 @@ int main(void)
 
 	// now we can do some UI-Stuff, like ask for bd-rate, esp-ip,
 	// termminal-width, etc.
-	ui();
+	//ui();
 
     while(1){
         manageIO();    // Like toggle LEDs, poll Button, etc.
