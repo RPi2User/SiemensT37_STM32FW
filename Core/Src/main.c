@@ -1,4 +1,6 @@
 #include "main.h"
+#include "tty.h"
+#include "writeBuffer.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -17,11 +19,6 @@ static void MX_USART1_UART_Init(void);
 // --- GOBLAL VARIABLES --------------------------------------------
 
 char* writeBuffer;  // Create empty writeBuffer
-
-// Teletype Variables
-int rx_figs = 0;    // whether or not currently in figs or ltrs mode
-int tx_figs = 0;    // ebd.
-int tty_baud = 100;	// default Baudrate for TTYs
 int* tty_symbols;	// field for all symbols (I/O), -1 Terminated
 
 
@@ -60,163 +57,12 @@ void setLED_BSY(int state){		// LED @ A2
 	}
 }
 
-void setTTY(int state){			// TTY @ A3
-	if (state != 0) {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-	}
-	else {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-	}
-}
+
 
 // -----------------------------------------------------------------
 
 
-// ---STR MANIPULATION----------------------------------------------
-int strLen(char* str){
-	int n = 0;
-	while(*str != '\0') {
-		n++;
-		str++;
-	}
-	return n;
-}
 
-// This appends Tail to writeBuffer
-void append(char* tail){
-    int len1 = strLen(writeBuffer);
-    int len2 = strLen(tail);
-    char* newBuffer = malloc(len1 + len2 + 1);
-    if (!newBuffer) return;
-
-    for (int i = 0; i < len1; i++) newBuffer[i] = writeBuffer[i];
-    for (int i = 0; i <= len2; i++) newBuffer[len1 + i] = tail[i];  
-	// inkl. '\0'
-
-    free(writeBuffer);
-    free(tail);
-    writeBuffer = newBuffer;
-}
-// -----------------------------------------------------------------
-
-// ---BUFFER MANIPULATION-------------------------------------------
-void appendSymbol(int sym){
-	int i = 0;
-	if (!tty_symbols[i]) return;
-	while (tty_symbols[i] != -1){
-		i++;
-	}
-
-}
-int getBufferLength(){
-	return 0;
-}
-
-int toSymbol(char c) {
-    static const unsigned char lut[128] = {
-        [0x07] = 11,    // BELL
-        [0x0A] = 2,     // \n
-        [0x0D] = 8,     // \r
-        [0x11] = 9,     // DC1 (WhoThere?)
-        [' ']  = 4,
-        ['\''] = 5,
-        ['(']  = 15,
-        [')']  = 18,
-        [',']  = 12,
-        ['-']  = 3,
-        ['.']  = 28,
-        ['/']  = 29,
-        ['0']  = 22,
-        ['1']  = 23,
-        ['2']  = 19,
-        ['3']  = 1,
-        ['4']  = 10,
-        ['5']  = 16,
-        ['6']  = 21,
-        ['7']  = 7,
-        ['8']  = 6,
-        ['9']  = 24,
-        [':']  = 14,
-        ['=']  = 30,
-        ['?']  = 25,
-        ['A']  = 3,  ['a'] = 3,
-        ['B']  = 25, ['b'] = 25,
-        ['C']  = 14, ['c'] = 14,
-        ['D']  = 9,  ['d'] = 9,
-        ['E']  = 1,  ['e'] = 1,
-        ['F']  = 13, ['f'] = 13,
-        ['G']  = 26, ['g'] = 26,
-        ['H']  = 20, ['h'] = 20,
-        ['I']  = 6,  ['i'] = 6,
-        ['J']  = 11, ['j'] = 11,
-        ['K']  = 15, ['k'] = 15,
-        ['L']  = 18, ['l'] = 18,
-        ['M']  = 28, ['m'] = 28,
-        ['N']  = 12, ['n'] = 12,
-        ['O']  = 24, ['o'] = 24,
-        ['P']  = 22, ['p'] = 22,
-        ['Q']  = 23, ['q'] = 23,
-        ['R']  = 10, ['r'] = 10,
-        ['S']  = 5,  ['s'] = 5,
-        ['T']  = 16, ['t'] = 16,
-        ['U']  = 7,  ['u'] = 7,
-        ['V']  = 30, ['v'] = 30,
-        ['W']  = 19, ['w'] = 19,
-        ['X']  = 29, ['x'] = 29,
-        ['Y']  = 21, ['y'] = 21,
-        ['Z']  = 17, ['z'] = 17,
-        ['+']  = 17,
-    };
-    if ((unsigned char)c < 128)
-        return lut[(unsigned char)c];
-    return 0;
-}
-// -----------------------------------------------------------------
-
-// ---TTY-FUNCTIONS-------------------------------------------------
-void TTY_DELAY(int cycles){
-	HAL_Delay(cycles * ( 1000 / tty_baud));
-}
-
-void TTY_WRITE(int symbol){
-	setTTY(0);		// Startbit
-	TTY_DELAY(1);	// wait for transmit
-
-	// send those 5 bits
-	for (int i = 0; i < 5; i++){
-		int current_bit = (symbol >> i) & 1; // take first bit
-		setTTY(current_bit);
-		TTY_DELAY(1); 	// wait for transmit
-	}
-
-	// stop bits
-	setTTY(1);
-	TTY_DELAY(2); 	// send two stop bits
-	setTTY(0);		// set to zero , or new startbit
-}
-
-void ryLoop(){
-	while (1){
-		TTY_WRITE(10); 	// send 'r'
-		TTY_WRITE(21);	// send 'y'
-	}
-}
-
-int convertToTTY(char c){
-	for (int i = 0; writeBuffer[i] != '\n'; i++){
-        
-    }
-	return 0;
-}
-
-void SEND_TTYC(char c){
-	// writes a 7Bit ASCII to CCITT-2
-	int out = (int) c;
-	out &= ( 11111 << 0);	// Let just the 5 lower bits through
-							// out should be between 0-31
-	out = convertToTTY(c);
-	TTY_WRITE(out);
-}
 
 
 // ---SENDERS-------------------------------------------------------
@@ -334,6 +180,20 @@ void _mode(){
     return;
 }
 
+void booTY(){
+
+	for (int i = 0; i <= 5; i++)
+		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
+	tty_symbols = appendSymbol(tty_symbols, symbol.figs);
+	tty_symbols = appendSymbol(tty_symbols, symbol.question);
+
+	TTY_WRITEBUFFER(tty_symbols);
+}
+
+void ui(){
+
+}
+
 int main(void)
 {
 	// scary ST-Stuff
@@ -356,12 +216,28 @@ int main(void)
     setLED_MSERIAL(0);
 
     setTTY(0);
+
+    // -------------------------------------------------------------
+
+
+	if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_RESET){
+		// 10ms delay for debounce, prolly main delay.
+		HAL_Delay(10);
+		mode = mode != 0 ? 0 : 1;
+		// wait until BT is released
+		while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_SET){
+			HAL_Delay(20);
+		}
+	}
+	setLED_BSY(0);
+	// -------------------------------------------------------------
+
 	
     //TODO: init ESP8266 uart
 
 	// now we can do some UI-Stuff, like ask for bd-rate, esp-ip,
 	// termminal-width, etc.
-	//ui();
+    booTY();	// Boot TTY
 
     while(1){
         manageIO();    // Like toggle LEDs, poll Button, etc.
