@@ -3,6 +3,8 @@
 #include <stdlib.h>
 
 
+// KEEP ST-STUFF IN HERE!
+// JUST I/O and Logic
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
