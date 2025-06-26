@@ -124,6 +124,44 @@ void manageIO(){
 	}
 }
 
+void waitForBTpress(){
+	// wait for bt_press
+	while (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_RESET){
+		HAL_Delay(10); // wait 10ms
+		if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_SET){
+			// 10ms delay for debounce, prolly main delay.
+			HAL_Delay(10);
+			// wait until BT is released
+			while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_SET){
+				HAL_Delay(20);
+			}
+			break;
+		}
+	}
+}
+
+void testIO(){
+	// first we set all leds to 0
+	setLED_MLOCAL(0);
+	setLED_MSERIAL(0);
+	setLED_BSY(0);
+	setTTY(0);
+	HAL_Delay(1000);
+	setLED_MLOCAL(1);
+	setLED_MSERIAL(1);
+	setLED_BSY(1);
+	setTTY(1);
+	HAL_Delay(1000);
+	while(1){
+		waitForBTpress();
+		setLED_BSY(0);
+		TTY_WRITE(10); 	// send 'r'
+		TTY_WRITE(21); 	// send 'r'
+		setLED_BSY(1);
+	}
+
+}
+
 void debugger(){
 	// this is a debug-entrypoint useful for debugging stuff
 	//ryLoop();
@@ -216,19 +254,11 @@ int main(void)
     setLED_MSERIAL(0);
 
     setTTY(0);
-
+    testIO();
+    return 0;
     // -------------------------------------------------------------
+    // wait until bt is pressed
 
-
-	if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_RESET){
-		// 10ms delay for debounce, prolly main delay.
-		HAL_Delay(10);
-		mode = mode != 0 ? 0 : 1;
-		// wait until BT is released
-		while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_SET){
-			HAL_Delay(20);
-		}
-	}
 	setLED_BSY(0);
 	// -------------------------------------------------------------
 

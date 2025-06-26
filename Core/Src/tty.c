@@ -70,7 +70,7 @@ const tty_symbols_t symbol = {
 // Teletype Variables
 int rx_figs = 0;    // whether or not currently in figs or ltrs mode
 int tx_figs = 0;    // ebd.
-int tty_baud = 100;	// default Baudrate for TTYs
+int tty_baud = 50;	// default Baudrate for TTYs
 
 
 // ---BUFFER MANIPULATION-------------------------------------------
