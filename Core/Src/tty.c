@@ -3,6 +3,11 @@
 #include "main.h"
 #include "tty.h"
 
+// Teletype Variables
+int rx_figs = 0;    // whether or not currently in figs or ltrs mode
+int tx_figs = 0;    // ebd.
+int tty_baud = 50;	// default Baudrate for TTYs
+
 // TTY Symbol definitions with decimal values
 const tty_symbols_t symbol = {
     // Letters (a-z) - decimal values
@@ -67,17 +72,11 @@ const tty_symbols_t symbol = {
     .null_char = 0     // 0b00000
 };
 
-// Teletype Variables
-int rx_figs = 0;    // whether or not currently in figs or ltrs mode
-int tx_figs = 0;    // ebd.
-int tty_baud = 50;	// default Baudrate for TTYs
-
-
 // ---BUFFER MANIPULATION-------------------------------------------
 int* appendSymbol(int* head, int sym){
 	int i = 0;
 	int length = getBufferLength(head);
-	int* out = (int*)malloc((length + 2));	// +1 for sym, +1 for terminator
+	int* out = (int*)malloc((length + 2));// +2 for sym & terminator
 	while (head[i] != -1){
 		out[i] = head[i];
 		i++;
