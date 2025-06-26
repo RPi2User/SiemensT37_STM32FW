@@ -6,7 +6,8 @@
 // Teletype Variables
 int rx_figs = 0;    // whether or not currently in figs or ltrs mode
 int tx_figs = 0;    // ebd.
-int tty_baud = 50;	// default Baudrate for TTYs
+int baud = 50;		// default Baudrate for TTYs
+int width = 72;		// terminal width
 
 // TTY Symbol definitions with decimal values
 const tty_symbols_t symbol = {
@@ -160,7 +161,7 @@ int toSymbol(char c) {
 
 // ---TTY-FUNCTIONS-------------------------------------------------
 void TTY_DELAY(int cycles){
-	HAL_Delay(cycles * ( 1000 / tty_baud));
+	HAL_Delay(cycles * ( 1000 / baud));
 }
 void TTY_WRITEBUFFER(int* buffer){
 	for (int i = 0; buffer[i] != -1; i++)

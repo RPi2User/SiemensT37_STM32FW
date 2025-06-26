@@ -255,7 +255,6 @@ int main(void)
 
     setTTY(0);
     testIO();
-    return 0;
     // -------------------------------------------------------------
     // wait until bt is pressed
 
