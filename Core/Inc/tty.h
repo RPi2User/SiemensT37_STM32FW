@@ -83,7 +83,7 @@ int toSymbol(char c);
 
 // TTY output
 
-void TTY_WRITEBUFFER(int* buffer);
+int* TTY_WRITEBUFFER(int* buffer);
 
 void setTTY(int state);
 void SEND_TTYC(char c);

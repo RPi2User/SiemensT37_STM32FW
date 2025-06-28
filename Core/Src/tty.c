@@ -75,26 +75,40 @@ const tty_symbols_t symbol = {
 
 // ---BUFFER MANIPULATION-------------------------------------------
 int* appendSymbol(int* head, int sym){
-	int i = 0;
-	int length = getBufferLength(head);
-	int* out = (int*)malloc((length + 2));// +2 for sym & terminator
-	while (head[i] != -1){
-		out[i] = head[i];
-		i++;
+	// Handle NULL head pointer
+	if (head == NULL) {
+		int* out = (int*)malloc(2);
+		if (out == NULL) return NULL;  // malloc failed
+		out[0] = sym;
+		out[1] = -1;
+		return out;
 	}
-	out[i] = sym;        // Add symbol at correct position
-	out[i+1] = -1;       // Add terminator
-	free(head);
+	
+	int length = getBufferLength(head);
+	int* out = (int*)malloc((length + 2) * sizeof(int));
+	if (out == NULL) {
+		// malloc failed - don't free head, return NULL
+		return NULL;
+	}
+	
+	// Copy existing elements
+	for (int i = 0; i < length; i++) {
+		out[i] = head[i];
+	}
+	out[length] = sym;        // Add symbol at correct position
+	out[length + 1] = -1;     // Add terminator
+	
+	free(head);  // Only free after successful allocation
 	return out;
-
 }
 int getBufferLength(int* head){	// returns without Terminator!
+	if (head == NULL) return 0;  // Safety check
+	
 	int i = 0;
 	while (head[i] != -1){
 		i++;
 	}
 	return i;
-	// 
 }
 int toSymbol(char c) {
     static const unsigned char lut[128] = {
@@ -163,11 +177,34 @@ int toSymbol(char c) {
 void TTY_DELAY(int cycles){
 	HAL_Delay(cycles * ( 1000 / baud));
 }
-void TTY_WRITEBUFFER(int* buffer){
-	for (int i = 0; buffer[i] != -1; i++)
-	{
-		TTY_WRITE(buffer[i]);
-	}
+
+int* TTY_WRITEBUFFER(int* buffer){
+    // Safety check for NULL pointer
+    if (buffer == NULL) {
+        // Return empty buffer
+        int* out = (int*)malloc(sizeof(int));
+        if (out == NULL) {
+            return NULL;  // malloc failed
+        }
+        out[0] = -1;
+        return out;
+    }
+    
+    // Write all symbols in buffer
+    for (int i = 0; buffer[i] != -1; i++) {
+        TTY_WRITE(buffer[i]);
+    }
+    
+    // Free the input buffer
+    free(buffer);
+    
+    // Create new empty buffer
+    int* out = (int*)malloc(sizeof(int));
+    if (out == NULL) {
+        return NULL;  // malloc failed - caller must handle this!
+    }
+    out[0] = -1;  // Null-terminate
+    return out;
 }
 
 void TTY_WRITE(int symbol){

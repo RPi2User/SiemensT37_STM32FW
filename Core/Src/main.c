@@ -146,17 +146,42 @@ void testIO(){
 	setLED_MSERIAL(0);
 	setLED_BSY(0);
 	setTTY(0);
-	HAL_Delay(1000);
+	HAL_Delay(100);
 	setLED_MLOCAL(1);
 	setLED_MSERIAL(1);
 	setLED_BSY(1);
 	setTTY(1);
-	HAL_Delay(1000);
 	while(1){
 		waitForBTpress();
 		setLED_BSY(0);
-		TTY_WRITE(10); 	// send 'r'
-		TTY_WRITE(21); 	// send 'r'
+		for (int i = 0; i <= 10; i++)
+		{
+			tty_symbols = appendSymbol(tty_symbols, symbol.r);
+			tty_symbols = appendSymbol(tty_symbols, symbol.y);
+		}
+		tty_symbols = TTY_WRITEBUFFER(tty_symbols);
+		waitForBTpress();
+
+		int* message = malloc(1);
+		message[0] = -1;
+		const int msg[] = {
+			symbol.t, symbol.h, symbol.e, symbol.space,
+			symbol.q, symbol.u, symbol.i, symbol.c, symbol.k, symbol.space,
+			symbol.b, symbol.r, symbol.o, symbol.w, symbol.n, symbol.space,
+			symbol.f, symbol.o, symbol.x, symbol.space,
+			symbol.j, symbol.u, symbol.m, symbol.p, symbol.s, symbol.space,
+			symbol.o, symbol.v, symbol.e, symbol.r, symbol.space,
+			symbol.t, symbol.h, symbol.e, symbol.space,
+			symbol.l, symbol.a, symbol.z, symbol.y, symbol.space,
+			symbol.d, symbol.o, symbol.g
+		};
+		const int msg_len = sizeof(msg) / sizeof(msg[0]);
+		for (int i = 0; i < msg_len; i++) {
+			message = appendSymbol(message, msg[i]);
+		}
+		message = TTY_WRITEBUFFER(message);
+		free(message);
+
 		setLED_BSY(1);
 	}
 
