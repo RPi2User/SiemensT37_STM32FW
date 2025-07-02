@@ -85,20 +85,21 @@ int* appendSymbol(int* head, int sym){
 	}
 	
 	int length = getBufferLength(head);
+	// length + Symbol + Terminator
 	int* out = (int*)malloc((length + 2) * sizeof(int));
 	if (out == NULL) {
-		// malloc failed - don't free head, return NULL
+		// when malloc failes, return nothing
 		return NULL;
 	}
 	
-	// Copy existing elements
+	// Copy existing elements...
 	for (int i = 0; i < length; i++) {
 		out[i] = head[i];
 	}
 	out[length] = sym;        // Add symbol at correct position
 	out[length + 1] = -1;     // Add terminator
-	
-	free(head);  // Only free after successful allocation
+
+	free(head);	// the old head can be removed
 	return out;
 }
 int getBufferLength(int* head){	// returns without Terminator!
@@ -231,9 +232,23 @@ void ryLoop(){
 	}
 }
 
-int convertToTTY(char c){
-	// TODO
-	return 0;
+/* this function does multiple things
+ * 1. Converts all ASCII-Chars into symbols
+ * 2. is sensitive to terminal_width so it appends cr/lf
+ * 3. does a space-efficent management of figs/ltrs symbols
+*/
+int* toSymbols(char* chars){
+	// 1. assumption: at PON the machine is in ltrs
+
+	// for each char in string
+	for (int i = 0; chars[i] != '\0'; i++){
+		// Is char[i] a (valid) Letter?
+		if (chars[i] >= 'a' && chars[i] <= 'z'){
+			// do letter appending
+		else {
+			// do symbol stuff
+		}
+	}
 }
 
 void SEND_TTYC(char c){
