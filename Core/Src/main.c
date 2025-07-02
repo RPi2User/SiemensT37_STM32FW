@@ -257,8 +257,7 @@ void ui(){
 
 }
 
-int main(void)
-{
+void init(){
 	// scary ST-Stuff
     HAL_Init();
 
@@ -292,7 +291,12 @@ int main(void)
 	// now we can do some UI-Stuff, like ask for bd-rate, esp-ip,
 	// termminal-width, etc.
     booTY();	// Boot TTY
+}
 
+int main(void)
+{
+
+	init();
     while(1){
         manageIO();    // Like toggle LEDs, poll Button, etc.
 		debugger(); 
