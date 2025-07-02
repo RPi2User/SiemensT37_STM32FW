@@ -9,6 +9,19 @@ int strLen(char* str) {
     return n;
 }
 
+char* toLower(char* in){
+	if (in == NULL) return NULL;
+	// for each char in 'in'
+	for (int i = 0; in[i] != '\0'; i++){
+		// is current char a Uppercase?
+		if (in[i] >= 'A' && in[i] <= 'Z') 
+			// offset char by distance between upper- and lowercase
+			in[i] = in[i] + ('a' - 'A');
+		}
+	return in;
+}
+
+
 char* append(char* head, char* tail) {
     int len1 = strLen(head);
     int len2 = strLen(tail);

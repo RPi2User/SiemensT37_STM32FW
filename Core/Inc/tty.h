@@ -80,7 +80,7 @@ typedef enum {
 int* appendSymbol(int* head, int sym);
 int getBufferLength(int* head);
 int toSymbol(char c);
-
+int* toSymbols(char* ascii_chars);
 // TTY output
 
 int* TTY_WRITEBUFFER(int* buffer);
