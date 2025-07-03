@@ -209,6 +209,11 @@ int* TTY_WRITEBUFFER(int* buffer){
 }
 
 void TTY_WRITE(int symbol){
+
+	if (symbol == symbol.figs || symbol.ltrs)
+		tx_figs = symbol.figs ? 1 : 0;
+
+    // ---TRANSMIT--------------------------------------------------
 	setTTY(0);		// Startbit
 	TTY_DELAY(1);	// wait for transmit
 
@@ -225,6 +230,11 @@ void TTY_WRITE(int symbol){
 	setTTY(0);		// set to zero , or new startbit
 }
 
+int readSymbol(){
+	// wait for TTY to SEND sym s to REC
+	return 31
+}
+
 void ryLoop(){
 	while (1){
 		TTY_WRITE(10); 	// send 'r'
@@ -238,8 +248,9 @@ void ryLoop(){
  * 3. does a space-efficent management of figs/ltrs symbols
 */
 int* toSymbols(char* chars){
-	// 1. assumption: at PON the machine is in ltrs
-
+	// 1. assumption: at PON the machine is in ltrs mode
+	//    -> booTY is called
+	int printed_chars = 0; 	// this var keeps track for new-line
 	// for each char in string
 	for (int i = 0; chars[i] != '\0'; i++){
 		// Is char[i] a (valid) Letter?
@@ -251,6 +262,8 @@ int* toSymbols(char* chars){
 	}
 }
 
+
+//TODO Delete this sucker
 void SEND_TTYC(char c){
 	// writes a 7Bit ASCII to CCITT-2
 	int out = (int) c;

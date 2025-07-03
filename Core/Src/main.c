@@ -1,3 +1,4 @@
+#include "booTY.h"
 #include "main.h"
 #include "tty.h"
 #include "writeBuffer.h"
@@ -244,13 +245,9 @@ void _mode(){
 }
 
 void booTY(){
-
-	for (int i = 0; i <= 5; i++)
-		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
-	tty_symbols = appendSymbol(tty_symbols, symbol.figs);
-	tty_symbols = appendSymbol(tty_symbols, symbol.question);
-
+	tty_symbols = booTYinit(tty_symbols);
 	TTY_WRITEBUFFER(tty_symbols);
+	booTYshell();
 }
 
 void ui(){
