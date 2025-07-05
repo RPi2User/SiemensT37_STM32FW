@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include "tty.h"
 
+
+// ----------------------------------------------------------------
+// SETTINGS
+int terminal_width = 72;
+int baudrate = 50;
+int* linebreak; 
+char* network_stats; 
+// smth like: "+++10.10.0.222/24+fe80:aab1:22/64+++"
+
 // -----------------------------------------------------------------
 
 const int VALID_MODES[] = {
@@ -44,14 +53,20 @@ int* booTYinit(int* currentBuffer){
  *    - when in figs all additional figs symbols will be ignored
  *    - all illegal chars won't be echoed
  *    - duplicate ltrs (a-z) will be ignored
-
-
  */
-void booTYshell(int* currentBuffer){
-	
+int* booTYshell(int* currentBuffer){
+	// read user-string
+	currentBuffer = readCommand(symbol.question);
+	return currentBuffer;
 }
 
-int* readLine(int line_terminator){
+/* This function is part of booTY it helps the user to make a correct
+ * user input, by ignoring non-useable user input
+ *    - reads baudot "string" terminated by a terminator of choice
+ *    - helps to only allow valid mode ltrs
+ *    - automagically switches between ltrs and figs for user-comfort
+ */  
+int* readCommand(int cmd_terminator){
 
 }
 

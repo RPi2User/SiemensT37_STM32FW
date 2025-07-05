@@ -5,9 +5,11 @@
 
 // Teletype Variables
 int rx_figs = 0;    // whether or not currently in figs or ltrs mode
-int tx_figs = 0;    // ebd.
-int baud = 50;		// default Baudrate for TTYs
-int width = 72;		// terminal width
+int tx_figs = 0;    	// ebd.
+int baud = 50;			// default Baudrate for TTYs
+int width = 72;			// terminal width
+int newLineSymbols = 0; // 0 = CRLF, 1 = CR, 2 = LF, 3 = NL 
+
 
 // TTY Symbol definitions with decimal values
 const tty_symbols_t symbol = {

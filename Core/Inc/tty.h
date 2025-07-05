@@ -68,7 +68,9 @@ typedef struct {
 // Global symbol instance for easy access
 extern const tty_symbols_t symbol;
 
+
 // TTY Mode enumeration
+// maybe useless
 typedef enum {
     TTY_MODE_LETTERS = 0,
     TTY_MODE_FIGURES = 1
