@@ -154,6 +154,8 @@ void testIO(){
 	setTTY(1);
 	while(1){
 		waitForBTpress();
+		TTY_WRITE(symbol.r);
+		continue;
 		setLED_BSY(0);
 		for (int i = 0; i <= 10; i++)
 		{
@@ -161,6 +163,7 @@ void testIO(){
 			tty_symbols = appendSymbol(tty_symbols, symbol.y);
 		}
 		tty_symbols = TTY_WRITEBUFFER(tty_symbols);
+		continue;
 		waitForBTpress();
 
 		int* message = malloc(1);
@@ -180,6 +183,7 @@ void testIO(){
 		for (int i = 0; i < msg_len; i++) {
 			message = appendSymbol(message, msg[i]);
 		}
+
 		message = TTY_WRITEBUFFER(message);
 		free(message);
 
@@ -247,7 +251,7 @@ void _mode(){
 void booTY(){
 	tty_symbols = booTYinit(tty_symbols);
 	TTY_WRITEBUFFER(tty_symbols);
-	booTYshell();
+	tty_symbols = booTYshell(tty_symbols);
 }
 
 void ui(){

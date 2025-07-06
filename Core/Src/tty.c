@@ -14,10 +14,10 @@ int newLineSymbols = 0; // 0 = CRLF, 1 = CR, 2 = LF, 3 = NL
 // TTY Symbol definitions with decimal values
 const tty_symbols_t symbol = {
     // Letters (a-z) - decimal values
-    .a = 24,    // 0b11000
-    .b = 19,    // 0b10011  
+    .a = 3,    // 0b00011
+    .b = 25,    // 0b11001  
     .c = 14,    // 0b01110
-    .d = 18,    // 0b10010
+    .d = 9,    // 0b01001
     .e = 1,     // 0b00001
     .f = 13,    // 0b01101
     .g = 26,    // 0b11010
@@ -25,16 +25,16 @@ const tty_symbols_t symbol = {
     .i = 6,     // 0b00110
     .j = 11,    // 0b01011
     .k = 15,    // 0b01111
-    .l = 9,     // 0b01001
-    .m = 7,     // 0b00111
+    .l = 18,    // 0b10010
+    .m = 28,    // 0b11100
     .n = 12,    // 0b01100
-    .o = 3,     // 0b00011
+    .o = 24,    // 0b11000
     .p = 22,    // 0b10110
-    .q = 29,    // 0b11101
+    .q = 23,    // 0b10111
     .r = 10,    // 0b01010
     .s = 5,     // 0b00101
     .t = 16,    // 0b10000
-    .u = 28,    // 0b11100
+    .u = 7,     // 0b00111
     .v = 30,    // 0b11110
     .w = 19,    // 0b10011
     .x = 29,    // 0b11101
@@ -90,7 +90,7 @@ int* appendSymbol(int* head, int sym){
 	// length + Symbol + Terminator
 	int* out = (int*)malloc((length + 2) * sizeof(int));
 	if (out == NULL) {
-		// when malloc failes, return nothing
+		// malloc failed - don't free head, return NULL
 		return NULL;
 	}
 	
@@ -210,31 +210,31 @@ int* TTY_WRITEBUFFER(int* buffer){
     return out;
 }
 
-void TTY_WRITE(int symbol){
+void TTY_WRITE(int _sym){
 
-	if (symbol == symbol.figs || symbol.ltrs)
+	if (_sym == symbol.figs || symbol.ltrs)
 		tx_figs = symbol.figs ? 1 : 0;
 
     // ---TRANSMIT--------------------------------------------------
-	setTTY(0);		// Startbit
+	setTTY(1);		// Startbit
 	TTY_DELAY(1);	// wait for transmit
 
 	// send those 5 bits
 	for (int i = 0; i < 5; i++){
-		int current_bit = (symbol >> i) & 1; // take first bit
+		int current_bit = (_sym >> i) & 1; // take first bit
 		setTTY(current_bit);
 		TTY_DELAY(1); 	// wait for transmit
 	}
 
 	// stop bits
-	setTTY(1);
-	TTY_DELAY(2); 	// send two stop bits
+	setTTY(0);
+	TTY_DELAY(1); 	// send one stop bit
 	setTTY(0);		// set to zero , or new startbit
 }
 
 int readSymbol(){
 	// wait for TTY to SEND sym s to REC
-	return 31
+	return 31;
 }
 
 void ryLoop(){
@@ -258,10 +258,12 @@ int* toSymbols(char* chars){
 		// Is char[i] a (valid) Letter?
 		if (chars[i] >= 'a' && chars[i] <= 'z'){
 			// do letter appending
+		}
 		else {
 			// do symbol stuff
 		}
 	}
+	return NULL;
 }
 
 

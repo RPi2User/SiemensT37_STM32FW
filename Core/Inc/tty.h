@@ -1,6 +1,7 @@
 #ifndef TTY_H
 #define TTY_H
 
+
 // TTY Symbols Structure for easy access
 typedef struct {
     // Letters (lowercase for easy access)
@@ -65,7 +66,6 @@ typedef struct {
     const int null_char;
 } tty_symbols_t;
 
-// Global symbol instance for easy access
 extern const tty_symbols_t symbol;
 
 

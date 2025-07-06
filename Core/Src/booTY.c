@@ -1,6 +1,7 @@
 #include <stdio.h> 
 #include <stdlib.h>
 #include "tty.h"
+#include "booTY.h"
 
 
 // ----------------------------------------------------------------
@@ -14,16 +15,15 @@ char* network_stats;
 // -----------------------------------------------------------------
 
 const int VALID_MODES[] = {
-	symbol.b, symbol.w, symbol.n, symbol.period, symbol.figs
-}:
+	25, 19, 12, 28, 27
+};
 
 const int VALID_VALS[] = {
-	symbol.n0, symbol.n1, symbol.n2, symbol.n3, symbol.n4, 
-	symbol.n5, symbol.n6, symbol.n7, symbol.n8, symbol.n9
+	22, 23, 19, 1, 10, 16, 21, 7, 6, 24
 };
 
 const int VALID_LINEBREAKS[] = {
-	symbol.c, symbol.r, symbol.l, symbol.f, symbol.n
+	14, 10, 18, 13, 12
 }; // `NL` for EBCDIC compatibilty
 
 // -----------------------------------------------------------------
@@ -67,10 +67,11 @@ int* booTYshell(int* currentBuffer){
  *    - automagically switches between ltrs and figs for user-comfort
  */  
 int* readCommand(int cmd_terminator){
-
+	return NULL;
 }
 
 int readKey(){
+	return -1;
 }
 
 
