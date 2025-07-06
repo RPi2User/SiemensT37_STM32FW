@@ -150,22 +150,31 @@ void testIO(){
 	HAL_Delay(100);
 	setLED_MLOCAL(1);
 	setLED_MSERIAL(1);
-	setLED_BSY(1);
-	setTTY(1);
+
 	while(1){
-		waitForBTpress();
-		TTY_WRITE(symbol.r);
-		continue;
 		setLED_BSY(0);
+		waitForBTpress();
+		setLED_BSY(1);
 		for (int i = 0; i <= 10; i++)
 		{
 			tty_symbols = appendSymbol(tty_symbols, symbol.r);
 			tty_symbols = appendSymbol(tty_symbols, symbol.y);
 		}
 		tty_symbols = TTY_WRITEBUFFER(tty_symbols);
-		continue;
+		setLED_BSY(0);
 		waitForBTpress();
-
+		setLED_BSY(1);
+		tty_symbols = appendSymbol(tty_symbols, symbol.cr);
+		tty_symbols = appendSymbol(tty_symbols, symbol.lf);
+		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
+		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
+		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
+		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
+		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
+		tty_symbols = TTY_WRITEBUFFER(tty_symbols);
+		setLED_BSY(0);
+		waitForBTpress();
+		setLED_BSY(1);
 		int* message = malloc(1);
 		message[0] = -1;
 		const int msg[] = {
@@ -187,7 +196,6 @@ void testIO(){
 		message = TTY_WRITEBUFFER(message);
 		free(message);
 
-		setLED_BSY(1);
 	}
 
 }

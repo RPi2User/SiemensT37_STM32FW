@@ -212,7 +212,7 @@ int* TTY_WRITEBUFFER(int* buffer){
 
 void TTY_WRITE(int _sym){
 
-	if (_sym == symbol.figs || symbol.ltrs)
+	if (_sym == symbol.figs || _sym == symbol.ltrs)
 		tx_figs = symbol.figs ? 1 : 0;
 
     // ---TRANSMIT--------------------------------------------------
@@ -221,14 +221,15 @@ void TTY_WRITE(int _sym){
 
 	// send those 5 bits
 	for (int i = 0; i < 5; i++){
-		int current_bit = (_sym >> i) & 1; // take first bit
+		// take first bit and invert it...
+		int current_bit = ((_sym >> i) & 1) ^ 1;
 		setTTY(current_bit);
 		TTY_DELAY(1); 	// wait for transmit
 	}
 
 	// stop bits
 	setTTY(0);
-	TTY_DELAY(1); 	// send one stop bit
+	TTY_DELAY(9); 	// send two stop bits
 	setTTY(0);		// set to zero , or new startbit
 }
 
