@@ -9,6 +9,7 @@ int tx_figs = 0;    	// ebd.
 int baud = 50;			// default Baudrate for TTYs
 int width = 72;			// terminal width
 int newLineSymbols = 0; // 0 = CRLF, 1 = CR, 2 = LF, 3 = NL 
+int previousBit = 0;	// used for duty-cycle control
 
 
 // TTY Symbol definitions with decimal values
@@ -210,27 +211,136 @@ int* TTY_WRITEBUFFER(int* buffer){
     return out;
 }
 
+void TTY_DEBWRITE(int _sym){
+
+	setTTY(0);		// Base init, normally closed
+	HAL_Delay(200);	// Wait for tty RDY
+
+	//--------------------------------------------------------------
+	// STARTBIT
+	setTTY(1);
+	HAL_Delay(10);
+	if (_sym % 2 == 1){		// If LSB there
+		HAL_Delay(30);		// send remaining symbol
+		HAL_Delay(10);		// first quarter of LSB
+
+	}
+	setTTY(0);
+	HAL_Delay(30);	// Duty Cycle of 3/4 off, 1/4 on
+	//--------------------------------------------------------------
+
+
+
+}
+
+void DEB_BLANK(){
+	setTTY(1);
+	HAL_Delay(20);
+
+	HAL_Delay(100);
+
+	setTTY(0);
+	HAL_Delay(20);
+}
+
+
+void DEB_R(){
+	setTTY(0);
+	HAL_Delay(100);
+
+	setTTY(1);
+	HAL_Delay(20);
+
+	setTTY(0);		// Send first Bit (0)
+	HAL_Delay(20);	// wait for end of bit
+
+	setTTY(1);		// Send second bit (1)
+	HAL_Delay(20);	// Set impulse to 20ms
+
+	setTTY(0);		// Send third bit (0)
+	HAL_Delay(20);	// current bit
+
+	setTTY(1);		// Send forth bit (1)
+	HAL_Delay(10);	// Set impulse duration to 10ms
+
+	setTTY(0);
+	HAL_Delay(10);	// 10ms for rest of forth bit
+	HAL_Delay(20);	// Fifth bit
+
+	HAL_Delay(20);	// Stopp-bit
+}
+
+void DEB_CR(){
+	setTTY(0);
+	HAL_Delay(100);
+
+	setTTY(1);
+	HAL_Delay(20);
+
+	setTTY(0);		// Send first Bits (000)
+	HAL_Delay(60);	// wait for end of bits
+
+	setTTY(1);
+	HAL_Delay(10);	// wait for forth bit (1)
+
+	setTTY(0);
+	HAL_Delay(10);	// end of bit 4
+	HAL_Delay(20);	// Bit 5
+	HAL_Delay(20);	// Stopp-bit
+}
+void DEB_LF(){
+	setTTY(0);
+	HAL_Delay(100);
+
+	setTTY(1);
+	HAL_Delay(20);
+
+	setTTY(0);
+	HAL_Delay(20);
+
+	setTTY(1);
+	HAL_Delay(10);
+
+	setTTY(0);
+	HAL_Delay(90);
+
+}
+
 void TTY_WRITE(int _sym){
 
 	if (_sym == symbol.figs || _sym == symbol.ltrs)
 		tx_figs = symbol.figs ? 1 : 0;
 
     // ---TRANSMIT--------------------------------------------------
-	setTTY(1);		// Startbit
-	TTY_DELAY(1);	// wait for transmit
+	TTY_SEND(1, 1);		// STARTBIT
 
+	// LSB FIRST!
+	TTY_SEND(_sym % 2, 1);	// Send LSB
+	if ((_sym & 2) != 0) TTY_SEND(1, 1);	// Send 2nd bit
+	else TTY_SEND(0, 1);
+	if ((_sym & 4) != 0) TTY_SEND(1, 1);	// Send 3rd bit
+	else TTY_SEND(0, 1);
+	if ((_sym & 8) != 0) TTY_SEND(1, 1);	// Send 4th bit
+	else TTY_SEND(0, 1);
+	if ((_sym & 16) != 0) TTY_SEND(1, 1);	// Send 5th bit
+	else TTY_SEND(0, 1);
 	// send those 5 bits
+	/*
 	for (int i = 0; i < 5; i++){
 		// take first bit and invert it...
 		int current_bit = ((_sym >> i) & 1) ^ 1;
-		setTTY(current_bit);
-		TTY_DELAY(1); 	// wait for transmit
+		TTY_SEND(current_bit, 1);
 	}
+	*/
 
 	// stop bits
-	setTTY(0);
-	TTY_DELAY(9); 	// send two stop bits
-	setTTY(0);		// set to zero , or new startbit
+	TTY_SEND(0, 1);		// STOPBIT
+}
+
+// This function sends bit for n cycles and leaves it!
+void TTY_SEND(int bit, int cycles){
+	setTTY(bit);
+	TTY_DELAY(cycles);
 }
 
 int readSymbol(){
@@ -253,7 +363,7 @@ void ryLoop(){
 int* toSymbols(char* chars){
 	// 1. assumption: at PON the machine is in ltrs mode
 	//    -> booTY is called
-	int printed_chars = 0; 	// this var keeps track for new-line
+	//int printed_chars = 0; 	// this var keeps track for new-line
 	// for each char in string
 	for (int i = 0; chars[i] != '\0'; i++){
 		// Is char[i] a (valid) Letter?

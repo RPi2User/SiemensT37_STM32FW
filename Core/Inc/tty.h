@@ -87,8 +87,14 @@ int* toSymbols(char* ascii_chars);
 
 int* TTY_WRITEBUFFER(int* buffer);
 
+void DEB_BLANK();
+void DEB_R();
+void DEB_CR();
+void DEB_LF();
+
 void setTTY(int state);
 void SEND_TTYC(char c);
 void TTY_WRITE(int symbol);
+void TTY_SEND(int bit, int cycles);
 
 #endif // TTY_H

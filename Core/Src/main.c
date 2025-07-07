@@ -72,15 +72,15 @@ void SEND_TTY(){
 
 	// foreach ASCII-char in writeBuffer…
 	int i = 0;
-	while(*writeBuffer != '\0') {	
+	while(*writeBuffer != '\0') {
 		// 1. writeBuffer.toLower();
 		char c = writeBuffer[i];
-        if (writeBuffer[i] >= 'A' && writeBuffer[i] <= 'Z') 
+        if (writeBuffer[i] >= 'A' && writeBuffer[i] <= 'Z')
             c += 'a' - 'A'; 	// offset via the difference a-A
         writeBuffer[i] = c; 	// replace c in writeBuffer
-        
+
 		// TODO: Insert ASCII to Baudot conversion!
-		
+
 		SEND_TTYC(writeBuffer[i]);
 		i++;
 	}
@@ -150,71 +150,34 @@ void testIO(){
 	HAL_Delay(100);
 	setLED_MLOCAL(1);
 	setLED_MSERIAL(1);
-
-	while(1){
-		setLED_BSY(0);
-		waitForBTpress();
-		setLED_BSY(1);
-		for (int i = 0; i <= 10; i++)
-		{
-			tty_symbols = appendSymbol(tty_symbols, symbol.r);
-			tty_symbols = appendSymbol(tty_symbols, symbol.y);
-		}
-		tty_symbols = TTY_WRITEBUFFER(tty_symbols);
-		setLED_BSY(0);
-		waitForBTpress();
-		setLED_BSY(1);
-		tty_symbols = appendSymbol(tty_symbols, symbol.cr);
-		tty_symbols = appendSymbol(tty_symbols, symbol.lf);
-		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
-		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
-		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
-		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
-		tty_symbols = appendSymbol(tty_symbols, symbol.ltrs);
-		tty_symbols = TTY_WRITEBUFFER(tty_symbols);
-		setLED_BSY(0);
-		waitForBTpress();
-		setLED_BSY(1);
-		int* message = malloc(1);
-		message[0] = -1;
-		const int msg[] = {
-			symbol.t, symbol.h, symbol.e, symbol.space,
-			symbol.q, symbol.u, symbol.i, symbol.c, symbol.k, symbol.space,
-			symbol.b, symbol.r, symbol.o, symbol.w, symbol.n, symbol.space,
-			symbol.f, symbol.o, symbol.x, symbol.space,
-			symbol.j, symbol.u, symbol.m, symbol.p, symbol.s, symbol.space,
-			symbol.o, symbol.v, symbol.e, symbol.r, symbol.space,
-			symbol.t, symbol.h, symbol.e, symbol.space,
-			symbol.l, symbol.a, symbol.z, symbol.y, symbol.space,
-			symbol.d, symbol.o, symbol.g
-		};
-		const int msg_len = sizeof(msg) / sizeof(msg[0]);
-		for (int i = 0; i < msg_len; i++) {
-			message = appendSymbol(message, msg[i]);
-		}
-
-		message = TTY_WRITEBUFFER(message);
-		free(message);
-
-	}
-
 }
 
 void debugger(){
 	// this is a debug-entrypoint useful for debugging stuff
-	//ryLoop();
+	waitForBTpress();
+
+	DEB_BLANK();
+	for (int i = 0; i < 10; i++){
+		setTTY(1);
+		HAL_Delay(5*i);
+		setTTY(0);
+		waitForBTpress();
+	}
+	DEB_R();
+	DEB_CR();
+	DEB_LF();
 }
 
 void io(){
 	/* 1. Print 'LTRS,CRLF,?' -> CLR BSY
-	*  2. accept 'b50' (for baudrate=50) or 
+	*  2. accept 'b50' (for baudrate=50) or
 	*		'w80' for 80 Col Width or
 	*		'n' for network-stats
 	*  3. wait for 'CRLF' or 'LFCR'
 	*	-> SET BSY
 	*  4. print 'RDY'
 	*/
-	
+
 }
 
 void _mode(){
@@ -231,7 +194,7 @@ void _mode(){
 	*	- write SERIAL
 	*	- write TTY
 	*/
-	setLED_BSY(0); // SIG µC and User: "System RDY to Receive"	
+	setLED_BSY(0); // SIG µC and User: "System RDY to Receive"
 	if (mode != 0){
 		// SERIAL
 		//getSerialData();
@@ -239,10 +202,10 @@ void _mode(){
 			//getTTYData();
 		}
 		setLED_BSY(1);
-		SEND_SERIAL();	
+		SEND_SERIAL();
 	}
 	else { // LOCAL
-				
+
 		// Input section
 		//getIoTData();
 		if (strLen(writeBuffer) != 0){
@@ -250,7 +213,7 @@ void _mode(){
 			//getTTYData();
 		}
 		setLED_BSY(1);
-		SEND_TTY();		
+		SEND_TTY();
 
 	}
     return;
@@ -287,19 +250,18 @@ void init(){
     setLED_MSERIAL(0);
 
     setTTY(0);
-    testIO();
     // -------------------------------------------------------------
     // wait until bt is pressed
 
 	setLED_BSY(0);
 	// -------------------------------------------------------------
 
-	
+
     //TODO: init ESP8266 uart
 
 	// now we can do some UI-Stuff, like ask for bd-rate, esp-ip,
 	// termminal-width, etc.
-    booTY();	// Boot TTY
+    //booTY();	// Boot TTY
 }
 
 int main(void)
@@ -307,9 +269,9 @@ int main(void)
 
 	init();
     while(1){
-        manageIO();    // Like toggle LEDs, poll Button, etc.
-		debugger(); 
-        _mode();
+        //manageIO();    // Like toggle LEDs, poll Button, etc.
+		debugger();
+        //_mode();
         // do smth important, like initializing
         // 0. poll teletype
         // 1. poll RS232 Port
