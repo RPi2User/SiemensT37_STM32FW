@@ -154,16 +154,21 @@ void testIO(){
 
 void debugger(){
 	// this is a debug-entrypoint useful for debugging stuff
+
+	// This test should be used to calibrate / tune the rec magnet
+	DEB_BLANK();
+	HAL_Delay(500);
+	return;
 	waitForBTpress();
 
-	DEB_BLANK();
+
 	for (int i = 0; i < 10; i++){
 		setTTY(1);
 		HAL_Delay(5*i);
 		setTTY(0);
 		waitForBTpress();
 	}
-	DEB_R();
+
 	DEB_CR();
 	DEB_LF();
 }
@@ -278,6 +283,7 @@ int main(void)
         // 2. signalize ESP8266 for transmit
     }
     free(writeBuffer);
+    free(tty_symbols);
     return 0;
 
 }
@@ -412,10 +418,16 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOA, LED_MLOCAL_Pin|LED_MSERIAL_Pin|LED_BSY_Pin|TTY_SEND_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : LED_MLOCAL_Pin LED_MSERIAL_Pin LED_BSY_Pin TTY_SEND_Pin */
-    GPIO_InitStruct.Pin = LED_MLOCAL_Pin|LED_MSERIAL_Pin|LED_BSY_Pin|TTY_SEND_Pin;
+    GPIO_InitStruct.Pin = LED_MLOCAL_Pin|LED_MSERIAL_Pin|LED_BSY_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = TTY_SEND_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pins : TTY_RECEIVE_Pin BT_Mode_Pin */

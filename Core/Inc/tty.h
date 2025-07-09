@@ -87,14 +87,24 @@ int* toSymbols(char* ascii_chars);
 
 int* TTY_WRITEBUFFER(int* buffer);
 
+
+// Debug Features
 void DEB_BLANK();
 void DEB_R();
 void DEB_CR();
 void DEB_LF();
 
-void setTTY(int state);
+
 void SEND_TTYC(char c);
 void TTY_WRITE(int symbol);
 void TTY_SEND(int bit, int cycles);
+
+void TTY_Startbit();
+void TTY_Stopbit();
+
+void setTTY(int state);
+void setBaudrate(int baudrate);
+void setTermWidth(int termwidth);
+void setStopbits(float stopbit);
 
 #endif // TTY_H

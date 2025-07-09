@@ -21,7 +21,7 @@ char* toLower(char* in){
 	return in;
 }
 
-
+// TODO append{*} should create an correctly terminated string!
 char* append(char* head, char* tail) {
     int len1 = strLen(head);
     int len2 = strLen(tail);

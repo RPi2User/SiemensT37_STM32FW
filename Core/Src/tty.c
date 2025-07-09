@@ -6,10 +6,13 @@
 // Teletype Variables
 int rx_figs = 0;    // whether or not currently in figs or ltrs mode
 int tx_figs = 0;    	// ebd.
-int baud = 50;			// default Baudrate for TTYs
+int baud = 20;			// default Baudrate for TTYs
 int width = 72;			// terminal width
 int newLineSymbols = 0; // 0 = CRLF, 1 = CR, 2 = LF, 3 = NL 
-int previousBit = 0;	// used for duty-cycle control
+int previousBit = 0;	// used for duty-cycle control TODO DEPRECATE THIS
+
+float stopbit_cnt = 1.5;// count of stopbits.
+						// booTY need to take care of this!
 
 
 // TTY Symbol definitions with decimal values
@@ -211,36 +214,13 @@ int* TTY_WRITEBUFFER(int* buffer){
     return out;
 }
 
-void TTY_DEBWRITE(int _sym){
-
-	setTTY(0);		// Base init, normally closed
-	HAL_Delay(200);	// Wait for tty RDY
-
-	//--------------------------------------------------------------
-	// STARTBIT
-	setTTY(1);
-	HAL_Delay(10);
-	if (_sym % 2 == 1){		// If LSB there
-		HAL_Delay(30);		// send remaining symbol
-		HAL_Delay(10);		// first quarter of LSB
-
-	}
-	setTTY(0);
-	HAL_Delay(30);	// Duty Cycle of 3/4 off, 1/4 on
-	//--------------------------------------------------------------
 
 
-
-}
 
 void DEB_BLANK(){
-	setTTY(1);
-	HAL_Delay(20);
+	TTY_Startbit();
 
-	HAL_Delay(100);
-
-	setTTY(0);
-	HAL_Delay(20);
+    TTY_Stopbit(1.0);
 }
 
 
@@ -249,10 +229,10 @@ void DEB_R(){
 	HAL_Delay(100);
 
 	setTTY(1);
-	HAL_Delay(20);
+	HAL_Delay(25);
 
 	setTTY(0);		// Send first Bit (0)
-	HAL_Delay(20);	// wait for end of bit
+	HAL_Delay(15);	// wait for end of bit
 
 	setTTY(1);		// Send second bit (1)
 	HAL_Delay(20);	// Set impulse to 20ms
@@ -305,45 +285,35 @@ void DEB_LF(){
 	HAL_Delay(90);
 
 }
+void TTY_Startbit(){
+	setTTY(1);
+	HAL_Delay(1000 / baud);
+}
 
+void TTY_Stopbit(){
+	setTTY(0);
+	HAL_Delay((int)(stopbit_cnt * (1000 / baud)));
+}
 void TTY_WRITE(int _sym){
 
 	if (_sym == symbol.figs || _sym == symbol.ltrs)
 		tx_figs = symbol.figs ? 1 : 0;
 
     // ---TRANSMIT--------------------------------------------------
-	TTY_SEND(1, 1);		// STARTBIT
+	TTY_Startbit();
 
 	// LSB FIRST!
-	TTY_SEND(_sym % 2, 1);	// Send LSB
-	if ((_sym & 2) != 0) TTY_SEND(1, 1);	// Send 2nd bit
-	else TTY_SEND(0, 1);
-	if ((_sym & 4) != 0) TTY_SEND(1, 1);	// Send 3rd bit
-	else TTY_SEND(0, 1);
-	if ((_sym & 8) != 0) TTY_SEND(1, 1);	// Send 4th bit
-	else TTY_SEND(0, 1);
-	if ((_sym & 16) != 0) TTY_SEND(1, 1);	// Send 5th bit
-	else TTY_SEND(0, 1);
+    for (int i = 0; i < 5; i++) {
+        int bit = (_sym >> i) & 0x01;
+        setTTY(bit);
+        TTY_DELAY(1);
+    }
 	// send those 5 bits
-	/*
-	for (int i = 0; i < 5; i++){
-		// take first bit and invert it...
-		int current_bit = ((_sym >> i) & 1) ^ 1;
-		TTY_SEND(current_bit, 1);
-	}
-	*/
-
-	// stop bits
-	TTY_SEND(0, 1);		// STOPBIT
-}
-
-// This function sends bit for n cycles and leaves it!
-void TTY_SEND(int bit, int cycles){
-	setTTY(bit);
-	TTY_DELAY(cycles);
+	TTY_Stopbit();
 }
 
 int readSymbol(){
+	// TODO: Implement this thing
 	// wait for TTY to SEND sym s to REC
 	return 31;
 }
@@ -393,3 +363,9 @@ void setTTY(int state){			// TTY @ A3
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
 	}
 }
+
+
+// Settings Interface for booTY
+void setBaudrate(int baudrate) {baud = baudrate;}
+void setTermWidth(int termwidth) {width = termwidth;}
+void setStopbits(float stopbit) {stopbit_cnt = stopbit;}
