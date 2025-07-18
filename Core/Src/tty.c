@@ -6,12 +6,12 @@
 // Teletype Variables
 int rx_figs = 0;    // whether or not currently in figs or ltrs mode
 int tx_figs = 0;    	// ebd.
-int baud = 20;			// default Baudrate for TTYs
+int baud = 50;			// default Baudrate for TTYs
 int width = 72;			// terminal width
 int newLineSymbols = 0; // 0 = CRLF, 1 = CR, 2 = LF, 3 = NL 
 int previousBit = 0;	// used for duty-cycle control TODO DEPRECATE THIS
 
-float stopbit_cnt = 1.5;// count of stopbits.
+float stopbit_cnt = 1.0;// count of stopbits.
 						// booTY need to take care of this!
 
 
@@ -47,7 +47,7 @@ const tty_symbols_t symbol = {
     
     // Numbers (0-9) 
     .n0 = 22,   // 0b10110 (P in LTRS)
-    .n1 = 29,   // 0b11101 (Q in LTRS)
+    .n1 = 29,   // 0bltrs11101 (Q in LTRS)
     .n2 = 19,   // 0b10011 (W in LTRS)
     .n3 = 1,    // 0b00001 (E in LTRS)
     .n4 = 10,   // 0b01010 (R in LTRS)
@@ -178,6 +178,58 @@ int toSymbol(char c) {
 }
 // -----------------------------------------------------------------
 
+// Debug function prints a brown fox
+int* TTY_FOX(int* buffer){
+	buffer = appendSymbol(buffer, symbol.cr);
+	buffer = appendSymbol(buffer, symbol.lf);
+	buffer = appendSymbol(buffer, symbol.t);
+	buffer = appendSymbol(buffer, symbol.h);
+	buffer = appendSymbol(buffer, symbol.e);
+	buffer = appendSymbol(buffer, symbol.space);
+	buffer = appendSymbol(buffer, symbol.q);
+	buffer = appendSymbol(buffer, symbol.u);
+	buffer = appendSymbol(buffer, symbol.i);
+	buffer = appendSymbol(buffer, symbol.c);
+	buffer = appendSymbol(buffer, symbol.k);
+	buffer = appendSymbol(buffer, symbol.space);
+	buffer = appendSymbol(buffer, symbol.b);
+	buffer = appendSymbol(buffer, symbol.r);
+	buffer = appendSymbol(buffer, symbol.o);
+	buffer = appendSymbol(buffer, symbol.w);
+	buffer = appendSymbol(buffer, symbol.n);
+	buffer = appendSymbol(buffer, symbol.space);
+	buffer = appendSymbol(buffer, symbol.f);
+	buffer = appendSymbol(buffer, symbol.o);
+	buffer = appendSymbol(buffer, symbol.x);
+	buffer = appendSymbol(buffer, symbol.space);
+	buffer = appendSymbol(buffer, symbol.j);
+	buffer = appendSymbol(buffer, symbol.u);
+	buffer = appendSymbol(buffer, symbol.m);
+	buffer = appendSymbol(buffer, symbol.p);
+	buffer = appendSymbol(buffer, symbol.s);
+	buffer = appendSymbol(buffer, symbol.space);
+	buffer = appendSymbol(buffer, symbol.o);
+	buffer = appendSymbol(buffer, symbol.v);
+	buffer = appendSymbol(buffer, symbol.e);
+	buffer = appendSymbol(buffer, symbol.r);
+	buffer = appendSymbol(buffer, symbol.space);
+	buffer = appendSymbol(buffer, symbol.t);
+	buffer = appendSymbol(buffer, symbol.h);
+	buffer = appendSymbol(buffer, symbol.e);
+	buffer = appendSymbol(buffer, symbol.space);
+	buffer = appendSymbol(buffer, symbol.l);
+	buffer = appendSymbol(buffer, symbol.a);
+	buffer = appendSymbol(buffer, symbol.z);
+	buffer = appendSymbol(buffer, symbol.y);
+	buffer = appendSymbol(buffer, symbol.space);
+	buffer = appendSymbol(buffer, symbol.d);
+	buffer = appendSymbol(buffer, symbol.o);
+	buffer = appendSymbol(buffer, symbol.g);
+
+
+	buffer = TTY_WRITEBUFFER(buffer);
+	return buffer;
+}
 
 
 // ---TTY-FUNCTIONS-------------------------------------------------
@@ -215,76 +267,6 @@ int* TTY_WRITEBUFFER(int* buffer){
 }
 
 
-
-
-void DEB_BLANK(){
-	TTY_Startbit();
-
-    TTY_Stopbit(1.0);
-}
-
-
-void DEB_R(){
-	setTTY(0);
-	HAL_Delay(100);
-
-	setTTY(1);
-	HAL_Delay(25);
-
-	setTTY(0);		// Send first Bit (0)
-	HAL_Delay(15);	// wait for end of bit
-
-	setTTY(1);		// Send second bit (1)
-	HAL_Delay(20);	// Set impulse to 20ms
-
-	setTTY(0);		// Send third bit (0)
-	HAL_Delay(20);	// current bit
-
-	setTTY(1);		// Send forth bit (1)
-	HAL_Delay(10);	// Set impulse duration to 10ms
-
-	setTTY(0);
-	HAL_Delay(10);	// 10ms for rest of forth bit
-	HAL_Delay(20);	// Fifth bit
-
-	HAL_Delay(20);	// Stopp-bit
-}
-
-void DEB_CR(){
-	setTTY(0);
-	HAL_Delay(100);
-
-	setTTY(1);
-	HAL_Delay(20);
-
-	setTTY(0);		// Send first Bits (000)
-	HAL_Delay(60);	// wait for end of bits
-
-	setTTY(1);
-	HAL_Delay(10);	// wait for forth bit (1)
-
-	setTTY(0);
-	HAL_Delay(10);	// end of bit 4
-	HAL_Delay(20);	// Bit 5
-	HAL_Delay(20);	// Stopp-bit
-}
-void DEB_LF(){
-	setTTY(0);
-	HAL_Delay(100);
-
-	setTTY(1);
-	HAL_Delay(20);
-
-	setTTY(0);
-	HAL_Delay(20);
-
-	setTTY(1);
-	HAL_Delay(10);
-
-	setTTY(0);
-	HAL_Delay(90);
-
-}
 void TTY_Startbit(){
 	setTTY(1);
 	HAL_Delay(1000 / baud);
@@ -304,7 +286,7 @@ void TTY_WRITE(int _sym){
 
 	// LSB FIRST!
     for (int i = 0; i < 5; i++) {
-        int bit = (_sym >> i) & 0x01;
+        int bit = ((_sym >> i) & 0x01) ^ 1;
         setTTY(bit);
         TTY_DELAY(1);
     }
@@ -347,13 +329,6 @@ int* toSymbols(char* chars){
 	return NULL;
 }
 
-
-//TODO Delete this sucker
-void SEND_TTYC(char c){
-	// writes a 7Bit ASCII to CCITT-2
-	int out = (int) c;
-	TTY_WRITE(out);
-}
 
 void setTTY(int state){			// TTY @ A3
 	if (state != 0) {

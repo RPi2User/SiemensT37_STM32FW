@@ -89,13 +89,8 @@ int* TTY_WRITEBUFFER(int* buffer);
 
 
 // Debug Features
-void DEB_BLANK();
-void DEB_R();
-void DEB_CR();
-void DEB_LF();
+int* TTY_FOX(int* buffer);
 
-
-void SEND_TTYC(char c);
 void TTY_WRITE(int symbol);
 void TTY_SEND(int bit, int cycles);
 
