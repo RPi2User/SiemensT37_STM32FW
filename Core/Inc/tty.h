@@ -84,8 +84,8 @@ int toSymbol(char c);
 int* toSymbols(char* ascii_chars);
 
 // Read Section
+int TTY_READ();
 int readSymbol();
-int readTTY();
 
 // TTY Main output
 int* TTY_WRITEBUFFER(int* buffer);
@@ -107,5 +107,6 @@ void setBaudrate(int baudrate);
 void setTermWidth(int termwidth);
 void setStopbits(float stopbit);
 void setSendMode();
+void setInterrupt();
 
 #endif // TTY_H

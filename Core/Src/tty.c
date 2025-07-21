@@ -4,6 +4,8 @@
 #include "tty.h"
 
 // Teletype Variables
+int interrupt = 0;		// Interrupt flag for TTY-RECV
+int READ_TIMEOUT = 10000;// Timeout of 10000ms
 int tty_mode = 0;    // whether or not currently in figs or ltrs mode
 int baud = 50;			// default Baudrate for TTYs
 int width = 72;			// terminal width
@@ -300,9 +302,24 @@ void TTY_WRITE(int _sym){
 	TTY_Stopbit();
 }
 
+int TTY_READ(){
+	int out = -1;
+	for (int i = 0; i <= READ_TIMEOUT; i+=10){	// read until valid symbol
+		if (readTTY() != 0){	// If TTY sends Data
+			out = readSymbol();
+		}
+		HAL_Delay(10);
+	}
+
+	return out;
+}
+// This probes the pin
+int readTTY(){
+	return HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0);
+}
+
 int readSymbol() {
-	// BUG: This always defaults to 50 Baud
-	// Interrupt points after max 2ms to this code!
+	// ISSUE: This always defaults to 50 Baud
 	// LSB FIRST!
     int bit[7];
     int out = 0;
@@ -366,10 +383,6 @@ int* toSymbols(char* chars){
 	}
 	return NULL;
 }
-int readTTY(){
-	// this gives CURRENT state of pin
-	return -1;
-}
 
 void setTTY(int state){			// TTY @ A3
 	if (state != 0) {
@@ -386,3 +399,4 @@ void setBaudrate(int baudrate) {baud = baudrate;}
 void setTermWidth(int termwidth) {width = termwidth;}
 void setStopbits(float stopbit) {stopbit_cnt = stopbit;}
 void setSendMode(){send_mode = 1;}
+void setInterrupt(){interrupt = 1;}

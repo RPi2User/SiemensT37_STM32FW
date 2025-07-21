@@ -407,8 +407,8 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : TTY_RECV_Pin */
   GPIO_InitStruct.Pin = TTY_RECV_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(TTY_RECV_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : BT_MODE_Pin */
@@ -417,9 +417,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(BT_MODE_GPIO_Port, &GPIO_InitStruct);
 
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -427,14 +424,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-  if(GPIO_Pin == TTY_RECV_Pin) {
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-  } else {
-      __NOP();
-  }
-}
 /* USER CODE END 4 */
 
 /**

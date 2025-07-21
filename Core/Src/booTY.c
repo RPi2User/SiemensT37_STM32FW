@@ -73,16 +73,11 @@ int* readCommand(int cmd_terminator){
 	int _sym = -1;
 	int _term = -1;
 	do {
-		_sym = readSymbol();
-		_term = readSymbol();
+		_sym = TTY_READ();
+		_term = TTY_READ();
 		if (_term != cmd_terminator) _sym = _term;
 	} while (_term != cmd_terminator);
-	setSendMode();
-	TTY_WRITE(symbol.null);	// Gives user an ACK feedback
+	TTY_WRITE(cmd_terminator);	// Gives user correct symbol as response
 	readBuffer = appendSymbol(readBuffer, _sym);
 	return readBuffer;
-}
-
-int readKey(){
-	return -1;
 }
