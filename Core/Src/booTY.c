@@ -37,8 +37,10 @@ const int VALID_LINEBREAKS[] = {
  */
 int* booTYinit(int* currentBuffer){
 	readBuffer = (int*)malloc(1);
-	for (int i = 0; i <= 5; i++)
+	for (int i = 0; i <= 5; i++){
+		setSendMode();
 		currentBuffer = appendSymbol(currentBuffer, symbol.ltrs);
+	}
 	currentBuffer = appendSymbol(currentBuffer, symbol.figs);
 	currentBuffer = appendSymbol(currentBuffer, symbol.question);
 	currentBuffer = appendSymbol(currentBuffer, symbol.ltrs);
@@ -84,10 +86,3 @@ int* readCommand(int cmd_terminator){
 int readKey(){
 	return -1;
 }
-
-
-// prints stuff to TTY
-void fart(int symbol){
-	TTY_WRITE(symbol);
-}
-

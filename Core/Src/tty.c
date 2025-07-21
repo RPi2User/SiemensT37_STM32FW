@@ -7,9 +7,7 @@
 int tty_mode = 0;    // whether or not currently in figs or ltrs mode
 int baud = 50;			// default Baudrate for TTYs
 int width = 72;			// terminal width
-int newLineSymbols = 0; // 0 = CRLF, 1 = CR, 2 = LF, 3 = NL 
-int previousBit = 0;	// used for duty-cycle control TODO DEPRECATE THIS
-int send_mode = 0;		// used as flag for TTY_WRITE to override mode dedup
+int send_mode = 0;		// flag to send current mode again
 float stopbit_cnt = 1.0;// count of stopbits.
 						// booTY need to take care of this!
 
@@ -20,7 +18,7 @@ const tty_symbols_t symbol = {
     .a = 3,    // 0b00011
     .b = 25,    // 0b11001  
     .c = 14,    // 0b01110
-    .d = 9,    // 0b01001
+    .d = 9,     // 0b01001
     .e = 1,     // 0b00001
     .f = 13,    // 0b01101
     .g = 26,    // 0b11010
@@ -46,7 +44,7 @@ const tty_symbols_t symbol = {
     
     // Numbers (0-9) 
     .n0 = 22,   // 0b10110 (P in LTRS)
-    .n1 = 29,   // 0bltrs11101 (Q in LTRS)
+    .n1 = 29,   // 0b11101 (Q in LTRS)
     .n2 = 19,   // 0b10011 (W in LTRS)
     .n3 = 1,    // 0b00001 (E in LTRS)
     .n4 = 10,   // 0b01010 (R in LTRS)
@@ -282,6 +280,8 @@ void TTY_WRITE(int _sym){
 		tty_mode = TTY_MODE_FIGURES ?
 				TTY_MODE_FIGURES : TTY_MODE_LETTERS;
 
+	// if we want to use a "ltrs"|"figs" as audio-visual thingie
+	// then we set this self-resetting flag
 	if (send_mode != 0){
 		if (tty_mode == TTY_MODE_FIGURES) _sym = symbol.figs;
 		else _sym = symbol.ltrs;

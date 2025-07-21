@@ -104,7 +104,7 @@ void SEND(){ // TODO: this goes into _mode()…
 
 // ---INTERNAL LOGIC------------------------------------------------
 void manageIO(){
-
+	// this will also handle interrupt req from tty switch
 	// poll Button @ D10
 	if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_SET){
 		// 10ms delay for debounce, prolly main delay.
@@ -247,6 +247,7 @@ void booTY(){
 	tty_symbols = booTYinit(tty_symbols);
 	TTY_WRITEBUFFER(tty_symbols);
 	tty_symbols = booTYshell(tty_symbols);
+	TTY_WRITEBUFFER(tty_symbols);
 }
 
 void ui(){
