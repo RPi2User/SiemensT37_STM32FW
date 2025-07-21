@@ -69,8 +69,9 @@ void Error_Handler(void);
 #define LED_BSY_GPIO_Port GPIOA
 #define TTY_SEND_Pin GPIO_PIN_4
 #define TTY_SEND_GPIO_Port GPIOA
-#define TTY_RECEIVE_Pin GPIO_PIN_5
-#define TTY_RECEIVE_GPIO_Port GPIOA
+#define TTY_RECV_Pin GPIO_PIN_0
+#define TTY_RECV_GPIO_Port GPIOB
+#define TTY_RECV_EXTI_IRQn EXTI0_1_IRQn
 #define BT_MODE_Pin GPIO_PIN_11
 #define BT_MODE_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13

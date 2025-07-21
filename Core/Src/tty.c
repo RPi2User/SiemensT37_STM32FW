@@ -8,6 +8,7 @@ int tty_mode = 0;    // whether or not currently in figs or ltrs mode
 int baud = 50;			// default Baudrate for TTYs
 int width = 72;			// terminal width
 int send_mode = 0;		// flag to send current mode again
+int TTY_halfStopBit = 1;// Sets tty to 1.5 stop bits
 float stopbit_cnt = 1.0;// count of stopbits.
 						// booTY need to take care of this!
 
@@ -299,11 +300,50 @@ void TTY_WRITE(int _sym){
 	TTY_Stopbit();
 }
 
-int readSymbol(){
-	// TODO: Implement this thing
-	// wait for TTY to SEND sym s to REC
-	return 31;
+int readSymbol() {
+	// BUG: This always defaults to 50 Baud
+	// Interrupt points after max 2ms to this code!
+	// LSB FIRST!
+    int bit[7];
+    int out = 0;
+
+    int zeroCnt = 0;
+    int oneCnt = 0;
+
+    HAL_Delay(1);  // Offsets Sub-sampling by 1ms
+
+	//  0	1	2	3	4	5	6
+	// BEG	LSB	d1	d2	d3 MSB END
+
+    for (int i = 0; i < 7; i++) {
+        zeroCnt = 0;
+        oneCnt = 0;
+
+        for (int o = 0; o < 4; o++) {
+            if (readTTY() == 0) zeroCnt++;
+            else oneCnt++;
+            HAL_Delay(5);
+        }
+
+        if (oneCnt > 2) bit[i] = 1;
+        else if (zeroCnt > 2) bit[i] = 0;
+        else return -1; // read-error
+    }
+
+    if (TTY_halfStopBit != 0) HAL_Delay(10);  // Wait halfbit
+
+    // Startbit should be 1, Stopbit should be 0 else ERROR
+    if (bit[0] != 1) return -1;
+    if (bit[6] != 0) return -1;
+
+    // Append bits to out-int
+    for (int i = 1; i <= 5; i++) {
+        if (bit[i]) out |= (1 << (i - 1));
+    }
+
+    return out;
 }
+
 
 /* this function does multiple things
  * 1. Converts all ASCII-Chars into symbols
@@ -326,7 +366,10 @@ int* toSymbols(char* chars){
 	}
 	return NULL;
 }
-
+int readTTY(){
+	// this gives CURRENT state of pin
+	return -1;
+}
 
 void setTTY(int state){			// TTY @ A3
 	if (state != 0) {

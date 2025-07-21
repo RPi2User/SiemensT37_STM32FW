@@ -85,7 +85,7 @@ int* toSymbols(char* ascii_chars);
 
 // Read Section
 int readSymbol();
-
+int readTTY();
 
 // TTY Main output
 int* TTY_WRITEBUFFER(int* buffer);

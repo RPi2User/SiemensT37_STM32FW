@@ -29,7 +29,7 @@ const int VALID_LINEBREAKS[] = {
 // -----------------------------------------------------------------
 
 /* Writes Preamble to TTY
- *    - 5x ltrs (delay for TTY Hardware to settle)
+ *    - 5x cr (delay for TTY Hardware to settle)
  *    - 1x figs (for first "real" char)
  *    - 1x `?` to encourage user input
  *    - 1x ltrs to let the user in ltrs-mode
@@ -38,9 +38,9 @@ const int VALID_LINEBREAKS[] = {
 int* booTYinit(int* currentBuffer){
 	readBuffer = (int*)malloc(1);
 	for (int i = 0; i <= 5; i++){
-		setSendMode();
-		currentBuffer = appendSymbol(currentBuffer, symbol.ltrs);
+		currentBuffer = appendSymbol(currentBuffer, symbol.cr);
 	}
+	currentBuffer = appendSymbol(currentBuffer, symbol.lf);
 	currentBuffer = appendSymbol(currentBuffer, symbol.figs);
 	currentBuffer = appendSymbol(currentBuffer, symbol.question);
 	currentBuffer = appendSymbol(currentBuffer, symbol.ltrs);
