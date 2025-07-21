@@ -78,7 +78,7 @@ int* readCommand(int cmd_terminator){
 		if (_term != cmd_terminator) _sym = _term;
 	} while (_term != cmd_terminator);
 	setSendMode();
-	TTY_WRITE(symbol.null_char);	// This repeats current ltrs|figs
+	TTY_WRITE(symbol.null);	// Gives user an ACK feedback
 	readBuffer = appendSymbol(readBuffer, _sym);
 	return readBuffer;
 }

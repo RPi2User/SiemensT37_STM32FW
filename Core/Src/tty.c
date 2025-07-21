@@ -44,36 +44,35 @@ const tty_symbols_t symbol = {
     
     // Numbers (0-9) 
     .n0 = 22,   // 0b10110 (P in LTRS)
-    .n1 = 29,   // 0b11101 (Q in LTRS)
+    .n1 = 23,   // 0b10111 (Q in LTRS)
     .n2 = 19,   // 0b10011 (W in LTRS)
     .n3 = 1,    // 0b00001 (E in LTRS)
     .n4 = 10,   // 0b01010 (R in LTRS)
     .n5 = 16,   // 0b10000 (T in LTRS)
     .n6 = 21,   // 0b10101 (Y in LTRS)
-    .n7 = 28,   // 0b11100 (U in LTRS)
+    .n7 = 7,    // 0b00111 (U in LTRS)
     .n8 = 6,    // 0b00110 (I in LTRS)
-    .n9 = 3,    // 0b00011 (O in LTRS)
+    .n9 = 24,   // 0b11000 (O in LTRS)
     
     // Special characters
     .space = 4,        // 0b00100
     .cr = 8,           // 0b01000
     .lf = 2,           // 0b00010
-    .period = 7,       // 0b00111 (M in LTRS)
+    .period = 28,      // 0b11100 (M in LTRS)
     .comma = 12,       // 0b01100 (N in LTRS)
-    .minus = 24,       // 0b11000 (A in LTRS)
+    .minus = 3,        // 0b00011 (A in LTRS)
     .plus = 17,        // 0b10001 (Z in LTRS)
-    .question = 19,    // 0b10011 (B in LTRS)
-    .exclamation = 26, // 0b11010 (G in LTRS)
+    .question = 25,    // 0b11001 (B in LTRS)
     .lparen = 15,      // 0b01111 (K in LTRS)
-    .rparen = 9,       // 0b01001 (L in LTRS)
-    .slash = 30,       // 0b11110 (V in LTRS)
+    .rparen = 18,      // 0b10010 (L in LTRS)
+    .slash = 29,       // 0b11101 (V in LTRS)
     .colon = 14,       // 0b01110 (C in LTRS)
-    .quote = 13,       // 0b01101 (F in LTRS)
+    .quote = 5,        // 0b00101 (S in LTRS)
     
     // Control
-    .ltrs = 31,        // 0b11111
-    .figs = 27,        // 0b11011
-    .null_char = 0     // 0b00000
+    .ltrs = 31,   // 0b11111
+    .figs = 27,   // 0b11011
+    .null = 0     // 0b00000
 };
 
 // ---BUFFER MANIPULATION-------------------------------------------
@@ -120,7 +119,7 @@ int toSymbol(char c) {
         [0x0A] = 2,     // \n
         [0x0D] = 8,     // \r
         [0x11] = 9,     // DC1 (WhoThere?)
-        [' ']  = 4,
+        [' ']  = symbol.space,
         ['\''] = 5,
         ['(']  = 15,
         [')']  = 18,

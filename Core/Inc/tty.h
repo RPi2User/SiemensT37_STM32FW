@@ -53,7 +53,6 @@ typedef struct {
     const int minus;
     const int plus;
     const int question;
-    const int exclamation;
     const int lparen;
     const int rparen;
     const int slash;
@@ -63,7 +62,7 @@ typedef struct {
     // Control
     const int ltrs;
     const int figs;
-    const int null_char;
+    const int null;
 } tty_symbols_t;
 
 extern const tty_symbols_t symbol;

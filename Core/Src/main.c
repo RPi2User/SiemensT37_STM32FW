@@ -141,55 +141,10 @@ void waitForBTpress(){
 	}
 }
 
-void testIO(){
-	// first we set all leds to 0
-	setLED_MLOCAL(0);
-	setLED_MSERIAL(0);
-	setLED_BSY(0);
-	setTTY(0);
-	HAL_Delay(100);
-	setLED_MLOCAL(1);
-	setLED_MSERIAL(1);
-}
 
-void DEB_PULSEGEN(){
-	// This generates any multiple of 5ms pulses
-	waitForBTpress();
-	for (int i = 0; i < 10; i++){
-		setTTY(1);
-		HAL_Delay(5*i);
-		setTTY(0);
-		waitForBTpress();
-	}
-}
 
 void debugger(){
 	// this is a debug-entrypoint useful for debugging stuff
-
-	// This test should be used to calibrate / tune the rec magnet
-	tty_symbols = TTY_FOX(tty_symbols);
-	HAL_Delay(2000);
-	return;
-	TTY_WRITE(symbol.r);
-	TTY_WRITE(symbol.y);
-	return;
-
-	TTY_WRITE(16);		// symbol.t
-	HAL_Delay(500);
-	TTY_WRITE(8);		// symbol.cr
-	HAL_Delay(500);
-	TTY_WRITE(4);		// symbol.space
-	HAL_Delay(500);
-	TTY_WRITE(2);		// symbol.lf
-	HAL_Delay(500);
-	TTY_WRITE(1);		// symbol.e
-	HAL_Delay(2000);
-	return;
-	TTY_WRITE(symbol.null_char);// symbol.null_char
-	HAL_Delay(100);
-	TTY_WRITE(symbol.r);
-	HAL_Delay(2000);
-	return;
 }
 
 void io(){
@@ -200,6 +155,7 @@ void io(){
 	*  3. wait for 'CRLF' or 'LFCR'
 	*	-> SET BSY
 	*  4. print 'RDY'
+	*  -> Migrated to booTY
 	*/
 
 }
@@ -243,15 +199,13 @@ void _mode(){
     return;
 }
 
+// Pre-Boot Environment
 void booTY(){
+	setTTY(0);			// Rests TTY-Pin to known-good 0
 	tty_symbols = booTYinit(tty_symbols);
-	TTY_WRITEBUFFER(tty_symbols);
+	tty_symbols = TTY_WRITEBUFFER(tty_symbols);
 	tty_symbols = booTYshell(tty_symbols);
-	TTY_WRITEBUFFER(tty_symbols);
-}
-
-void ui(){
-
+	tty_symbols = TTY_WRITEBUFFER(tty_symbols);
 }
 
 void init(){
@@ -274,8 +228,6 @@ void init(){
     setLED_BSY(1);
     setLED_MLOCAL(0);
     setLED_MSERIAL(0);
-
-    setTTY(0);			// Rests TTY-Pin to known-good 0
 
 	// now we can do some UI-Stuff, like ask for bd-rate,
 	// esp-summary, termminal-width, etc.
