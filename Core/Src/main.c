@@ -262,6 +262,7 @@ void init(){
     MX_GPIO_Init();
     MX_USART2_UART_Init();
     MX_USART1_UART_Init();
+    //TODO: init ESP8266 uart
     // -------------------------------------------------------------
 
     // init vars
@@ -273,28 +274,30 @@ void init(){
     setLED_MLOCAL(0);
     setLED_MSERIAL(0);
 
-    setTTY(0);
-    // -------------------------------------------------------------
-    // wait until bt is pressed
+    setTTY(0);			// Rests TTY-Pin to known-good 0
 
-	setLED_BSY(0);
+	// now we can do some UI-Stuff, like ask for bd-rate,
+	// esp-summary, termminal-width, etc.
+    booTY();	// Boot TTY
+
+    setLED_BSY(0);		// When init is done, we can SIGRDY
+    // -------------------------------------------------------------
+
+
 	// -------------------------------------------------------------
 
 
-    //TODO: init ESP8266 uart
 
-	// now we can do some UI-Stuff, like ask for bd-rate, esp-ip,
-	// termminal-width, etc.
-    //booTY();	// Boot TTY
+
+
 }
 
 int main(void)
 {
 	init();
     while(1){
-        //manageIO();    // Like toggle LEDs, poll Button, etc.
-		debugger();
-        //_mode();
+        manageIO();    // Like toggle LEDs, poll Button, etc.
+        _mode();
         // do smth important, like initializing
         // 0. poll teletype
         // 1. poll RS232 Port

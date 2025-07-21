@@ -83,12 +83,16 @@ int* appendSymbol(int* head, int sym);
 int getBufferLength(int* head);
 int toSymbol(char c);
 int* toSymbols(char* ascii_chars);
-// TTY output
 
+// Read Section
+int readSymbol();
+
+
+// TTY Main output
 int* TTY_WRITEBUFFER(int* buffer);
 
 
-// Debug Features
+// Write Section
 int* TTY_FOX(int* buffer);
 
 void TTY_WRITE(int symbol);
@@ -97,9 +101,12 @@ void TTY_SEND(int bit, int cycles);
 void TTY_Startbit();
 void TTY_Stopbit();
 
+
+// Program Vars
 void setTTY(int state);
 void setBaudrate(int baudrate);
 void setTermWidth(int termwidth);
 void setStopbits(float stopbit);
+void setSendMode();
 
 #endif // TTY_H

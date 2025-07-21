@@ -11,7 +11,7 @@ int baudrate = 50;
 int* linebreak; 
 char* network_stats; 
 // smth like: "+++10.10.0.222/24+fe80:aab1:22/64+++"
-
+int* readBuffer;
 // -----------------------------------------------------------------
 
 const int VALID_MODES[] = {
@@ -36,6 +36,7 @@ const int VALID_LINEBREAKS[] = {
  *    - 1x space for visual appeal
  */
 int* booTYinit(int* currentBuffer){
+	readBuffer = (int*)malloc(1);
 	for (int i = 0; i <= 5; i++)
 		currentBuffer = appendSymbol(currentBuffer, symbol.ltrs);
 	currentBuffer = appendSymbol(currentBuffer, symbol.figs);
@@ -67,7 +68,17 @@ int* booTYshell(int* currentBuffer){
  *    - automagically switches between ltrs and figs for user-comfort
  */  
 int* readCommand(int cmd_terminator){
-	return NULL;
+	int _sym = -1;
+	int _term = -1;
+	do {
+		_sym = readSymbol();
+		_term = readSymbol();
+		if (_term != cmd_terminator) _sym = _term;
+	} while (_term != cmd_terminator);
+	setSendMode();
+	TTY_WRITE(symbol.null_char);	// This repeats current ltrs|figs
+	readBuffer = appendSymbol(readBuffer, _sym);
+	return readBuffer;
 }
 
 int readKey(){

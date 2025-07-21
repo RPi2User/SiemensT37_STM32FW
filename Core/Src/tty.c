@@ -4,13 +4,12 @@
 #include "tty.h"
 
 // Teletype Variables
-int rx_figs = 0;    // whether or not currently in figs or ltrs mode
-int tx_figs = 0;    	// ebd.
+int tty_mode = 0;    // whether or not currently in figs or ltrs mode
 int baud = 50;			// default Baudrate for TTYs
 int width = 72;			// terminal width
 int newLineSymbols = 0; // 0 = CRLF, 1 = CR, 2 = LF, 3 = NL 
 int previousBit = 0;	// used for duty-cycle control TODO DEPRECATE THIS
-
+int send_mode = 0;		// used as flag for TTY_WRITE to override mode dedup
 float stopbit_cnt = 1.0;// count of stopbits.
 						// booTY need to take care of this!
 
@@ -278,9 +277,16 @@ void TTY_Stopbit(){
 }
 void TTY_WRITE(int _sym){
 
-	if (_sym == symbol.figs || _sym == symbol.ltrs)
-		tx_figs = symbol.figs ? 1 : 0;
+	// Skip redundant ltrs/figs commands
+	if (_sym == TTY_MODE_FIGURES || _sym == TTY_MODE_LETTERS)
+		tty_mode = TTY_MODE_FIGURES ?
+				TTY_MODE_FIGURES : TTY_MODE_LETTERS;
 
+	if (send_mode != 0){
+		if (tty_mode == TTY_MODE_FIGURES) _sym = symbol.figs;
+		else _sym = symbol.ltrs;
+		send_mode = 0;			// Remove Flag
+	}
     // ---TRANSMIT--------------------------------------------------
 	TTY_Startbit();
 
@@ -298,13 +304,6 @@ int readSymbol(){
 	// TODO: Implement this thing
 	// wait for TTY to SEND sym s to REC
 	return 31;
-}
-
-void ryLoop(){
-	while (1){
-		TTY_WRITE(10); 	// send 'r'
-		TTY_WRITE(21);	// send 'y'
-	}
 }
 
 /* this function does multiple things
@@ -344,3 +343,4 @@ void setTTY(int state){			// TTY @ A3
 void setBaudrate(int baudrate) {baud = baudrate;}
 void setTermWidth(int termwidth) {width = termwidth;}
 void setStopbits(float stopbit) {stopbit_cnt = stopbit;}
+void setSendMode(){send_mode = 1;}
