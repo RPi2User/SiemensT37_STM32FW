@@ -84,8 +84,8 @@ int toSymbol(char c);
 int* toSymbols(char* ascii_chars);
 
 // Read Section
-void setREADError();
-void clearREADError();
+void setReadError();
+void clearReadError();
 int TTY_READ();
 int readTTY();
 int readSymbol();

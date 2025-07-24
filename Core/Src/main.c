@@ -59,9 +59,6 @@ void setLED_BSY(int state){		// LED @ A2
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
 	}
 }
-
-
-
 // -----------------------------------------------------------------
 
 

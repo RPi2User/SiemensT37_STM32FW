@@ -4,12 +4,13 @@
 #include "tty.h"
 
 // Teletype Variables
-int interrupt = 0;		// Interrupt flag for TTY-RECV
-int READ_TIMEOUT = 10000;// Timeout of 10000ms
-int tty_mode = 0;    // whether or not currently in figs or ltrs mode
+int tty_mode = TTY_MODE_LETTERS;
+int send_mode = 0;		// flag to send current mode again
+
 int baud = 50;			// default Baudrate for TTYs
 int width = 72;			// terminal width
-int send_mode = 0;		// flag to send current mode again
+
+int READ_TIMEOUT = 1000;// Timeout of 1000ms
 float stopbit_cnt = 1.5;// booTY will be setting this correctly
 
 typedef struct {
@@ -119,6 +120,7 @@ int getBufferLength(int* head){	// returns without Terminator!
 	}
 	return i;
 }
+
 int toSymbol(char c) {
     static const unsigned char lut[128] = {
         [0x07] = 11,    // BELL
@@ -291,7 +293,7 @@ void TTY_WRITE(int _sym){
 	// then we set this self-resetting flag
 	if (send_mode != 0){
 		if (tty_mode == TTY_MODE_FIGURES) _sym = symbol.figs;
-		else _sym = symbol.ltrs;
+		else _sym = symbol.ltrs;TTY_WRITE
 		send_mode = 0;			// Remove Flag
 	}
     // ---TRANSMIT--------------------------------------------------
@@ -307,27 +309,29 @@ void TTY_WRITE(int _sym){
 	TTY_Stopbit();
 }
 
-int TTY_READ(){
+/*	==== READ OPERATIONS ===========================================
+ *
+ * This section contains all functions regarding reading Data from
+ * the Teletype. I tried to keep this section clean but some stuff
+ * is quite necessary for a stable "API" like infrastructure.
+ *
+ *	- TTY_READ() is the main function, this reads a single Symbol
+ *				 sensitive to current LTRS | FIGS mode from the TTY
+ */
+
+char TTY_READ(){
 	int out = -1;
 	// read until valid symbol detected
 	for (int i = 0; i <= READ_TIMEOUT; i+=10){
 		if (readTTY() != 0){	// If TTY sends Data or read Error
 			out = readSymbol();
+			if (tty_mode == 1){
+
+			}
 		}
 		HAL_Delay(9);
 	}
-
 	return out;
-}
-// This probes the pin
-
-
-int majority(Databit d) {
-    return (d.s1 + d.s2 + d.s3) >= 2 ? 1 : 0;
-}
-
-int readTTY(){
-	return HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0);
 }
 
 int readSymbol() {
@@ -356,9 +360,8 @@ int readSymbol() {
 	// we use 5ms to determine whether or not a stopbit exists
 	HAL_Delay(5);	// get some air for calculations
 
-	// we can skip entire stopbit
+	// we can skip entire stopbit business, we are slow af
 	int end = readTTY();
-
 
 	// Eval Bits
 	if (beg == 0 || end != 0){
@@ -367,6 +370,8 @@ int readSymbol() {
 	}
 
     int out = 0;
+
+    // Weird bug with bit concatenation ig.
     if (majority(databit[0]) == 0) out += 1;
     if (majority(databit[1]) == 0) out += 2;
     if (majority(databit[2]) == 0) out += 4;
@@ -374,9 +379,20 @@ int readSymbol() {
     if (majority(databit[4]) == 0) out += 16;
 
     clearReadError();
+
+    // Keyboard and Printer should always be in SYNC!
+    if (out == symbol.ltrs || out == symbol.figs) TTY_WRITE(out);
     return out;
 }
 
+int majority(Databit d) {
+    return (d.s1 + d.s2 + d.s3) >= 2 ? 1 : 0;
+}
+
+// This probes the TTY_RECV Pin
+int readTTY(){
+	return HAL_GPIO_ReadPin(GPIOB, TTY_RECV_Pin);
+}
 
 /* this function does multiple things
  * 1. Converts all ASCII-Chars into symbols
