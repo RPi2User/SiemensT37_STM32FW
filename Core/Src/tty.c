@@ -10,16 +10,19 @@ int tty_mode = 0;    // whether or not currently in figs or ltrs mode
 int baud = 50;			// default Baudrate for TTYs
 int width = 72;			// terminal width
 int send_mode = 0;		// flag to send current mode again
-int TTY_halfStopBit = 1;// Sets tty to 1.5 stop bits
-float stopbit_cnt = 1.0;// count of stopbits.
-						// booTY need to take care of this!
+float stopbit_cnt = 1.5;// booTY will be setting this correctly
 
+typedef struct {
+    int s1;
+    int s2;
+    int s3;
+} Databit;
 
 // TTY Symbol definitions with decimal values
 const tty_symbols_t symbol = {
     // Letters (a-z) - decimal values
-    .a = 3,    // 0b00011
-    .b = 25,    // 0b11001  
+    .a = 3,     // 0b00011
+    .b = 25,    // 0b11001
     .c = 14,    // 0b01110
     .d = 9,     // 0b01001
     .e = 1,     // 0b00001
@@ -277,6 +280,8 @@ void TTY_Stopbit(){
 }
 void TTY_WRITE(int _sym){
 
+	if (_sym == -1) return;
+
 	// Skip redundant ltrs/figs commands
 	if (_sym == TTY_MODE_FIGURES || _sym == TTY_MODE_LETTERS)
 		tty_mode = TTY_MODE_FIGURES ?
@@ -304,60 +309,71 @@ void TTY_WRITE(int _sym){
 
 int TTY_READ(){
 	int out = -1;
-	for (int i = 0; i <= READ_TIMEOUT; i+=10){	// read until valid symbol
-		if (readTTY() != 0){	// If TTY sends Data
+	// read until valid symbol detected
+	for (int i = 0; i <= READ_TIMEOUT; i+=10){
+		if (readTTY() != 0){	// If TTY sends Data or read Error
 			out = readSymbol();
 		}
-		HAL_Delay(10);
+		HAL_Delay(9);
 	}
 
 	return out;
 }
 // This probes the pin
+
+
+int majority(Databit d) {
+    return (d.s1 + d.s2 + d.s3) >= 2 ? 1 : 0;
+}
+
 int readTTY(){
 	return HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0);
 }
 
 int readSymbol() {
-	// ISSUE: This always defaults to 50 Baud
-	// LSB FIRST!
-    int bit[7];
+	// wait for Symbol-Trigger
+	while(readTTY() == 0){
+		HAL_Delay(1);
+	}
+	// read start-bit
+	// sb is 20ms HIGH
+	HAL_Delay(9);	// Wait 10ms
+	int beg = readTTY();
+	HAL_Delay(14);	// Wait 5 + 10ms
+
+	Databit databit[5];
+	for (int i = 0; i < 5; i++){
+		databit[i].s1 = readTTY();
+		HAL_Delay(4); // 5ms Delay
+		databit[i].s2 = readTTY();
+		HAL_Delay(4); // 5ms Delay
+		databit[i].s3 = readTTY();
+		HAL_Delay(9); // 10ms delay
+	}
+
+	// END Bit low for 1.5|1 sub-symbols
+	// Should be 20-30ms
+	// we use 5ms to determine whether or not a stopbit exists
+	HAL_Delay(5);	// get some air for calculations
+
+	// we can skip entire stopbit
+	int end = readTTY();
+
+
+	// Eval Bits
+	if (beg == 0 || end != 0){
+		setReadError();
+		return -1;
+	}
+
     int out = 0;
+    if (majority(databit[0]) == 0) out += 1;
+    if (majority(databit[1]) == 0) out += 2;
+    if (majority(databit[2]) == 0) out += 4;
+    if (majority(databit[3]) == 0) out += 8;
+    if (majority(databit[4]) == 0) out += 16;
 
-    int zeroCnt = 0;
-    int oneCnt = 0;
-
-    HAL_Delay(1);  // Offsets Sub-sampling by 1ms
-
-	//  0	1	2	3	4	5	6
-	// BEG	LSB	d1	d2	d3 MSB END
-
-    for (int i = 0; i < 7; i++) {
-        zeroCnt = 0;
-        oneCnt = 0;
-
-        for (int o = 0; o < 4; o++) {
-            if (readTTY() == 0) zeroCnt++;
-            else oneCnt++;
-            HAL_Delay(5);
-        }
-
-        if (oneCnt > 2) bit[i] = 1;
-        else if (zeroCnt > 2) bit[i] = 0;
-        else return -1; // read-error
-    }
-
-    if (TTY_halfStopBit != 0) HAL_Delay(10);  // Wait halfbit
-
-    // Startbit should be 1, Stopbit should be 0 else ERROR
-    if (bit[0] != 1) return -1;
-    if (bit[6] != 0) return -1;
-
-    // Append bits to out-int
-    for (int i = 1; i <= 5; i++) {
-        if (bit[i]) out |= (1 << (i - 1));
-    }
-
+    clearReadError();
     return out;
 }
 
@@ -393,6 +409,11 @@ void setTTY(int state){			// TTY @ A3
 	}
 }
 
+void TTY_DEBUG(){
+}
+
+void setReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 1); }
+void clearReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 0); }
 
 // Settings Interface for booTY
 void setBaudrate(int baudrate) {baud = baudrate;}

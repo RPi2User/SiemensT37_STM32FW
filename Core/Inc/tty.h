@@ -84,7 +84,10 @@ int toSymbol(char c);
 int* toSymbols(char* ascii_chars);
 
 // Read Section
+void setREADError();
+void clearREADError();
 int TTY_READ();
+int readTTY();
 int readSymbol();
 
 // TTY Main output
@@ -100,6 +103,7 @@ void TTY_SEND(int bit, int cycles);
 void TTY_Startbit();
 void TTY_Stopbit();
 
+void TTY_DEBUG();
 
 // Program Vars
 void setTTY(int state);

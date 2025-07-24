@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "tty.h"
 #include "booTY.h"
+#include "main.h"
 
 
 // ----------------------------------------------------------------
@@ -37,6 +38,9 @@ const int VALID_LINEBREAKS[] = {
  */
 int* booTYinit(int* currentBuffer){
 	readBuffer = (int*)malloc(1);
+	HAL_Delay(50);
+	TTY_WRITE(symbol.null);		// some ttys need a bit more time
+	HAL_Delay(50);				// to settle
 	for (int i = 0; i <= 5; i++){
 		currentBuffer = appendSymbol(currentBuffer, symbol.cr);
 	}
@@ -60,7 +64,7 @@ int* booTYinit(int* currentBuffer){
 int* booTYshell(int* currentBuffer){
 	// read user-string
 	currentBuffer = readCommand(symbol.question);
-	return currentBuffer;
+	return currentBuffer;	// Returns additional stuff
 }
 
 /* This function is part of booTY it helps the user to make a correct

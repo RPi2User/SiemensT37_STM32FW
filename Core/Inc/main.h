@@ -69,6 +69,8 @@ void Error_Handler(void);
 #define LED_BSY_GPIO_Port GPIOA
 #define TTY_SEND_Pin GPIO_PIN_4
 #define TTY_SEND_GPIO_Port GPIOA
+#define TTY_READERR_Pin GPIO_PIN_5
+#define TTY_READERR_GPIO_Port GPIOA
 #define TTY_RECV_Pin GPIO_PIN_0
 #define TTY_RECV_GPIO_Port GPIOB
 #define TTY_RECV_EXTI_IRQn EXTI0_1_IRQn
@@ -82,7 +84,7 @@ void Error_Handler(void);
 #define VCP_RX_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
-
+void setLED_BSY();
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

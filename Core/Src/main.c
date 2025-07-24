@@ -17,6 +17,8 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
 
+
+
 // --- GOBLAL VARIABLES --------------------------------------------
 
 char* writeBuffer;  // Create empty writeBuffer
@@ -106,6 +108,7 @@ void SEND(){ // TODO: this goes into _mode()…
 void manageIO(){
 	// this will also handle interrupt req from tty switch
 	// poll Button @ D10
+	if (HAL_GPIO_ReadPin(GPIOB, TTY_RECV_Pin) == 1) return;
 	if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_SET){
 		// 10ms delay for debounce, prolly main delay.
 		HAL_Delay(10);
@@ -141,10 +144,12 @@ void waitForBTpress(){
 	}
 }
 
+void sanityCheck(){
+	// very desperate debug entry point
+}
 
-
-void debugger(){
-	// this is a debug-entrypoint useful for debugging stuff
+int debugger(){
+	return 0;
 }
 
 void io(){
@@ -233,24 +238,17 @@ void init(){
 	// esp-summary, termminal-width, etc.
     booTY();	// Boot TTY
 
-    setLED_BSY(0);		// When init is done, we can SIGRDY
     // -------------------------------------------------------------
 
-
-	// -------------------------------------------------------------
-
-
-
-
-
+    setLED_BSY(0);		// When init is done, we can SIGRDY
 }
 
 int main(void)
 {
 	init();
     while(1){
-        manageIO();    // Like toggle LEDs, poll Button, etc.
-        _mode();
+        //manageIO();    // Like toggle LEDs, poll Button, etc.
+        //_mode();
         // do smth important, like initializing
         // 0. poll teletype
         // 1. poll RS232 Port
@@ -389,10 +387,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED_MLOCAL_Pin|LED_MSERIAL_Pin|LED_BSY_Pin|TTY_SEND_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LED_MLOCAL_Pin|LED_MSERIAL_Pin|LED_BSY_Pin|TTY_SEND_Pin|TTY_READERR_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : LED_MLOCAL_Pin LED_MSERIAL_Pin LED_BSY_Pin */
-  GPIO_InitStruct.Pin = LED_MLOCAL_Pin|LED_MSERIAL_Pin|LED_BSY_Pin;
+  GPIO_InitStruct.Pin = LED_MLOCAL_Pin|LED_MSERIAL_Pin|LED_BSY_Pin|TTY_READERR_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -414,7 +412,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : BT_MODE_Pin */
   GPIO_InitStruct.Pin = BT_MODE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(BT_MODE_GPIO_Port, &GPIO_InitStruct);
 
 
