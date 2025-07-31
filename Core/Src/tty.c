@@ -319,25 +319,17 @@ void TTY_WRITE(int _sym){
  *				 sensitive to current LTRS | FIGS mode from the TTY
  */
 
-char TTY_READ(){
+char TTY_READ(){	// TODO conv this to ASCII char
 	int out = -1;
-	// read until valid symbol detected
-	for (int i = 0; i <= READ_TIMEOUT; i+=10){
-		if (readTTY() != 0){	// If TTY sends Data or read Error
-			out = readSymbol();
-			if (tty_mode == 1){
-
-			}
-		}
-		HAL_Delay(9);
-	}
+	out = readSymbol();
 	return out;
 }
 
 int readSymbol() {
 	// wait for Symbol-Trigger
-	while(readTTY() == 0){
-		HAL_Delay(1);
+	for (int i = 0; i <= READ_TIMEOUT; i+=10){
+		if (readTTY() == 0) HAL_Delay(9);
+		else break;
 	}
 	// read start-bit
 	// sb is 20ms HIGH
@@ -391,6 +383,7 @@ int majority(Databit d) {
 
 // This probes the TTY_RECV Pin
 int readTTY(){
+	// TODO in Loopback mode, this needs to directly send pin to out
 	return HAL_GPIO_ReadPin(GPIOB, TTY_RECV_Pin);
 }
 

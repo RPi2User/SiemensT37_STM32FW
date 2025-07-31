@@ -17,14 +17,14 @@ int* readBuffer;
 
 const int VALID_MODES[] = {
 	25, 19, 12, 28, 27
-};
+}; // [b]aud, [w]idth, [n]et, [.]term, figs
 
 const int VALID_VALS[] = {
 	22, 23, 19, 1, 10, 16, 21, 7, 6, 24
 };
 
 const int VALID_LINEBREAKS[] = {
-	14, 10, 18, 13, 12
+	14, 10, 18, 13, 12 //[c][r], [l][f],[n]l
 }; // `NL` for EBCDIC compatibilty
 
 // -----------------------------------------------------------------
@@ -62,7 +62,12 @@ int* booTYinit(int* currentBuffer){
  *    - duplicate ltrs (a-z) will be ignored
  */
 int* booTYshell(int* currentBuffer){
-	// read user-string
+	/* 1. Time runs out or ONE key get pressed
+	 * 2. Users are only allowed to press correct keys
+	 * 	  all others will get rejected
+	 * 3. After successful config print RDY
+	 */
+
 	currentBuffer = readCommand(symbol.question);
 	return currentBuffer;	// Returns additional stuff
 }
