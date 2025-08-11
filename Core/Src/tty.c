@@ -6,6 +6,7 @@
 // Teletype Variables
 int tty_mode = TTY_MODE_LETTERS;
 int send_mode = 0;		// flag to send current mode again
+int loopback = 0;		// This sends bit right back to TTY
 
 int baud = 50;			// default Baudrate for TTYs
 int width = 72;			// terminal width
@@ -13,11 +14,7 @@ int width = 72;			// terminal width
 int READ_TIMEOUT = 1000;// Timeout of 1000ms
 float stopbit_cnt = 1.5;// booTY will be setting this correctly
 
-typedef struct {
-    int s1;
-    int s2;
-    int s3;
-} Databit;
+
 
 // TTY Symbol definitions with decimal values
 const tty_symbols_t symbol = {
@@ -293,7 +290,7 @@ void TTY_WRITE(int _sym){
 	// then we set this self-resetting flag
 	if (send_mode != 0){
 		if (tty_mode == TTY_MODE_FIGURES) _sym = symbol.figs;
-		else _sym = symbol.ltrs;TTY_WRITE
+		else _sym = symbol.ltrs;
 		send_mode = 0;			// Remove Flag
 	}
     // ---TRANSMIT--------------------------------------------------
@@ -319,7 +316,7 @@ void TTY_WRITE(int _sym){
  *				 sensitive to current LTRS | FIGS mode from the TTY
  */
 
-char TTY_READ(){	// TODO conv this to ASCII char
+int TTY_READ(){	// TODO conv this to ASCII char
 	int out = -1;
 	out = readSymbol();
 	return out;
@@ -383,8 +380,10 @@ int majority(Databit d) {
 
 // This probes the TTY_RECV Pin
 int readTTY(){
-	// TODO in Loopback mode, this needs to directly send pin to out
-	return HAL_GPIO_ReadPin(GPIOB, TTY_RECV_Pin);
+	int out = -1;
+	out = HAL_GPIO_ReadPin(GPIOB, TTY_RECV_Pin);
+	if (loopback != 0) setTTY(out);
+	return out;
 }
 
 /* this function does multiple things
@@ -425,8 +424,8 @@ void setReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 1); }
 void clearReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 0); }
 
 // Settings Interface for booTY
+void setLoopback(int _loopback) {loopback = _loopback;}
 void setBaudrate(int baudrate) {baud = baudrate;}
 void setTermWidth(int termwidth) {width = termwidth;}
 void setStopbits(float stopbit) {stopbit_cnt = stopbit;}
 void setSendMode(){send_mode = 1;}
-void setInterrupt(){interrupt = 1;}

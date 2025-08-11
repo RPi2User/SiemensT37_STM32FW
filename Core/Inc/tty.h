@@ -1,6 +1,11 @@
 #ifndef TTY_H
 #define TTY_H
 
+typedef struct {
+    int s1;
+    int s2;
+    int s3;
+} Databit;
 
 // TTY Symbols Structure for easy access
 typedef struct {
@@ -89,6 +94,7 @@ void clearReadError();
 int TTY_READ();
 int readTTY();
 int readSymbol();
+int majority(Databit d);
 
 // TTY Main output
 int* TTY_WRITEBUFFER(int* buffer);
@@ -106,6 +112,7 @@ void TTY_Stopbit();
 void TTY_DEBUG();
 
 // Program Vars
+void setLoopback(int _loopback);
 void setTTY(int state);
 void setBaudrate(int baudrate);
 void setTermWidth(int termwidth);

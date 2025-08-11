@@ -146,6 +146,9 @@ void sanityCheck(){
 }
 
 int debugger(){
+	while(1){
+		TTY_WRITE(readSymbol());
+	}
 	return 0;
 }
 
@@ -233,7 +236,7 @@ void init(){
 
 	// now we can do some UI-Stuff, like ask for bd-rate,
 	// esp-summary, termminal-width, etc.
-    booTY();	// Boot TTY
+    //booTY();	// Boot TTY
 
     // -------------------------------------------------------------
 
