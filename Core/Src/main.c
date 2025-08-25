@@ -69,6 +69,7 @@ void setLED_BSY(int state){		// LED @ A2
 void SEND_TTY(){
 	// sends writeBuffer to tty @ A3
 
+
 	// foreach ASCII-char in writeBuffer…
 	int i = 0;
 	while(*writeBuffer != '\0') {
@@ -86,8 +87,18 @@ void SEND_TTY(){
 
 }
 
+/* void SEND_SERIAL()
+ * 	1. char* getSerialBuffer(char* buffer) {…}
+ * 	2. int readTTY(loopback=0) {…}
+ * 	3. char* sendWriteBuffer(char* writeBuffer) {…}
+ * 	4. -> 1.
+ */
+
 void SEND_SERIAL(){
 	// placeholder for future code
+
+	// booTY debug
+	booTY();
 }
 
 void SEND(){ // TODO: this goes into _mode()…
@@ -146,9 +157,16 @@ void sanityCheck(){
 }
 
 int debugger(){
+	int sym = 0;
+	setLoopback(1);
 	while(1){
-		TTY_WRITE(readSymbol());
+
+		sym = readSymbol();
+		HAL_Delay(10);
+
 	}
+	// not "unused" Variable
+	TTY_WRITE(sym);
 	return 0;
 }
 
@@ -239,7 +257,7 @@ void init(){
     //booTY();	// Boot TTY
 
     // -------------------------------------------------------------
-
+    debugger();
     setLED_BSY(0);		// When init is done, we can SIGRDY
 }
 

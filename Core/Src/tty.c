@@ -4,7 +4,7 @@
 #include "tty.h"
 
 // Teletype Variables
-int tty_mode = TTY_MODE_LETTERS;
+int tty_mode = TTY_MODE_LETTERS;    // Init to TTY-Mode LTRS
 int send_mode = 0;		// flag to send current mode again
 int loopback = 0;		// This sends bit right back to TTY
 
@@ -108,6 +108,13 @@ int* appendSymbol(int* head, int sym){
 	free(head);	// the old head can be removed
 	return out;
 }
+int* appendChar(int* head, char c){
+    int sym = toSymbol(c);
+    // need to check for line termination and term-width
+    // when "crlf" or "cr" or "lf" or "nl" always -> "cr" + "lf""
+    return appendSymbol(head, sym);
+}
+
 int getBufferLength(int* head){	// returns without Terminator!
 	if (head == NULL) return 0;  // Safety check
 	
