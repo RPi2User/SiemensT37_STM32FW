@@ -84,7 +84,7 @@ int* appendSymbol(int* head, int sym){
 	// Handle NULL head pointer
 	if (head == NULL) {
 		int* out = (int*)malloc(2);
-		if (out == NULL) return NULL;  // malloc failed
+		if (out == NULL) return NULL;  // malloc failed, 2nd Try
 		out[0] = sym;
 		out[1] = -1;
 		return out;
@@ -241,8 +241,8 @@ int* TTY_FOX(int* buffer){
 
 
 // ---TTY-FUNCTIONS-------------------------------------------------
-void TTY_DELAY(int cycles){
-	HAL_Delay(cycles * ( 1000 / baud));
+void TTY_DELAY(float cycles){
+	HAL_Delay((int)(cycles * ( 1000 / baud)));
 }
 
 int* TTY_WRITEBUFFER(int* buffer){
@@ -277,12 +277,12 @@ int* TTY_WRITEBUFFER(int* buffer){
 
 void TTY_Startbit(){
 	setTTY(1);
-	HAL_Delay(1000 / baud);
+	TTY_DELAY(1.0);
 }
 
 void TTY_Stopbit(){
 	setTTY(0);
-	HAL_Delay((int)(stopbit_cnt * (1000 / baud)));
+	TTY_DELAY(stopbit_cnt);
 }
 void TTY_WRITE(int _sym){
 
