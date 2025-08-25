@@ -184,6 +184,77 @@ int toSymbol(char c) {
         return lut[(unsigned char)c];
     return 0;
 }
+
+
+// ---char toChar()---// ---CHARACTER CONVERSION-------------------
+char toCharLTRS(int sym){
+    // Lookup table for LETTERS mode (LTRS)
+    static const char ltrs_to_char[32] = {
+        [1]  = 'e',   // E
+        [3]  = 'a',   // A
+        [5]  = 's',   // S
+        [6]  = 'i',   // I
+        [7]  = 'u',   // U
+        [9]  = 'd',   // D
+        [10] = 'r',   // R
+        [11] = 'j',   // J
+        [12] = 'n',   // N
+        [13] = 'f',   // F
+        [14] = 'c',   // C
+        [15] = 'k',   // K
+        [16] = 't',   // T
+        [17] = 'z',   // Z
+        [18] = 'l',   // L
+        [19] = 'w',   // W
+        [20] = 'h',   // H
+        [21] = 'y',   // Y
+        [22] = 'p',   // P
+        [23] = 'q',   // Q
+        [24] = 'o',   // O
+        [25] = 'b',   // B
+        [26] = 'g',   // G
+        [28] = 'm',   // M
+        [29] = 'x',   // X
+        [30] = 'v',   // V
+        // |ltrs_to_char| = 15
+    };
+    
+    if (sym < 0 || sym > 31) return '\0';
+    return ltrs_to_char[sym];
+}
+
+char toCharFIGS(int sym){
+    // Lookup table for FIGURES mode (FIGS)
+    static const char figs_to_char[32] = {
+        [1]  = '3',   // 3 (E in LTRS)
+        [3]  = '-',   // - (A in LTRS)
+        [5]  = '\'',  // ' (S in LTRS)
+        [6]  = '8',   // 8 (I in LTRS)
+        [7]  = '7',   // 7 (U in LTRS)
+        [9]  = '\0',  // WRU/ENQ (D in LTRS)
+        [10] = '4',   // 4 (R in LTRS)
+        [11] = '\a',  // BELL (J in LTRS)
+        [12] = ',',   // , (N in LTRS)
+        [14] = ':',   // : (C in LTRS)
+        [15] = '(',   // ( (K in LTRS)
+        [16] = '5',   // 5 (T in LTRS)
+        [17] = '+',   // + (Z in LTRS)
+        [18] = ')',   // ) (L in LTRS)
+        [19] = '2',   // 2 (W in LTRS)
+        [21] = '6',   // 6 (Y in LTRS)
+        [22] = '0',   // 0 (P in LTRS)
+        [23] = '1',   // 1 (Q in LTRS)
+        [24] = '9',   // 9 (O in LTRS)
+        [25] = '?',   // ? (B in LTRS)
+        [28] = '.',   // . (M in LTRS)
+        [29] = '/',   // / (X in LTRS)
+        [30] = '=',   // = (V in LTRS)
+    }; // |figs_to_char| = 22
+    
+    if (sym < 0 || sym > 31) return '\0';
+    return figs_to_char[sym];
+}
+
 // -----------------------------------------------------------------
 
 // Debug function prints a brown fox
@@ -246,16 +317,6 @@ void TTY_DELAY(float cycles){
 }
 
 int* TTY_WRITEBUFFER(int* buffer){
-    // Safety check for NULL pointer
-    if (buffer == NULL) {
-        // Return empty buffer
-        int* out = (int*)malloc(sizeof(int));
-        if (out == NULL) {
-            return NULL;  // malloc failed
-        }
-        out[0] = -1;
-        return out;
-    }
     
     // Write all symbols in buffer
     for (int i = 0; buffer[i] != -1; i++) {
@@ -323,11 +384,33 @@ void TTY_WRITE(int _sym){
  *				 sensitive to current LTRS | FIGS mode from the TTY
  */
 
-int TTY_READ(){	// TODO conv this to ASCII char
-	int out = -1;
-	out = readSymbol();
-	return out;
+char TTY_READ(){
+	int sym0 = readSymbol();
+
+    // Common Symbols
+    switch(sym0){
+	    case -1: return '\0';break; // NULL if ERR
+        case 0: return '\0'; break; // NULL is ignored
+        case 2: return '\n'; break; // NewLine if LineFeed
+        case 4: return ' ';  break; // ' ' if SPACE
+        case 27: {
+            if (tty_mode == TTY_MODE_FIGURES)
+                return '\0'; // Can be DC2-4 in future
+        } break;
+        case 31: {
+            if (tty_mode == TTY_MODE_LETTERS)
+                return '\0'; // Can be DC2-4 in future
+        } break;
+    }
+
+    if (tty_mode == TTY_MODE_FIGURES){
+        return toCharFIGS(sym0);
+    }
+    else {  // TTY_MODE_LETTERS
+        return toCharLTRS(sym0);
+    }
 }
+
 
 int readSymbol() {
 	// wait for Symbol-Trigger
@@ -393,28 +476,6 @@ int readTTY(){
 	return out;
 }
 
-/* this function does multiple things
- * 1. Converts all ASCII-Chars into symbols
- * 2. is sensitive to terminal_width so it appends cr/lf
- * 3. does a space-efficent management of figs/ltrs symbols
-*/
-int* toSymbols(char* chars){
-	// 1. assumption: at PON the machine is in ltrs mode
-	//    -> booTY is called
-	//int printed_chars = 0; 	// this var keeps track for new-line
-	// for each char in string
-	for (int i = 0; chars[i] != '\0'; i++){
-		// Is char[i] a (valid) Letter?
-		if (chars[i] >= 'a' && chars[i] <= 'z'){
-			// do letter appending
-		}
-		else {
-			// do symbol stuff
-		}
-	}
-	return NULL;
-}
-
 void setTTY(int state){			// TTY @ A3
 	if (state != 0) {
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
@@ -436,3 +497,4 @@ void setBaudrate(int baudrate) {baud = baudrate;}
 void setTermWidth(int termwidth) {width = termwidth;}
 void setStopbits(float stopbit) {stopbit_cnt = stopbit;}
 void setSendMode(){send_mode = 1;}
+// TODO add Lower/Uppercase "switch"

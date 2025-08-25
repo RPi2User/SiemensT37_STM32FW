@@ -91,7 +91,8 @@ int* toSymbols(char* ascii_chars);
 // Read Section
 void setReadError();
 void clearReadError();
-int TTY_READ();
+char TTY_READ();
+int TTY_READsym();
 int readTTY();
 int readSymbol();
 int majority(Databit d);
