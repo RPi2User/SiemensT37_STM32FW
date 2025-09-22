@@ -162,7 +162,7 @@ int debugger(){
 	while(1){
 
 		sym = readSymbol();
-		HAL_Delay(10);
+		//HAL_Delay(10);
 
 	}
 	// not "unused" Variable

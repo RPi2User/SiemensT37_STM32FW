@@ -186,7 +186,18 @@ int toSymbol(char c) {
 }
 
 
-// ---char toChar()---// ---CHARACTER CONVERSION-------------------
+// ---char toChar()---
+char toChar(int symbol){
+	// This is the main converter
+	if (tty_mode == TTY_MODE_LETTERS){
+		return toCharLTRS(symbol);
+	}
+	else {
+		return toCharFIGS(symbol);
+	}
+}
+
+// ---CHARACTER CONVERSION-------------------
 char toCharLTRS(int sym){
     // Lookup table for LETTERS mode (LTRS)
     static const char ltrs_to_char[32] = {
@@ -403,26 +414,24 @@ char TTY_READ(){
         } break;
     }
 
-    if (tty_mode == TTY_MODE_FIGURES){
-        return toCharFIGS(sym0);
-    }
-    else {  // TTY_MODE_LETTERS
-        return toCharLTRS(sym0);
-    }
+    return toChar(sym0);
+
 }
 
 
 int readSymbol() {
 	// wait for Symbol-Trigger
-	for (int i = 0; i <= READ_TIMEOUT; i+=10){
-		if (readTTY() == 0) HAL_Delay(9);
+	for (int i = 0; i <= READ_TIMEOUT; i+=2){
+		if (readTTY() == 0) HAL_Delay(2);
 		else break;
 	}
 	// read start-bit
-	// sb is 20ms HIGH
+	// pattern: 20ms startbit, 5x20ms Databit, 1.n stopbits
+	// STARTBIT is 20ms HIGH
 	HAL_Delay(9);	// Wait 10ms
 	int beg = readTTY();
 	HAL_Delay(14);	// Wait 5 + 10ms
+	// NOTE: the additional delay (above) is the SAMPLING OFFSET!
 
 	Databit databit[5];
 	for (int i = 0; i < 5; i++){
@@ -440,6 +449,13 @@ int readSymbol() {
 	HAL_Delay(5);	// get some air for calculations
 
 	// we can skip entire stopbit business, we are slow af
+	// --- BUG? ---
+	// well that might not aged that well…
+	// Loopback: after an ltrs, an additional ltrs got detected/send.
+	// Assumption: all calculations should be done after 2ms.
+	// Solution: just before we return the value we wait the entire
+	//           Stopbit / "Pausenschritt" as Siemens calls it :3
+
 	int end = readTTY();
 
 	// Eval Bits
@@ -459,8 +475,7 @@ int readSymbol() {
 
     clearReadError();
 
-    // Keyboard and Printer should always be in SYNC!
-    if (out == symbol.ltrs || out == symbol.figs) TTY_WRITE(out);
+    HAL_Delay(10);	// Stobbit should be <20ms
     return out;
 }
 

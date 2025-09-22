@@ -88,6 +88,11 @@ int getBufferLength(int* head);
 int toSymbol(char c);
 int* toSymbols(char* ascii_chars);
 
+// String stuff
+char toChar(int symbol);
+char toCharLTRS(int sym);
+char toCharFIGS(int sym);
+
 // Read Section
 void setReadError();
 void clearReadError();
