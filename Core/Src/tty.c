@@ -464,6 +464,8 @@ int readSymbol() {
 		return -1;
 	}
 
+	// BUG: Dauerfeuer von y funktioniert, r's werden immernoch falsch erkannt!
+
     int out = 0;
 
     // Weird bug with bit concatenation ig.
