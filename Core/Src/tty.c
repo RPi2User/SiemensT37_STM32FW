@@ -3,6 +3,12 @@
 #include "main.h"
 #include "tty.h"
 
+char FOX[] = {'\r', '\n', 't', 'h', 'e', ' ', 'q', 'u', 'i', 'c', 'k',
+			' ', 'b', 'r', 'o', 'w', 'n', ' ', 'f', 'o', 'x', ' ',
+			'j', 'u', 'm', 'p', 's', ' ', 'o', 'v', 'e', 'r', ' ',
+			't', 'h', 'e', ' ', 'l', 'a', 'z', 'y', ' ', 'd', 'o',
+			'g', '\0'};
+
 // Teletype Variables
 int tty_mode = TTY_MODE_LETTERS;    // Init to TTY-Mode LTRS
 int send_mode = 0;		// flag to send current mode again
@@ -13,7 +19,6 @@ int width = 72;			// terminal width
 
 int READ_TIMEOUT = 1000;// Timeout of 1000ms
 float stopbit_cnt = 1.5;// booTY will be setting this correctly
-
 
 
 // TTY Symbol definitions with decimal values
@@ -110,6 +115,13 @@ int* appendSymbol(int* head, int sym){
 }
 int* appendChar(int* head, char c){
     int sym = toSymbol(c);
+
+    // if line width is reached:
+    if (getBufferLength(head) < width){
+    	head = appendSymbol(head, symbol.cr);
+    	head = appendSymbol(head, symbol.lf);
+    }
+
     // need to check for line termination and term-width
     // when "crlf" or "cr" or "lf" or "nl" always -> "cr" + "lf""
     return appendSymbol(head, sym);
@@ -186,9 +198,9 @@ int toSymbol(char c) {
 }
 
 
-// ---char toChar()---
+// ---CHARACTER CONVERSION-------------------
 char toChar(int symbol){
-	// This is the main converter
+
 	if (tty_mode == TTY_MODE_LETTERS){
 		return toCharLTRS(symbol);
 	}
@@ -197,7 +209,6 @@ char toChar(int symbol){
 	}
 }
 
-// ---CHARACTER CONVERSION-------------------
 char toCharLTRS(int sym){
     // Lookup table for LETTERS mode (LTRS)
     static const char ltrs_to_char[32] = {
@@ -270,54 +281,9 @@ char toCharFIGS(int sym){
 
 // Debug function prints a brown fox
 int* TTY_FOX(int* buffer){
-	buffer = appendSymbol(buffer, symbol.cr);
-	buffer = appendSymbol(buffer, symbol.lf);
-	buffer = appendSymbol(buffer, symbol.t);
-	buffer = appendSymbol(buffer, symbol.h);
-	buffer = appendSymbol(buffer, symbol.e);
-	buffer = appendSymbol(buffer, symbol.space);
-	buffer = appendSymbol(buffer, symbol.q);
-	buffer = appendSymbol(buffer, symbol.u);
-	buffer = appendSymbol(buffer, symbol.i);
-	buffer = appendSymbol(buffer, symbol.c);
-	buffer = appendSymbol(buffer, symbol.k);
-	buffer = appendSymbol(buffer, symbol.space);
-	buffer = appendSymbol(buffer, symbol.b);
-	buffer = appendSymbol(buffer, symbol.r);
-	buffer = appendSymbol(buffer, symbol.o);
-	buffer = appendSymbol(buffer, symbol.w);
-	buffer = appendSymbol(buffer, symbol.n);
-	buffer = appendSymbol(buffer, symbol.space);
-	buffer = appendSymbol(buffer, symbol.f);
-	buffer = appendSymbol(buffer, symbol.o);
-	buffer = appendSymbol(buffer, symbol.x);
-	buffer = appendSymbol(buffer, symbol.space);
-	buffer = appendSymbol(buffer, symbol.j);
-	buffer = appendSymbol(buffer, symbol.u);
-	buffer = appendSymbol(buffer, symbol.m);
-	buffer = appendSymbol(buffer, symbol.p);
-	buffer = appendSymbol(buffer, symbol.s);
-	buffer = appendSymbol(buffer, symbol.space);
-	buffer = appendSymbol(buffer, symbol.o);
-	buffer = appendSymbol(buffer, symbol.v);
-	buffer = appendSymbol(buffer, symbol.e);
-	buffer = appendSymbol(buffer, symbol.r);
-	buffer = appendSymbol(buffer, symbol.space);
-	buffer = appendSymbol(buffer, symbol.t);
-	buffer = appendSymbol(buffer, symbol.h);
-	buffer = appendSymbol(buffer, symbol.e);
-	buffer = appendSymbol(buffer, symbol.space);
-	buffer = appendSymbol(buffer, symbol.l);
-	buffer = appendSymbol(buffer, symbol.a);
-	buffer = appendSymbol(buffer, symbol.z);
-	buffer = appendSymbol(buffer, symbol.y);
-	buffer = appendSymbol(buffer, symbol.space);
-	buffer = appendSymbol(buffer, symbol.d);
-	buffer = appendSymbol(buffer, symbol.o);
-	buffer = appendSymbol(buffer, symbol.g);
-
-
-	buffer = TTY_WRITEBUFFER(buffer);
+	for (int i = 0; i < 45; i++){
+		buffer = appendChar(buffer, FOX[i]);
+	}
 	return buffer;
 }
 

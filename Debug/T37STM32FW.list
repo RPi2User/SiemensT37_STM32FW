@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000028  00000000  00000000  00004060  2**0
                   CONTENTS, READONLY
- 12 .debug_info   000082b5  00000000  00000000  00004088  2**0
+ 12 .debug_info   000082ee  00000000  00000000  00004088  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 000018b5  00000000  00000000  0000c33d  2**0
+ 13 .debug_abbrev 000018c8  00000000  00000000  0000c376  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00000790  00000000  00000000  0000dbf8  2**3
+ 14 .debug_aranges 00000790  00000000  00000000  0000dc40  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 000005c5  00000000  00000000  0000e388  2**0
+ 15 .debug_rnglists 000005c4  00000000  00000000  0000e3d0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00001bd9  00000000  00000000  0000e94d  2**0
+ 16 .debug_macro  00001bd9  00000000  00000000  0000e994  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00009658  00000000  00000000  00010526  2**0
+ 17 .debug_line   0000957d  00000000  00000000  0001056d  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000899a5  00000000  00000000  00019b7e  2**0
+ 18 .debug_str    000899a5  00000000  00000000  00019aea  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  000a3523  2**0
+ 19 .comment      00000043  00000000  00000000  000a348f  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00001c90  00000000  00000000  000a3568  2**2
+ 20 .debug_frame  00001c90  00000000  00000000  000a34d4  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000059  00000000  00000000  000a51f8  2**0
+ 21 .debug_line_str 00000059  00000000  00000000  000a5164  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1519,6 +1519,8 @@ int readSymbol() {
  80008b8:	425b      	negs	r3, r3
  80008ba:	e03e      	b.n	800093a <readSymbol+0x146>
 	}
+
+	// BUG: Dauerfeuer von y funktioniert, r's werden immernoch falsch erkannt!
 
     int out = 0;
  80008bc:	2300      	movs	r3, #0
