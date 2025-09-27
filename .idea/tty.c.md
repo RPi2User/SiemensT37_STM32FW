@@ -4,6 +4,7 @@
 
 - `char* TTY_WriteCharBuffer(char* buffer)`
   - This returns an empty string if everything is sent correct
+  - This is used to ensure memory safety
 - `int* TTY_WRITEBUFFER(int* buffer)`
 - `char TTYreadChar()`
   - This returns the current char or `0x00` if timeout
@@ -41,11 +42,6 @@
 - void TTY_DELAY(int cycles)
 - void TTY_Startbit()
 - void TTY_Stopbit()
-
-## Hardware Interface Functions
-
-- setTTY
-- readTTY
 
 ## Utility Functions
 
