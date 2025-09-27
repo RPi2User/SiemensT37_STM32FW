@@ -3,12 +3,7 @@
 #include "main.h"
 #include "tty.h"
 
-char FOX[] = {'\r', '\n', 't', 'h', 'e', ' ', 'q', 'u', 'i', 'c', 'k',
-			' ', 'b', 'r', 'o', 'w', 'n', ' ', 'f', 'o', 'x', ' ',
-			'j', 'u', 'm', 'p', 's', ' ', 'o', 'v', 'e', 'r', ' ',
-			't', 'h', 'e', ' ', 'l', 'a', 'z', 'y', ' ', 'd', 'o',
-			'g', '\0'};
-
+// --- DATA BLOCKS -------------------------------------------------
 // Teletype Variables
 int tty_mode = TTY_MODE_LETTERS;    // Init to TTY-Mode LTRS
 int send_mode = 0;		// flag to send current mode again
@@ -20,6 +15,11 @@ int width = 72;			// terminal width
 int READ_TIMEOUT = 1000;// Timeout of 1000ms
 float stopbit_cnt = 1.5;// booTY will be setting this correctly
 
+char FOX[] = {'\r', '\n', 't', 'h', 'e', ' ', 'q', 'u', 'i', 'c', 'k',
+			' ', 'b', 'r', 'o', 'w', 'n', ' ', 'f', 'o', 'x', ' ',
+			'j', 'u', 'm', 'p', 's', ' ', 'o', 'v', 'e', 'r', ' ',
+			't', 'h', 'e', ' ', 'l', 'a', 'z', 'y', ' ', 'd', 'o',
+			'g', '\0'};
 
 // TTY Symbol definitions with decimal values
 const tty_symbols_t symbol = {
@@ -84,131 +84,6 @@ const tty_symbols_t symbol = {
     .null = 0     // 0b00000
 };
 
-// ---BUFFER MANIPULATION-------------------------------------------
-int* appendSymbol(int* head, int sym){
-	// Handle NULL head pointer
-	if (head == NULL) {
-		int* out = (int*)malloc(2);
-		if (out == NULL) return NULL;  // malloc failed, 2nd Try
-		out[0] = sym;
-		out[1] = -1;
-		return out;
-	}
-	
-	int length = getBufferLength(head);
-	// length + Symbol + Terminator
-	int* out = (int*)malloc((length + 2) * sizeof(int));
-	if (out == NULL) {
-		// malloc failed - don't free head, return NULL
-		return NULL;
-	}
-	
-	// Copy existing elements...
-	for (int i = 0; i < length; i++) {
-		out[i] = head[i];
-	}
-	out[length] = sym;        // Add symbol at correct position
-	out[length + 1] = -1;     // Add terminator
-
-	free(head);	// the old head can be removed
-	return out;
-}
-int* appendChar(int* head, char c){
-    int sym = toSymbol(c);
-
-    // if line width is reached:
-    if (getBufferLength(head) < width){
-    	head = appendSymbol(head, symbol.cr);
-    	head = appendSymbol(head, symbol.lf);
-    }
-
-    // need to check for line termination and term-width
-    // when "crlf" or "cr" or "lf" or "nl" always -> "cr" + "lf""
-    return appendSymbol(head, sym);
-}
-
-int getBufferLength(int* head){	// returns without Terminator!
-	if (head == NULL) return 0;  // Safety check
-	
-	int i = 0;
-	while (head[i] != -1){
-		i++;
-	}
-	return i;
-}
-
-int toSymbol(char c) {
-    static const unsigned char lut[128] = {
-        [0x07] = 11,    // BELL
-        [0x0A] = 2,     // \n
-        [0x0D] = 8,     // \r
-        [0x11] = 9,     // DC1 (WhoThere?)
-        [' ']  = symbol.space,
-        ['\''] = 5,
-        ['(']  = 15,
-        [')']  = 18,
-        [',']  = 12,
-        ['-']  = 3,
-        ['.']  = 28,
-        ['/']  = 29,
-        ['0']  = 22,
-        ['1']  = 23,
-        ['2']  = 19,
-        ['3']  = 1,
-        ['4']  = 10,
-        ['5']  = 16,
-        ['6']  = 21,
-        ['7']  = 7,
-        ['8']  = 6,
-        ['9']  = 24,
-        [':']  = 14,
-        ['=']  = 30,
-        ['?']  = 25,
-        ['A']  = 3,  ['a'] = 3,
-        ['B']  = 25, ['b'] = 25,
-        ['C']  = 14, ['c'] = 14,
-        ['D']  = 9,  ['d'] = 9,
-        ['E']  = 1,  ['e'] = 1,
-        ['F']  = 13, ['f'] = 13,
-        ['G']  = 26, ['g'] = 26,
-        ['H']  = 20, ['h'] = 20,
-        ['I']  = 6,  ['i'] = 6,
-        ['J']  = 11, ['j'] = 11,
-        ['K']  = 15, ['k'] = 15,
-        ['L']  = 18, ['l'] = 18,
-        ['M']  = 28, ['m'] = 28,
-        ['N']  = 12, ['n'] = 12,
-        ['O']  = 24, ['o'] = 24,
-        ['P']  = 22, ['p'] = 22,
-        ['Q']  = 23, ['q'] = 23,
-        ['R']  = 10, ['r'] = 10,
-        ['S']  = 5,  ['s'] = 5,
-        ['T']  = 16, ['t'] = 16,
-        ['U']  = 7,  ['u'] = 7,
-        ['V']  = 30, ['v'] = 30,
-        ['W']  = 19, ['w'] = 19,
-        ['X']  = 29, ['x'] = 29,
-        ['Y']  = 21, ['y'] = 21,
-        ['Z']  = 17, ['z'] = 17,
-        ['+']  = 17,
-    };
-    if ((unsigned char)c < 128)
-        return lut[(unsigned char)c];
-    return 0;
-}
-
-
-// ---CHARACTER CONVERSION-------------------
-char toChar(int symbol){
-
-	if (tty_mode == TTY_MODE_LETTERS){
-		return toCharLTRS(symbol);
-	}
-	else {
-		return toCharFIGS(symbol);
-	}
-}
-
 char toCharLTRS(int sym){
     // Lookup table for LETTERS mode (LTRS)
     static const char ltrs_to_char[32] = {
@@ -272,9 +147,134 @@ char toCharFIGS(int sym){
         [29] = '/',   // / (X in LTRS)
         [30] = '=',   // = (V in LTRS)
     }; // |figs_to_char| = 22
-    
+
     if (sym < 0 || sym > 31) return '\0';
     return figs_to_char[sym];
+}
+
+int toSymbol(char c) {
+    static const unsigned char lut[128] = {
+        [0x07] = 11,    // BELL
+        [0x0A] = 2,     // \n
+        [0x0D] = 8,     // \r
+        [0x11] = 9,     // DC1 (WhoThere?)
+        [' ']  = symbol.space,
+        ['\''] = 5,
+        ['(']  = 15,
+        [')']  = 18,
+        [',']  = 12,
+        ['-']  = 3,
+        ['.']  = 28,
+        ['/']  = 29,
+        ['0']  = 22,
+        ['1']  = 23,
+        ['2']  = 19,
+        ['3']  = 1,
+        ['4']  = 10,
+        ['5']  = 16,
+        ['6']  = 21,
+        ['7']  = 7,
+        ['8']  = 6,
+        ['9']  = 24,
+        [':']  = 14,
+        ['=']  = 30,
+        ['?']  = 25,
+        ['A']  = 3,  ['a'] = 3,
+        ['B']  = 25, ['b'] = 25,
+        ['C']  = 14, ['c'] = 14,
+        ['D']  = 9,  ['d'] = 9,
+        ['E']  = 1,  ['e'] = 1,
+        ['F']  = 13, ['f'] = 13,
+        ['G']  = 26, ['g'] = 26,
+        ['H']  = 20, ['h'] = 20,
+        ['I']  = 6,  ['i'] = 6,
+        ['J']  = 11, ['j'] = 11,
+        ['K']  = 15, ['k'] = 15,
+        ['L']  = 18, ['l'] = 18,
+        ['M']  = 28, ['m'] = 28,
+        ['N']  = 12, ['n'] = 12,
+        ['O']  = 24, ['o'] = 24,
+        ['P']  = 22, ['p'] = 22,
+        ['Q']  = 23, ['q'] = 23,
+        ['R']  = 10, ['r'] = 10,
+        ['S']  = 5,  ['s'] = 5,
+        ['T']  = 16, ['t'] = 16,
+        ['U']  = 7,  ['u'] = 7,
+        ['V']  = 30, ['v'] = 30,
+        ['W']  = 19, ['w'] = 19,
+        ['X']  = 29, ['x'] = 29,
+        ['Y']  = 21, ['y'] = 21,
+        ['Z']  = 17, ['z'] = 17,
+        ['+']  = 17,
+    };
+    if ((unsigned char)c < 128)
+        return lut[(unsigned char)c];
+    return 0;
+}
+
+// ---CHARACTER CONVERSION-------------------
+char toChar(int symbol){
+    // TODO: Common symbols conversion!
+	if (tty_mode == TTY_MODE_LETTERS){
+		return toCharLTRS(symbol);
+	}
+	else {
+		return toCharFIGS(symbol);
+	}
+}
+
+// ---BUFFER MANIPULATION-------------------------------------------
+int* appendSymbol(int* head, int sym){
+	// Handle NULL head pointer
+	if (head == NULL) {
+		int* out = (int*)malloc(2);
+		if (out == NULL) return NULL;  // malloc failed, 2nd Try
+		out[0] = sym;
+		out[1] = -1;
+		return out;
+	}
+	
+	int length = getBufferLength(head);
+	// length + Symbol + Terminator
+	int* out = (int*)malloc((length + 2) * sizeof(int));
+	if (out == NULL) {
+		// malloc failed - don't free head, return NULL
+		return NULL;
+	}
+	
+	// Copy existing elements...
+	for (int i = 0; i < length; i++) {
+		out[i] = head[i];
+	}
+	out[length] = sym;        // Add symbol at correct position
+	out[length + 1] = -1;     // Add terminator
+
+	free(head);	// the old head can be removed
+	return out;
+}
+
+int* appendChar(int* head, char c){
+    int sym = toSymbol(c);
+
+    // if line width is reached:
+    if (getBufferLength(head) < width){
+    	head = appendSymbol(head, symbol.cr);
+    	head = appendSymbol(head, symbol.lf);
+    }
+
+    // need to check for line termination and term-width
+    // when "crlf" or "cr" or "lf" or "nl" always -> "cr" + "lf""
+    return appendSymbol(head, sym);
+}
+
+int getBufferLength(int* head){	// returns without Terminator!
+	if (head == NULL) return 0;  // Safety check
+	
+	int i = 0;
+	while (head[i] != -1){
+		i++;
+	}
+	return i;
 }
 
 // -----------------------------------------------------------------
