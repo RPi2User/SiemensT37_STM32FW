@@ -89,7 +89,7 @@ int toSymbol(char c);
 int* toSymbols(char* ascii_chars);
 
 // String stuff
-char toChar(int symbol);
+char toChar(int _symbol);
 char toCharLTRS(int sym);
 char toCharFIGS(int sym);
 
@@ -97,23 +97,29 @@ char toCharFIGS(int sym);
 void setReadError();
 void clearReadError();
 char TTY_READ();
+char TTY_READKEY();
 int TTY_READsym();
 int readTTY();
 int readSymbol();
 int majority(Databit d);
 
 // TTY Main output
+void TTY_WRITEKEY(char key);
+void TTY_WRITESTRING(char* str);
 int* TTY_WRITEBUFFER(int* buffer);
 
 
 // Write Section
-int* TTY_FOX(int* buffer);
+void TTY_FOX(void);
 
 void TTY_WRITE(int symbol);
 void TTY_SEND(int bit, int cycles);
 
 void TTY_Startbit();
 void TTY_Stopbit();
+void TTY_DELAY(float cycles);
+
+void TTY_raiseMemoryError(void);
 
 void TTY_DEBUG();
 

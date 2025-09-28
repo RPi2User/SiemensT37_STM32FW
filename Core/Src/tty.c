@@ -15,6 +15,7 @@ int width = 72;			// terminal width
 int READ_TIMEOUT = 1000;// Timeout of 1000ms
 float stopbit_cnt = 1.5;// booTY will be setting this correctly
 
+char* fox = "\r\n the quick brown fox jumps over the lazy dog";
 char FOX[] = {'\r', '\n', 't', 'h', 'e', ' ', 'q', 'u', 'i', 'c', 'k',
 			' ', 'b', 'r', 'o', 'w', 'n', ' ', 'f', 'o', 'x', ' ',
 			'j', 'u', 'm', 'p', 's', ' ', 'o', 'v', 'e', 'r', ' ',
@@ -84,6 +85,66 @@ const tty_symbols_t symbol = {
     .null = 0     // 0b00000
 };
 
+int toSymbol(char c) {
+    static const unsigned char lut[128] = {
+        [0x07] = 11,    // BELL
+        [0x0A] = 2,     // \n
+        [0x0D] = 8,     // \r
+        [0x11] = 9,     // DC1 (WhoThere?)
+        [' ']  = symbol.space,
+        ['\''] = 5,
+        ['(']  = 15,
+        [')']  = 18,
+        [',']  = 12,
+        ['-']  = 3,
+        ['.']  = 28,
+        ['/']  = 29,
+        ['0']  = 22,
+        ['1']  = 23,
+        ['2']  = 19,
+        ['3']  = 1,
+        ['4']  = 10,
+        ['5']  = 16,
+        ['6']  = 21,
+        ['7']  = 7,
+        ['8']  = 6,
+        ['9']  = 24,
+        [':']  = 14,
+        ['=']  = 30,
+        ['?']  = 25,
+        ['A']  = 3,  ['a'] = 3,
+        ['B']  = 25, ['b'] = 25,
+        ['C']  = 14, ['c'] = 14,
+        ['D']  = 9,  ['d'] = 9,
+        ['E']  = 1,  ['e'] = 1,
+        ['F']  = 13, ['f'] = 13,
+        ['G']  = 26, ['g'] = 26,
+        ['H']  = 20, ['h'] = 20,
+        ['I']  = 6,  ['i'] = 6,
+        ['J']  = 11, ['j'] = 11,
+        ['K']  = 15, ['k'] = 15,
+        ['L']  = 18, ['l'] = 18,
+        ['M']  = 28, ['m'] = 28,
+        ['N']  = 12, ['n'] = 12,
+        ['O']  = 24, ['o'] = 24,
+        ['P']  = 22, ['p'] = 22,
+        ['Q']  = 23, ['q'] = 23,
+        ['R']  = 10, ['r'] = 10,
+        ['S']  = 5,  ['s'] = 5,
+        ['T']  = 16, ['t'] = 16,
+        ['U']  = 7,  ['u'] = 7,
+        ['V']  = 30, ['v'] = 30,
+        ['W']  = 19, ['w'] = 19,
+        ['X']  = 29, ['x'] = 29,
+        ['Y']  = 21, ['y'] = 21,
+        ['Z']  = 17, ['z'] = 17,
+        ['+']  = 17,
+    };
+    if ((unsigned char)c < 128)
+        return lut[(unsigned char)c];
+    return 0;
+}
+
 char toCharLTRS(int sym){
     // Lookup table for LETTERS mode (LTRS)
     static const char ltrs_to_char[32] = {
@@ -152,74 +213,17 @@ char toCharFIGS(int sym){
     return figs_to_char[sym];
 }
 
-int toSymbol(char c) {
-    static const unsigned char lut[128] = {
-        [0x07] = 11,    // BELL
-        [0x0A] = 2,     // \n
-        [0x0D] = 8,     // \r
-        [0x11] = 9,     // DC1 (WhoThere?)
-        [' ']  = symbol.space,
-        ['\''] = 5,
-        ['(']  = 15,
-        [')']  = 18,
-        [',']  = 12,
-        ['-']  = 3,
-        ['.']  = 28,
-        ['/']  = 29,
-        ['0']  = 22,
-        ['1']  = 23,
-        ['2']  = 19,
-        ['3']  = 1,
-        ['4']  = 10,
-        ['5']  = 16,
-        ['6']  = 21,
-        ['7']  = 7,
-        ['8']  = 6,
-        ['9']  = 24,
-        [':']  = 14,
-        ['=']  = 30,
-        ['?']  = 25,
-        ['A']  = 3,  ['a'] = 3,
-        ['B']  = 25, ['b'] = 25,
-        ['C']  = 14, ['c'] = 14,
-        ['D']  = 9,  ['d'] = 9,
-        ['E']  = 1,  ['e'] = 1,
-        ['F']  = 13, ['f'] = 13,
-        ['G']  = 26, ['g'] = 26,
-        ['H']  = 20, ['h'] = 20,
-        ['I']  = 6,  ['i'] = 6,
-        ['J']  = 11, ['j'] = 11,
-        ['K']  = 15, ['k'] = 15,
-        ['L']  = 18, ['l'] = 18,
-        ['M']  = 28, ['m'] = 28,
-        ['N']  = 12, ['n'] = 12,
-        ['O']  = 24, ['o'] = 24,
-        ['P']  = 22, ['p'] = 22,
-        ['Q']  = 23, ['q'] = 23,
-        ['R']  = 10, ['r'] = 10,
-        ['S']  = 5,  ['s'] = 5,
-        ['T']  = 16, ['t'] = 16,
-        ['U']  = 7,  ['u'] = 7,
-        ['V']  = 30, ['v'] = 30,
-        ['W']  = 19, ['w'] = 19,
-        ['X']  = 29, ['x'] = 29,
-        ['Y']  = 21, ['y'] = 21,
-        ['Z']  = 17, ['z'] = 17,
-        ['+']  = 17,
-    };
-    if ((unsigned char)c < 128)
-        return lut[(unsigned char)c];
-    return 0;
-}
-
 // ---CHARACTER CONVERSION-------------------
-char toChar(int symbol){
-    // TODO: Common symbols conversion!
+char toChar(int _symbol){
+
+	if (_symbol == symbol.space)
+		return ' ';
+
 	if (tty_mode == TTY_MODE_LETTERS){
-		return toCharLTRS(symbol);
+		return toCharLTRS(_symbol);
 	}
 	else {
-		return toCharFIGS(symbol);
+		return toCharFIGS(_symbol);
 	}
 }
 
@@ -278,19 +282,34 @@ int getBufferLength(int* head){	// returns without Terminator!
 }
 
 // -----------------------------------------------------------------
-
+// TODO: void TTY_printMemoryError(void)
 // Debug function prints a brown fox
-int* TTY_FOX(int* buffer){
-	for (int i = 0; i < 45; i++){
-		buffer = appendChar(buffer, FOX[i]);
-	}
-	return buffer;
+void TTY_FOX(void){
+	TTY_WRITESTRING(FOX);
 }
 
 
 // ---TTY-FUNCTIONS-------------------------------------------------
-void TTY_DELAY(float cycles){
-	HAL_Delay((int)(cycles * ( 1000 / baud)));
+void TTY_WRITEKEY(char key){
+    int* writebuffer = malloc(0);
+    writebuffer = appendChar(writebuffer, key);
+    writebuffer = TTY_WRITEBUFFER(writebuffer);
+    free(writebuffer);
+}
+
+
+void TTY_WRITESTRING(char* str){
+    // MAIN WRITE FUNCTION
+    // only works with \0-terminated strings!!!
+    int* writebuffer = malloc(0);
+    for (int i = 0; str[i] != '\0'; i++)
+    {
+        writebuffer = appendChar(writebuffer, str[i]);
+    }
+
+    writebuffer = TTY_WRITEBUFFER(writebuffer);
+
+    free(writebuffer);
 }
 
 int* TTY_WRITEBUFFER(int* buffer){
@@ -312,16 +331,6 @@ int* TTY_WRITEBUFFER(int* buffer){
     return out;
 }
 
-
-void TTY_Startbit(){
-	setTTY(1);
-	TTY_DELAY(1.0);
-}
-
-void TTY_Stopbit(){
-	setTTY(0);
-	TTY_DELAY(stopbit_cnt);
-}
 void TTY_WRITE(int _sym){
 
 	if (_sym == -1) return;
@@ -357,40 +366,27 @@ void TTY_WRITE(int _sym){
  * the Teletype. I tried to keep this section clean but some stuff
  * is quite necessary for a stable "API" like infrastructure.
  *
- *	- TTY_READ() is the main function, this reads a single Symbol
- *				 sensitive to current LTRS | FIGS mode from the TTY
+ *	- TTY_READKEY() is the main function, this reads a single Symbol
+ *				    and converts it into a char
  */
-
-char TTY_READ(){
+char TTY_READKEY(){
 	int sym0 = readSymbol();
-
-    // Common Symbols
-    switch(sym0){
-	    case -1: return '\0';break; // NULL if ERR
-        case 0: return '\0'; break; // NULL is ignored
-        case 2: return '\n'; break; // NewLine if LineFeed
-        case 4: return ' ';  break; // ' ' if SPACE
-        case 27: {
-            if (tty_mode == TTY_MODE_FIGURES)
-                return '\0'; // Can be DC2-4 in future
-        } break;
-        case 31: {
-            if (tty_mode == TTY_MODE_LETTERS)
-                return '\0'; // Can be DC2-4 in future
-        } break;
-    }
-
     return toChar(sym0);
-
 }
-
 
 int readSymbol() {
 	// wait for Symbol-Trigger
+	while(1){
+		if (readTTY() == 0) HAL_Delay(2);
+		else break;
+	}
+	/*
 	for (int i = 0; i <= READ_TIMEOUT; i+=2){
 		if (readTTY() == 0) HAL_Delay(2);
 		else break;
 	}
+
+	*/
 	// read start-bit
 	// pattern: 20ms startbit, 5x20ms Databit, 1.n stopbits
 	// STARTBIT is 20ms HIGH
@@ -431,6 +427,7 @@ int readSymbol() {
 	}
 
 	// BUG: Dauerfeuer von y funktioniert, r's werden immernoch falsch erkannt!
+    // Konnte den BUG nicht mehr reproduzieren...
 
     int out = 0;
 
@@ -451,7 +448,7 @@ int majority(Databit d) {
     return (d.s1 + d.s2 + d.s3) >= 2 ? 1 : 0;
 }
 
-// This probes the TTY_RECV Pin
+// --- Hardware Interfaces -----------------------------------------
 int readTTY(){
 	int out = -1;
 	out = HAL_GPIO_ReadPin(GPIOB, TTY_RECV_Pin);
@@ -468,13 +465,36 @@ void setTTY(int state){			// TTY @ A3
 	}
 }
 
-void TTY_DEBUG(){
+void TTY_DELAY(float cycles){
+	HAL_Delay((int)(cycles * ( 1000 / baud)));
+}
+
+void TTY_raiseMemoryError(void){
+	/* Oh no. you managed to see this :c
+	 * I'm very sorry for seeing that you got a Memory error.
+	 * This function get Called when your Heap is full/corrupted
+	 *
+	 * 1. Send MEM_ERR_MSG[], symbol by symbol
+	 * 2. Reset CPU
+	 * 3. Hope for the best
+	 */
+	NVIC_SystemReset();	// REBOOT CPU
+}
+
+void TTY_Startbit(){
+	setTTY(1);
+	TTY_DELAY(1.0);
+}
+
+void TTY_Stopbit(){
+	setTTY(0);
+	TTY_DELAY(stopbit_cnt);
 }
 
 void setReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 1); }
 void clearReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 0); }
 
-// Settings Interface for booTY
+// --- System Properties -------------------------------------------
 void setLoopback(int _loopback) {loopback = _loopback;}
 void setBaudrate(int baudrate) {baud = baudrate;}
 void setTermWidth(int termwidth) {width = termwidth;}
