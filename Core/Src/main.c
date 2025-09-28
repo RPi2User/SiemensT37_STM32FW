@@ -158,12 +158,13 @@ void sanityCheck(){
 
 int debugger(){
 	int sym = 0;
-	setLoopback(1);
+	setLoopback(0);
 	while(1){
-
-		sym = readSymbol();
-		//HAL_Delay(10);
-
+		char key = TTY_READKEY();
+		if (key == 'f')
+			TTY_FOX();
+		else
+			TTY_WRITEKEY(key);
 	}
 	// not "unused" Variable
 	TTY_WRITE(sym);
