@@ -7,6 +7,9 @@
 
 
 #include <stdlib.h>
+#include <ctype.h>
+#include <stdint.h>
+#include <tty.h>
 
 /* Functions
  *
@@ -18,6 +21,12 @@
  *
  *
  */
+
+uint32_t str_len(char* str){
+	uint32_t i = 0;
+	while(str[i] != '\0') i++;
+	return i;
+}
 
 char* str_appendChar(char* head, char c){
 	uint32_t head_len = 0;
@@ -46,11 +55,7 @@ char* str_appendChar(char* head, char c){
 	return tail;
 }
 
-uint32_t str_len(char* str){
-	uint32_t i = 0;
-	while(str[i] != '\0') i++;
-	return i;
-}
+
 
 char* str_add(char* str1, char* str2){
 	uint32_t str1_len = str_len(str1);
@@ -74,11 +79,17 @@ char* str_add(char* str1, char* str2){
 }
 
 void str_toUpper(char* str){
-
+	for (int i = 0; str[i] != '\0'; i++){
+		if (str[i] >= 'a' && str[i] <= 'z')
+			str[i] -= 'a' - 'A';
+	}
 }
 
 void str_toLower(char* str){
-
+	for (int i = 0; str[i] != '\0'; i++){
+		if (str[i] >= 'A' && str[i] <= 'Z')
+			str[i] += 'a' - 'A';
+	}
 }
 
 

@@ -530,6 +530,82 @@ Discarded input sections
  .debug_macro   0x00000000       0x44 ./Core/Src/stm32f0xx_it.o
  .debug_macro   0x00000000      0x12e ./Core/Src/stm32f0xx_it.o
  .debug_macro   0x00000000       0x9a ./Core/Src/stm32f0xx_it.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .group         0x00000000        0xc ./Core/Src/string.o
+ .text          0x00000000        0x0 ./Core/Src/string.o
+ .data          0x00000000        0x0 ./Core/Src/string.o
+ .bss           0x00000000        0x0 ./Core/Src/string.o
+ .text.str_len  0x00000000       0x2a ./Core/Src/string.o
+ .text.str_appendChar
+                0x00000000       0xae ./Core/Src/string.o
+ .text.str_add  0x00000000       0xa6 ./Core/Src/string.o
+ .text.str_toUpper
+                0x00000000       0x56 ./Core/Src/string.o
+ .text.str_toLower
+                0x00000000       0x56 ./Core/Src/string.o
+ .debug_info    0x00000000      0x247 ./Core/Src/string.o
+ .debug_abbrev  0x00000000      0x125 ./Core/Src/string.o
+ .debug_aranges
+                0x00000000       0x40 ./Core/Src/string.o
+ .debug_rnglists
+                0x00000000       0x2d ./Core/Src/string.o
+ .debug_macro   0x00000000      0x151 ./Core/Src/string.o
+ .debug_macro   0x00000000      0xaae ./Core/Src/string.o
+ .debug_macro   0x00000000       0x24 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x22 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x5b ./Core/Src/string.o
+ .debug_macro   0x00000000       0x94 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x43 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x34 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x16 ./Core/Src/string.o
+ .debug_macro   0x00000000      0x11c ./Core/Src/string.o
+ .debug_macro   0x00000000       0x9b ./Core/Src/string.o
+ .debug_macro   0x00000000       0x57 ./Core/Src/string.o
+ .debug_macro   0x00000000      0x370 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x16 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x4a ./Core/Src/string.o
+ .debug_macro   0x00000000       0x34 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x10 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x58 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x8e ./Core/Src/string.o
+ .debug_macro   0x00000000       0x1c ./Core/Src/string.o
+ .debug_macro   0x00000000      0x185 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x16 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x29 ./Core/Src/string.o
+ .debug_macro   0x00000000      0x119 ./Core/Src/string.o
+ .debug_macro   0x00000000      0x103 ./Core/Src/string.o
+ .debug_macro   0x00000000       0x6a ./Core/Src/string.o
+ .debug_macro   0x00000000      0x1df ./Core/Src/string.o
+ .debug_line    0x00000000      0x658 ./Core/Src/string.o
+ .debug_str     0x00000000     0x7b3e ./Core/Src/string.o
+ .comment       0x00000000       0x44 ./Core/Src/string.o
+ .debug_frame   0x00000000       0xb0 ./Core/Src/string.o
+ .ARM.attributes
+                0x00000000       0x2c ./Core/Src/string.o
  .group         0x00000000        0xc ./Core/Src/symbolbuffer.o
  .group         0x00000000        0xc ./Core/Src/symbolbuffer.o
  .group         0x00000000        0xc ./Core/Src/symbolbuffer.o
@@ -560,20 +636,21 @@ Discarded input sections
  .bss           0x00000000        0x0 ./Core/Src/symbolbuffer.o
  .rodata.SBF_TERMINATOR
                 0x00000000        0x1 ./Core/Src/symbolbuffer.o
+ .text.sbf_len  0x00000000       0x30 ./Core/Src/symbolbuffer.o
  .text.sbf_createSymbolBuffer
                 0x00000000       0x2c ./Core/Src/symbolbuffer.o
- .text.sbf_getLength
-                0x00000000       0x30 ./Core/Src/symbolbuffer.o
+ .text.sbf_appendSym
+                0x00000000       0xc6 ./Core/Src/symbolbuffer.o
  .text.sbf_convertToString
                 0x00000000       0x1a ./Core/Src/symbolbuffer.o
  .text.sbf_convertToSymbolBuffer
                 0x00000000       0x1a ./Core/Src/symbolbuffer.o
- .debug_info    0x00000000      0x1bf ./Core/Src/symbolbuffer.o
- .debug_abbrev  0x00000000      0x126 ./Core/Src/symbolbuffer.o
+ .debug_info    0x00000000      0x245 ./Core/Src/symbolbuffer.o
+ .debug_abbrev  0x00000000      0x137 ./Core/Src/symbolbuffer.o
  .debug_aranges
-                0x00000000       0x38 ./Core/Src/symbolbuffer.o
+                0x00000000       0x40 ./Core/Src/symbolbuffer.o
  .debug_rnglists
-                0x00000000       0x25 ./Core/Src/symbolbuffer.o
+                0x00000000       0x2c ./Core/Src/symbolbuffer.o
  .debug_macro   0x00000000      0x142 ./Core/Src/symbolbuffer.o
  .debug_macro   0x00000000      0xaae ./Core/Src/symbolbuffer.o
  .debug_macro   0x00000000       0x24 ./Core/Src/symbolbuffer.o
@@ -600,10 +677,10 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./Core/Src/symbolbuffer.o
  .debug_macro   0x00000000       0x6a ./Core/Src/symbolbuffer.o
  .debug_macro   0x00000000      0x1df ./Core/Src/symbolbuffer.o
- .debug_line    0x00000000      0x542 ./Core/Src/symbolbuffer.o
- .debug_str     0x00000000     0x7341 ./Core/Src/symbolbuffer.o
+ .debug_line    0x00000000      0x5b7 ./Core/Src/symbolbuffer.o
+ .debug_str     0x00000000     0x736e ./Core/Src/symbolbuffer.o
  .comment       0x00000000       0x44 ./Core/Src/symbolbuffer.o
- .debug_frame   0x00000000       0x90 ./Core/Src/symbolbuffer.o
+ .debug_frame   0x00000000       0xb0 ./Core/Src/symbolbuffer.o
  .ARM.attributes
                 0x00000000       0x2c ./Core/Src/symbolbuffer.o
  .group         0x00000000        0xc ./Core/Src/syscalls.o
@@ -3169,6 +3246,7 @@ LOAD ./Core/Src/booTY.o
 LOAD ./Core/Src/main.o
 LOAD ./Core/Src/stm32f0xx_hal_msp.o
 LOAD ./Core/Src/stm32f0xx_it.o
+LOAD ./Core/Src/string.o
 LOAD ./Core/Src/symbolbuffer.o
 LOAD ./Core/Src/syscalls.o
 LOAD ./Core/Src/sysmem.o
