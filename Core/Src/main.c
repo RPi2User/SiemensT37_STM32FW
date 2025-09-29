@@ -10,7 +10,7 @@
 // JUST I/O and Logic
 
 UART_HandleTypeDef huart1;
-UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart2;		// USB UART
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);

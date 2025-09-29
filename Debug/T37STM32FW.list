@@ -37,11 +37,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_macro  00001bd9  00000000  00000000  0000fbb6  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   000095dd  00000000  00000000  0001178f  2**0
+ 17 .debug_line   000095df  00000000  00000000  0001178f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000899d6  00000000  00000000  0001ad6c  2**0
+ 18 .debug_str    000899d6  00000000  00000000  0001ad6e  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  000a4742  2**0
+ 19 .comment      00000043  00000000  00000000  000a4744  2**0
                   CONTENTS, READONLY
  20 .debug_frame  00001db8  00000000  00000000  000a4788  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
@@ -3145,9 +3145,9 @@ void TTY_DELAY(float cycles){
  80013b4:	20000004 	.word	0x20000004
 
 080013b8 <TTY_Startbit>:
-void TTY_raiseMemoryError(void){
-	// ERR: malloc FAILED, see stack trace
-	NVIC_SystemReset();	// HALT CPU
+	 * 3. Hope for the best
+	 */
+	NVIC_SystemReset();	// REBOOT CPU
 }
 
 void TTY_Startbit(){

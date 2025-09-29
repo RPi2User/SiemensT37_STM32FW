@@ -10,8 +10,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "tty.h"
+#include "symbolbuffer.h"
 
-const int8_t SBF_TERMINATOR = -1;
+
 
 
 // -----------------------------------------------------------------
