@@ -1,5 +1,6 @@
 #include <stdio.h> 
 #include <stdlib.h>
+#include <stdint.h>
 #include "tty.h"
 #include "booTY.h"
 #include "main.h"
@@ -7,23 +8,23 @@
 
 // ----------------------------------------------------------------
 // SETTINGS
-int terminal_width = 72;
-int baudrate = 50;
-int* linebreak; 
+uint8_t terminal_width = 72;
+uint8_t baudrate = 50;
+int8_t* linebreak;
 char* network_stats; 
 // smth like: "+++10.10.0.222/24+fe80:aab1:22/64+++"
-int* readBuffer;
+int8_t* readBuffer;
 // -----------------------------------------------------------------
 
-const int VALID_MODES[] = {
+const int8_t VALID_MODES[] = {
 	25, 19, 12, 28, 27
 }; // [b]aud, [w]idth, [n]et, [.]term, figs
 
-const int VALID_VALS[] = {
+const int8_t VALID_VALS[] = {
 	22, 23, 19, 1, 10, 16, 21, 7, 6, 24
 };
 
-const int VALID_LINEBREAKS[] = {
+const int8_t VALID_LINEBREAKS[] = {
 	14, 10, 18, 13, 12 //[c][r], [l][f],[n]l
 }; // `NL` for EBCDIC compatibilty
 
@@ -36,10 +37,10 @@ const int VALID_LINEBREAKS[] = {
  *    - 1x ltrs to let the user in ltrs-mode
  *    - 1x space for visual appeal
  */
-int* booTYinit(int* currentBuffer){
-	readBuffer = (int*)malloc(1);
+int8_t* booTYinit(int8_t* currentBuffer){
+	readBuffer = (int8_t*)malloc(1);
 	HAL_Delay(50);
-	TTY_WRITE(symbol.null);		// some ttys need a bit more time
+	TTY_Write(symbol.null);		// some ttys need a bit more time
 	HAL_Delay(50);				// to settle
 	for (int i = 0; i <= 5; i++){
 		currentBuffer = appendSymbol(currentBuffer, symbol.cr);
@@ -61,7 +62,7 @@ int* booTYinit(int* currentBuffer){
  *    - all illegal chars won't be echoed
  *    - duplicate ltrs (a-z) will be ignored
  */
-int* booTYshell(int* currentBuffer){
+int8_t* booTYshell(int8_t* currentBuffer){
 	/* 1. Time runs out or ONE key get pressed
 	 * 2. Users are only allowed to press correct keys
 	 * 	  all others will get rejected
@@ -78,15 +79,15 @@ int* booTYshell(int* currentBuffer){
  *    - helps to only allow valid mode ltrs
  *    - automagically switches between ltrs and figs for user-comfort
  */  
-int* readCommand(int cmd_terminator){
-	int _sym = -1;
-	int _term = -1;
+int8_t* readCommand(int8_t cmd_terminator){
+	int8_t _sym = -1;
+	int8_t _term = -1;
 	do {
-		_sym = TTY_READ();
-		_term = TTY_READ();
+		_sym = readSymbol();
+		_term = readSymbol();
 		if (_term != cmd_terminator) _sym = _term;
 	} while (_term != cmd_terminator);
-	TTY_WRITE(cmd_terminator);	// Gives user correct symbol as response
+	TTY_Write(cmd_terminator);	// Gives user correct symbol as response
 	readBuffer = appendSymbol(readBuffer, _sym);
 	return readBuffer;
 }

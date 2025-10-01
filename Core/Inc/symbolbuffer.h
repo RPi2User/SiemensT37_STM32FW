@@ -8,7 +8,7 @@
 #ifndef INC_SYMBOLBUFFER_H_
 #define INC_SYMBOLBUFFER_H_
 
-const int8_t SBF_TERMINATOR = -1;
+
 
 typedef enum E_lettercase{
 	LOWERCASE = 0,
@@ -75,8 +75,14 @@ typedef enum E_symbols{
 
 } E_symbols;
 
+// --- Basic manipulation ------------------------------------------
+uint32_t sbf_len(int8_t* sbf);
 int8_t* sbf_createSymbolBuffer(void);
-uint32_t sbf_getLength(const int8_t* _inSbf);
+
+int8_t* sbf_appendSym(int8_t* head, uint8_t sym);
+int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail);
+
+// --- CONVERT -----------------------------------------------------
 
 char* sbf_convertToString(int8_t* _inSbf);
 int8_t* sbf_convertToSymbolBuffer(char* _inStr);

@@ -1,7 +1,7 @@
 /*
  * symbolbuffer.c
  *
- * This interface handles any
+ * Everything regarding teletype symbols
  *
  *  Created on: Sep 27, 2025
  *      Author: florian
@@ -12,8 +12,9 @@
 #include "tty.h"
 #include "symbolbuffer.h"
 
+const int8_t SBF_TERMINATOR = -1;
 
-// Basic Manipulation
+// --- Basic manipulation ------------------------------------------
 uint32_t sbf_len(int8_t* sbf){
 	uint32_t out = 0;
 	while(sbf[out] != SBF_TERMINATOR) out++;
@@ -56,6 +57,32 @@ int8_t* sbf_appendSym(int8_t* head, uint8_t sym){
 	tail[i+1] = SBF_TERMINATOR;
 	free(head);
 	return tail;
+}
+
+int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail){
+	uint32_t head_len = sbf_len(head);
+	uint32_t tail_len = sbf_len(tail);
+
+	int8_t* _out = malloc(sizeof(int8_t*) * (head_len + tail_len + 1));
+	if (_out == NULL) TTY_raiseMemoryError();
+
+	uint32_t len = 0;
+
+	while(head[len] != SBF_TERMINATOR){
+		_out[len] = head[len];
+		len++;
+	}
+
+	while(tail[len - head_len] != SBF_TERMINATOR){
+		_out[len] = tail[len - head_len];
+		len++;
+	}
+
+	_out[len] = SBF_TERMINATOR;
+
+	free(head);
+	if (keepTail != 0) free(tail);
+	return _out;
 }
 
 // -----------------------------------------------------------------

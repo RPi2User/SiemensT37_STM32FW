@@ -1,18 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "main.h"
 #include "tty.h"
 
 // --- DATA BLOCKS -------------------------------------------------
 // Teletype Variables
-int tty_mode = TTY_MODE_LETTERS;    // Init to TTY-Mode LTRS
-int send_mode = 0;		// flag to send current mode again
-int loopback = 0;		// This sends bit right back to TTY
+uint8_t tty_mode = TTY_MODE_LETTERS;    // Init to TTY-Mode LTRS
+uint8_t send_mode = 0;		// flag to send current mode again
+uint8_t loopback = 0;		// This sends bit right back to TTY
 
-int baud = 50;			// default Baudrate for TTYs
-int width = 72;			// terminal width
+uint8_t baud = 50;			// default Baudrate for TTYs
+uint8_t width = 72;			// terminal width
 
-int READ_TIMEOUT = 1000;// Timeout of 1000ms
+uint8_t READ_TIMEOUT = 100;// Timeout of 1000ms
 float stopbit_cnt = 1.5;// booTY will be setting this correctly
 
 char* fox = "\r\n the quick brown fox jumps over the lazy dog";
@@ -85,7 +86,7 @@ const tty_symbols_t symbol = {
     .null = 0     // 0b00000
 };
 
-int toSymbol(char c) {
+uint8_t toSymbol(char c) {
     static const unsigned char lut[128] = {
         [0x07] = 11,    // BELL
         [0x0A] = 2,     // \n
@@ -145,7 +146,7 @@ int toSymbol(char c) {
     return 0;
 }
 
-char toCharLTRS(int sym){
+char toCharLTRS(uint8_t sym){
     // Lookup table for LETTERS mode (LTRS)
     static const char ltrs_to_char[32] = {
         [1]  = 'e',   // E
@@ -181,7 +182,7 @@ char toCharLTRS(int sym){
     return ltrs_to_char[sym];
 }
 
-char toCharFIGS(int sym){
+char toCharFIGS(uint8_t sym){
     // Lookup table for FIGURES mode (FIGS)
     static const char figs_to_char[32] = {
         [1]  = '3',   // 3 (E in LTRS)
@@ -214,7 +215,7 @@ char toCharFIGS(int sym){
 }
 
 // ---CHARACTER CONVERSION-------------------
-char toChar(int _symbol){
+char toChar(int8_t _symbol){
 
 	if (_symbol == symbol.space)
 		return ' ';
@@ -228,26 +229,26 @@ char toChar(int _symbol){
 }
 
 // ---BUFFER MANIPULATION-------------------------------------------
-int* appendSymbol(int* head, int sym){
+int8_t* appendSymbol(int8_t* head, int8_t sym){
 	// Handle NULL head pointer
 	if (head == NULL) {
-		int* out = (int*)malloc(2);
+		int8_t* out = (int8_t*)malloc(2);
 		if (out == NULL) return NULL;  // malloc failed, 2nd Try
 		out[0] = sym;
 		out[1] = -1;
 		return out;
 	}
 	
-	int length = getBufferLength(head);
+	uint8_t length = getBufferLength(head);
 	// length + Symbol + Terminator
-	int* out = (int*)malloc((length + 2) * sizeof(int));
+	int8_t* out = (int8_t*)malloc((length + 2) * sizeof(int8_t));
 	if (out == NULL) {
 		// malloc failed - don't free head, return NULL
 		return NULL;
 	}
 	
 	// Copy existing elements...
-	for (int i = 0; i < length; i++) {
+	for (uint8_t i = 0; i < length; i++) {
 		out[i] = head[i];
 	}
 	out[length] = sym;        // Add symbol at correct position
@@ -257,8 +258,8 @@ int* appendSymbol(int* head, int sym){
 	return out;
 }
 
-int* appendChar(int* head, char c){
-    int sym = toSymbol(c);
+int8_t* appendChar(int8_t* head, char c){
+	int8_t sym = toSymbol(c);
 
     // if line width is reached:
     if (getBufferLength(head) < width){
@@ -271,10 +272,10 @@ int* appendChar(int* head, char c){
     return appendSymbol(head, sym);
 }
 
-int getBufferLength(int* head){	// returns without Terminator!
+uint8_t getBufferLength(int8_t* head){	// returns without Terminator!
 	if (head == NULL) return 0;  // Safety check
 	
-	int i = 0;
+	uint8_t i = 0;
 	while (head[i] != -1){
 		i++;
 	}
@@ -291,7 +292,7 @@ void TTY_FOX(void){
 
 // ---TTY-FUNCTIONS-------------------------------------------------
 void TTY_WRITEKEY(char key){
-    int* writebuffer = malloc(0);
+    int8_t* writebuffer = malloc(0);
     writebuffer = appendChar(writebuffer, key);
     writebuffer = TTY_WRITEBUFFER(writebuffer);
     free(writebuffer);
@@ -301,8 +302,8 @@ void TTY_WRITEKEY(char key){
 void TTY_WRITESTRING(char* str){
     // MAIN WRITE FUNCTION
     // only works with \0-terminated strings!!!
-    int* writebuffer = malloc(0);
-    for (int i = 0; str[i] != '\0'; i++)
+    int8_t* writebuffer = malloc(0);
+    for (uint8_t i = 0; str[i] != '\0'; i++)
     {
         writebuffer = appendChar(writebuffer, str[i]);
     }
@@ -312,18 +313,18 @@ void TTY_WRITESTRING(char* str){
     free(writebuffer);
 }
 
-int* TTY_WRITEBUFFER(int* buffer){
+int8_t* TTY_WRITEBUFFER(int8_t* buffer){
     
     // Write all symbols in buffer
-    for (int i = 0; buffer[i] != -1; i++) {
-        TTY_WRITE(buffer[i]);
+    for (uint8_t i = 0; buffer[i] != -1; i++) {
+        TTY_Write(buffer[i]);
     }
     
     // Free the input buffer
     free(buffer);
     
     // Create new empty buffer
-    int* out = (int*)malloc(sizeof(int));
+    int8_t* out = (int8_t*)malloc(sizeof(int8_t));
     if (out == NULL) {
         return NULL;  // malloc failed - caller must handle this!
     }
@@ -331,7 +332,7 @@ int* TTY_WRITEBUFFER(int* buffer){
     return out;
 }
 
-void TTY_WRITE(int _sym){
+void TTY_Write(int8_t _sym){
 
 	if (_sym == -1) return;
 
@@ -351,8 +352,8 @@ void TTY_WRITE(int _sym){
 	TTY_Startbit();
 
 	// LSB FIRST!
-    for (int i = 0; i < 5; i++) {
-        int bit = ((_sym >> i) & 0x01) ^ 1;
+    for (uint8_t i = 0; i < 5; i++) {
+        uint8_t bit = ((_sym >> i) & 0x01) ^ 1;
         setTTY(bit);
         TTY_DELAY(1);
     }
@@ -370,11 +371,11 @@ void TTY_WRITE(int _sym){
  *				    and converts it into a char
  */
 char TTY_READKEY(){
-	int sym0 = readSymbol();
+	int8_t sym0 = readSymbol();
     return toChar(sym0);
 }
 
-int readSymbol() {
+int8_t readSymbol() {
 	// wait for Symbol-Trigger
 	while(1){
 		if (readTTY() == 0) HAL_Delay(2);
@@ -391,12 +392,12 @@ int readSymbol() {
 	// pattern: 20ms startbit, 5x20ms Databit, 1.n stopbits
 	// STARTBIT is 20ms HIGH
 	HAL_Delay(9);	// Wait 10ms
-	int beg = readTTY();
+	uint8_t beg = readTTY();
 	HAL_Delay(14);	// Wait 5 + 10ms
 	// NOTE: the additional delay (above) is the SAMPLING OFFSET!
 
 	Databit databit[5];
-	for (int i = 0; i < 5; i++){
+	for (uint8_t i = 0; i < 5; i++){
 		databit[i].s1 = readTTY();
 		HAL_Delay(4); // 5ms Delay
 		databit[i].s2 = readTTY();
@@ -418,7 +419,7 @@ int readSymbol() {
 	// Solution: just before we return the value we wait the entire
 	//           Stopbit / "Pausenschritt" as Siemens calls it :3
 
-	int end = readTTY();
+	uint8_t end = readTTY();
 
 	// Eval Bits
 	if (beg == 0 || end != 0){
@@ -429,7 +430,7 @@ int readSymbol() {
 	// BUG: Dauerfeuer von y funktioniert, r's werden immernoch falsch erkannt!
     // Konnte den BUG nicht mehr reproduzieren...
 
-    int out = 0;
+    uint8_t out = 0;
 
     // Weird bug with bit concatenation ig.
     if (majority(databit[0]) == 0) out += 1;
@@ -444,19 +445,19 @@ int readSymbol() {
     return out;
 }
 
-int majority(Databit d) {
+uint8_t majority(Databit d) {
     return (d.s1 + d.s2 + d.s3) >= 2 ? 1 : 0;
 }
 
 // --- Hardware Interfaces -----------------------------------------
-int readTTY(){
-	int out = -1;
+int8_t readTTY(){
+	int8_t out = -1;
 	out = HAL_GPIO_ReadPin(GPIOB, TTY_RECV_Pin);
 	if (loopback != 0) setTTY(out);
 	return out;
 }
 
-void setTTY(int state){			// TTY @ A3
+void setTTY(uint8_t state){			// TTY @ A3
 	if (state != 0) {
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
 	}
@@ -466,7 +467,17 @@ void setTTY(int state){			// TTY @ A3
 }
 
 void TTY_DELAY(float cycles){
-	HAL_Delay((int)(cycles * ( 1000 / baud)));
+	HAL_Delay((uint8_t)(cycles * ( 1000 / baud)));
+}
+
+void TTY_Startbit(){
+	setTTY(1);
+	TTY_DELAY(1.0);
+}
+
+void TTY_Stopbit(){
+	setTTY(0);
+	TTY_DELAY(stopbit_cnt);
 }
 
 void TTY_raiseMemoryError(void){
@@ -481,23 +492,13 @@ void TTY_raiseMemoryError(void){
 	NVIC_SystemReset();	// REBOOT CPU
 }
 
-void TTY_Startbit(){
-	setTTY(1);
-	TTY_DELAY(1.0);
-}
-
-void TTY_Stopbit(){
-	setTTY(0);
-	TTY_DELAY(stopbit_cnt);
-}
-
 void setReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 1); }
 void clearReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 0); }
 
 // --- System Properties -------------------------------------------
-void setLoopback(int _loopback) {loopback = _loopback;}
-void setBaudrate(int baudrate) {baud = baudrate;}
-void setTermWidth(int termwidth) {width = termwidth;}
+void setLoopback(uint8_t _loopback) {loopback = _loopback;}
+void setBaudrate(uint8_t baudrate) {baud = baudrate;}
+void setTermWidth(uint8_t termwidth) {width = termwidth;}
 void setStopbits(float stopbit) {stopbit_cnt = stopbit;}
 void setSendMode(){send_mode = 1;}
 // TODO add Lower/Uppercase "switch"

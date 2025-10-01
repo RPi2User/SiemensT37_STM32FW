@@ -1,9 +1,11 @@
-#include "booTY.h"
 #include "main.h"
 #include "tty.h"
 #include "writeBuffer.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+
+#include "symbolbuffer.h"	// TODO: Remove THIS
 
 
 // KEEP ST-STUFF IN HERE!
@@ -157,17 +159,20 @@ void sanityCheck(){
 }
 
 int debugger(){
-	int sym = 0;
-	setLoopback(0);
-	while(1){
-		char key = TTY_READKEY();
-		if (key == 'f')
-			TTY_FOX();
-		else
-			TTY_WRITEKEY(key);
+	int8_t* a_symbols = sbf_createSymbolBuffer();
+	int8_t* b_symbols = sbf_createSymbolBuffer();
+
+	for (int i = 0; i < 10; i++){
+		a_symbols = sbf_appendSym(a_symbols, a);
+		b_symbols = sbf_appendSym(b_symbols, b);
 	}
-	// not "unused" Variable
-	TTY_WRITE(sym);
+
+	int8_t* ab_symbols = sbf_concaternate(a_symbols, b_symbols, 1);
+	ab_symbols = TTY_WRITEBUFFER(ab_symbols);
+	free(ab_symbols);
+
+
+	while(1);
 	return 0;
 }
 
@@ -225,11 +230,15 @@ void _mode(){
 
 // Pre-Boot Environment
 void booTY(){
+
+	/*
 	setTTY(0);			// Rests TTY-Pin to known-good 0
 	tty_symbols = booTYinit(tty_symbols);
 	tty_symbols = TTY_WRITEBUFFER(tty_symbols);
 	tty_symbols = booTYshell(tty_symbols);
 	tty_symbols = TTY_WRITEBUFFER(tty_symbols);
+
+	*/
 }
 
 void init(){

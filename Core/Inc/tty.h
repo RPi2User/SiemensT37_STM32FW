@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #ifndef TTY_H
 #define TTY_H
 
@@ -80,56 +82,46 @@ typedef enum {
     TTY_MODE_FIGURES = 1
 } tty_mode_t;
 
-
+// Conversion -> Will be moved to sbf.h
+uint8_t toSymbol(char c);
+char toCharLTRS(uint8_t sym);
+char toCharFIGS(uint8_t sym);
+char toChar(int8_t _symbol);
 
 // Buffer manipulation
-int* appendSymbol(int* head, int sym);
-int getBufferLength(int* head);
-int toSymbol(char c);
-int* toSymbols(char* ascii_chars);
+int8_t* appendSymbol(int8_t* head, int8_t sym);
+int8_t* appendChar(int8_t* head, char c);
+uint8_t getBufferLength(int8_t* head);
 
-// String stuff
-char toChar(int _symbol);
-char toCharLTRS(int sym);
-char toCharFIGS(int sym);
-
-// Read Section
-void setReadError();
-void clearReadError();
-char TTY_READ();
-char TTY_READKEY();
-int TTY_READsym();
-int readTTY();
-int readSymbol();
-int majority(Databit d);
-
-// TTY Main output
-void TTY_WRITEKEY(char key);
-void TTY_WRITESTRING(char* str);
-int* TTY_WRITEBUFFER(int* buffer);
-
-
-// Write Section
 void TTY_FOX(void);
 
-void TTY_WRITE(int symbol);
-void TTY_SEND(int bit, int cycles);
+void TTY_WRITEKEY(char key);
+void TTY_WRITESTRING(char* str);
+int8_t* TTY_WRITEBUFFER(int8_t* buffer);
 
+void TTY_Write(int8_t _sym);
+
+
+char TTY_READKEY();
+int8_t readSymbol();
+
+uint8_t majority(Databit d);
+
+int8_t readTTY();
+void setTTY(uint8_t state);
+
+void TTY_DELAY(float cycles);
 void TTY_Startbit();
 void TTY_Stopbit();
-void TTY_DELAY(float cycles);
 
 void TTY_raiseMemoryError(void);
+void setReadError();
+void clearReadError();
 
-void TTY_DEBUG();
-
-// Program Vars
-void setLoopback(int _loopback);
-void setTTY(int state);
-void setBaudrate(int baudrate);
-void setTermWidth(int termwidth);
+void setLoopback(uint8_t _loopback);
+void setBaudrate(uint8_t baudrate);
+void setTermWidth(uint8_t termwidth);
 void setStopbits(float stopbit);
 void setSendMode();
-void setInterrupt();
 
 #endif // TTY_H
