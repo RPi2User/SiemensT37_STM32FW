@@ -65,6 +65,7 @@ typedef enum E_symbols{
 	colon = 14,
 	quote = 5,
 	bell = 11,
+	equals = 30,
 
 	// Common
 	space = 4,
@@ -72,7 +73,14 @@ typedef enum E_symbols{
 	lf = 2,
 	ltrs = 31,
 	figs = 27,
-	null = 0
+	null = 0,
+
+	// Special symbols, begins @ 0x50 === 80d
+	enq	= 0x55,	// werda?
+	tab = 0x59,
+	ff	= 0x5C,	// form feed -> 10x new line
+
+
 
 } E_symbols;
 
@@ -127,7 +135,73 @@ static const char figs_to_char[32] = {
 	[slash] = '/',
 	[colon] = ':',
 	[quote] = 0x27,
-	[bell] = 0x07
+	[bell] = 0x07,
+	[equals] = '='
+};
+
+static const int8_t char_to_symCommon[128] = {
+	[0x03]	=	null, // strg+c
+	[0x04] 	=	null, // strg+d
+	[0x05]	=	enq,
+	[0x07]	=	bell,
+	[0x09]	=	tab,
+	[0x0A]	=	lf,
+	[0x0C]	=	ff,
+	[0x0D]	= 	cr,
+	[0x20]	= 	space
+};
+
+static const int8_t char_to_symFIGS[128] = {
+	[0x07]	=	bell,
+	[0x27]	=	quote,
+	['(']	=	lparen,
+	[')']	=	rparen,
+	['+']	=	plus,
+	[',']	=	comma,
+	['-']	=	minus,
+	['.']	=	period,
+	['/']	=	slash,
+	['0']	=	n0,
+	['1']	=	n1,
+	['2']	=	n2,
+	['3']	=	n3,
+	['4']	=	n4,
+	['5']	=	n5,
+	['6']	=	n6,
+	['7']	=	n7,
+	['8']	=	n8,
+	['9']	=	n9,
+	[':']	=	colon,
+	['=']	=	equals
+};
+
+static const int8_t char_to_symLTRS[128] = {
+	['A']	=	a,
+	['B']	=	b,
+	['C']	=	c,
+	['D']	=	d,
+	['E']	=	e,
+	['F']	=	f,
+	['G']	=	g,
+	['H']	=	h,
+	['I']	=	i,
+	['J']	=	j,
+	['K']	=	k,
+	['L']	=	l,
+	['M']	=	m,
+	['N']	=	n,
+	['O']	=	o,
+	['P']	=	p,
+	['Q']	=	q,
+	['R']	=	r,
+	['S']	=	s,
+	['T']	=	t,
+	['U']	=	u,
+	['V']	=	v,
+	['W']	=	w,
+	['X']	=	x,
+	['Y']	=	y,
+	['Z']	=	z
 };
 
 // -----------------------------------------------------------------

@@ -1,4 +1,26 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2025 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+/* Includes ------------------------------------------------------------------*/
 #include "main.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 #include "tty.h"
 #include "writeBuffer.h"
 #include <stdio.h>
@@ -6,302 +28,101 @@
 #include <stdint.h>
 
 #include "symbolbuffer.h"	// TODO: Remove THIS
+/* USER CODE END Includes */
 
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
 
-// KEEP ST-STUFF IN HERE!
-// JUST I/O and Logic
+/* USER CODE END PTD */
 
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart1;
-UART_HandleTypeDef huart2;		// USB UART
+UART_HandleTypeDef huart2;
 
+/* USER CODE BEGIN PV */
+uint8_t UART2_Buffer[1];
+HAL_StatusTypeDef lastStatus;
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
+/* USER CODE BEGIN PFP */
 
+/* USER CODE END PFP */
 
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
 
-// --- GOBLAL VARIABLES --------------------------------------------
+/* USER CODE END 0 */
 
-char* writeBuffer;  // Create empty writeBuffer
-int* tty_symbols;	// field for all symbols (I/O), -1 Terminated
-uint8_t UART2_rxBuffer[2] = {0};
-
-
-// Mode-specific vars
-int mode = 0; // 0 -> Local != 0 -> Serial
-
-
-// -----------------------------------------------------------------
-
-
-// ---I/O SECTION---------------------------------------------------
-void setLED_MLOCAL(int state){	// LED @ A0
-	if (state != 0) {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
-	}
-	else {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
-	}
-}
-
-void setLED_MSERIAL(int state){ // LED @ A1
-	if (state != 0) {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
-	}
-	else {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
-	}
-}
-
-void setLED_BSY(int state){		// LED @ A2
-	if (state != 0) {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
-	}
-	else {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
-	}
-}
-// -----------------------------------------------------------------
-
-
-
-
-
-// ---SENDERS-------------------------------------------------------
-void SEND_TTY(){
-	// sends writeBuffer to tty @ A3
-
-
-	// foreach ASCII-char in writeBuffer…
-	int i = 0;
-	while(*writeBuffer != '\0') {
-		// 1. writeBuffer.toLower();
-		char c = writeBuffer[i];
-        if (writeBuffer[i] >= 'A' && writeBuffer[i] <= 'Z')
-            c += 'a' - 'A'; 	// offset via the difference a-A
-        writeBuffer[i] = c; 	// replace c in writeBuffer
-
-		// TODO: Insert ASCII to Baudot conversion!
-
-		//SEND_TTYC(writeBuffer[i]);
-		i++;
-	}
-
-}
-
-/* void SEND_SERIAL()
- * 	1. char* getSerialBuffer(char* buffer) {…}
- * 	2. int readTTY(loopback=0) {…}
- * 	3. char* sendWriteBuffer(char* writeBuffer) {…}
- * 	4. -> 1.
- */
-
-void SEND_SERIAL(){
-	// placeholder for future code
-
-	// booTY debug
-	booTY();
-}
-
-void SEND(){ // TODO: this goes into _mode()…
-	if (mode != 0){ // LOCAL MODE
-		SEND_TTY();
-	}
-	else {			// SERIAL MODE
-		SEND_SERIAL();
-	}
-}
-// -----------------------------------------------------------------
-
-
-// ---INTERNAL LOGIC------------------------------------------------
-void manageIO(){
-	// this will also handle interrupt req from tty switch
-	// poll Button @ D10
-	if (HAL_GPIO_ReadPin(GPIOB, TTY_RECV_Pin) == 1) return;
-	if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_SET){
-		// 10ms delay for debounce, prolly main delay.
-		HAL_Delay(10);
-		mode = mode != 0 ? 0 : 1;
-		// wait until BT is released
-		while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_SET){
-			HAL_Delay(20);
-		}
-	}
-	if (mode != 0){
-		setLED_MLOCAL(0);
-		setLED_MSERIAL(1);
-	}
-	else {
-		setLED_MLOCAL(1);
-		setLED_MSERIAL(0);
-	}
-}
-
-void waitForBTpress(){
-	// wait for bt_press
-	while (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_RESET){
-		HAL_Delay(10); // wait 10ms
-		if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_SET){
-			// 10ms delay for debounce, prolly main delay.
-			HAL_Delay(10);
-			// wait until BT is released
-			while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_SET){
-				HAL_Delay(20);
-			}
-			break;
-		}
-	}
-}
-
-void sanityCheck(){
-	// very desperate debug entry point
-}
-
-int debugger(){
-	int8_t* a_symbols = sbf_createSymbolBuffer();
-	int8_t* b_symbols = sbf_createSymbolBuffer();
-	/*
-	for (int i = 0; i < 10; i++){
-		a_symbols = sbf_appendSym(a_symbols, a);
-		b_symbols = sbf_appendSym(b_symbols, b);
-	}
-	*/
-
-	int8_t* ab_symbols = sbf_concaternate(a_symbols, b_symbols, 1);
-	ab_symbols = sbf_appendSym(ab_symbols, a);
-	ab_symbols = sbf_appendSym(ab_symbols, plus);
-	ab_symbols = sbf_appendSym(ab_symbols, a);
-	ab_symbols = sbf_appendSym(ab_symbols, plus);
-	char* hello = sbf_convertToString(ab_symbols, "\r\n");
-	ab_symbols = TTY_WRITEBUFFER(ab_symbols);
-	free(ab_symbols);
-
-
-	while(1);
-	return 0;
-}
-
-void io(){
-	/* 1. Print 'LTRS,CRLF,?' -> CLR BSY
-	*  2. accept 'b50' (for baudrate=50) or
-	*		'w80' for 80 Col Width or
-	*		'n' for network-stats
-	*  3. wait for 'CRLF' or 'LFCR'
-	*	-> SET BSY
-	*  4. print 'RDY'
-	*  -> Migrated to booTY
-	*/
-
-}
-
-void _mode(){
-	// fetch input Data, maybe do some stuff, print and send
-
-	/* 1. INPUT
-	*	- clr bsy
-	*	- rec Data from ESP||SERIAL
-	*	- if empty -> wait for tty
-	*	- set bsy
-	*/
-
-	/* 2. OUTPUT
-	*	- write SERIAL
-	*	- write TTY
-	*/
-	setLED_BSY(0); // SIG µC and User: "System RDY to Receive"
-	if (mode != 0){
-		// SERIAL
-		//getSerialData();
-		if (strLen(writeBuffer) != 0){
-			//getTTYData();
-		}
-		setLED_BSY(1);
-		SEND_SERIAL();
-	}
-	else { // LOCAL
-
-		// Input section
-		//getIoTData();
-		if (strLen(writeBuffer) != 0){
-			// If writeBuffer empty...
-			//getTTYData();
-		}
-		setLED_BSY(1);
-		SEND_TTY();
-
-	}
-    return;
-}
-
-// Pre-Boot Environment
-void booTY(){
-
-	/*
-	setTTY(0);			// Rests TTY-Pin to known-good 0
-	tty_symbols = booTYinit(tty_symbols);
-	tty_symbols = TTY_WRITEBUFFER(tty_symbols);
-	tty_symbols = booTYshell(tty_symbols);
-	tty_symbols = TTY_WRITEBUFFER(tty_symbols);
-
-	*/
-}
-
-void init(){
-	// scary ST-Stuff
-    HAL_Init();
-
-    SystemClock_Config();
-
-    MX_GPIO_Init();
-    MX_USART2_UART_Init();
-    MX_USART1_UART_Init();
-
-
-
-    //TODO: init ESP8266 uart
-    // -------------------------------------------------------------
-
-    // init vars
-
-    writeBuffer = malloc(0);
-    tty_symbols = malloc(0);
-
-    // init i/o stuff
-    setLED_BSY(1);
-    setLED_MLOCAL(0);
-    setLED_MSERIAL(0);
-
-
-    HAL_UART_Receive_IT (&huart2, UART2_rxBuffer, 2);
-	// now we can do some UI-Stuff, like ask for bd-rate,
-	// esp-summary, termminal-width, etc.
-    //booTY();	// Boot TTY
-
-    // -------------------------------------------------------------
-    debugger();
-    setLED_BSY(0);		// When init is done, we can SIGRDY
-}
-
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
-	init();
-    while(1){
-        //manageIO();    // Like toggle LEDs, poll Button, etc.
-        //_mode();
-        // do smth important, like initializing
-        // 0. poll teletype
-        // 1. poll RS232 Port
-        // 2. signalize ESP8266 for transmit
-    }
-    free(writeBuffer);
-    free(tty_symbols);
-    return 0;
+
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_USART2_UART_Init();
+  MX_USART1_UART_Init();
+  /* USER CODE BEGIN 2 */
+  HAL_UART_Receive_IT(&huart2, UART2_Buffer, 1);
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+	char* test_string = "===ABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n"
+			"()+,-./0123456789=A1B2C3D4E5F6:===";
+	int8_t* testBuffer = sbf_convertToSymbolBuffer(test_string);
+	testBuffer = TTY_WRITEBUFFER(testBuffer);
+  }
+  /* USER CODE END 3 */
 }
 
-
-// ---SCARY ST STUFF :C---------------------------------------------
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -428,9 +249,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED_MLOCAL_Pin|LED_MSERIAL_Pin|LED_BSY_Pin|TTY_SEND_Pin|TTY_READERR_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LED_MLOCAL_Pin|LED_MSERIAL_Pin|LED_BSY_Pin|TTY_SEND_Pin
+                          |TTY_READERR_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : LED_MLOCAL_Pin LED_MSERIAL_Pin LED_BSY_Pin */
+  /*Configure GPIO pins : LED_MLOCAL_Pin LED_MSERIAL_Pin LED_BSY_Pin TTY_READERR_Pin */
   GPIO_InitStruct.Pin = LED_MLOCAL_Pin|LED_MSERIAL_Pin|LED_BSY_Pin|TTY_READERR_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -446,16 +268,19 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : TTY_RECV_Pin */
   GPIO_InitStruct.Pin = TTY_RECV_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(TTY_RECV_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : BT_MODE_Pin */
   GPIO_InitStruct.Pin = BT_MODE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(BT_MODE_GPIO_Port, &GPIO_InitStruct);
 
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -463,11 +288,31 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    HAL_UART_Transmit(&huart2, UART2_rxBuffer, 2, 100);
-    HAL_UART_Receive_IT(&huart2, UART2_rxBuffer, 2);
+char* buffer_to_hexstr(char* buffer) {
+    // Jedes Byte: "0x" + 2 Hexziffern + " " = 5 Zeichen, letzter ohne Space + '\0'
+
+	uint32_t len = 10;
+
+    static char out[5];
+    uint32_t pos = 0;
+    for (uint32_t i = 0; i < len; ++i) {
+        out[pos++] = '0';
+        out[pos++] = 'x';
+        char val = (char)buffer[i];
+        out[pos++] = "0123456789abcdef"[val >> 4];
+        out[pos++] = "0123456789abcdef"[val & 0xF];
+        if (i < len - 1) {
+            out[pos++] = ' ';
+        }
+    }
+    out[pos] = '\0';
+    return out;
 }
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	lastStatus = HAL_UART_Receive_IT(&huart2, UART2_Buffer, 1);
+}
+
 /* USER CODE END 4 */
 
 /**
@@ -501,4 +346,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-// -----------------------------------------------------------------

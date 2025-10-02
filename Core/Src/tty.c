@@ -76,7 +76,7 @@ const tty_symbols_t symbol = {
     .question = 25,    // 0b11001 (B in LTRS)
     .lparen = 15,      // 0b01111 (K in LTRS)
     .rparen = 18,      // 0b10010 (L in LTRS)
-    .slash = 29,       // 0b11101 (V in LTRS)
+    .slash = 29,       // 0b11101 (X in LTRS)
     .colon = 14,       // 0b01110 (C in LTRS)
     .quote = 5,        // 0b00101 (S in LTRS)
     

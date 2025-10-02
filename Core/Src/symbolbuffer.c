@@ -166,9 +166,44 @@ char* sbf_convertToString(int8_t* _inSbf, char* _newLine){
 }
 
 int8_t* sbf_convertToSymbolBuffer(char* _inStr){
-
-	free(_inStr);
-	return NULL;
+	//str_toUpper(_inStr);	// we just have a uppercase LUT
+	int8_t* _out = sbf_createSymbolBuffer();
+	_out = sbf_appendSym(_out, ltrs);
+	tty_mode_t _currentMode = TTY_LETTERS;
+	char _c = -1;
+	for (uint32_t i = 0; _inStr[i] != '\0'; i++){
+		_c = _inStr[i];
+		if (_c <= 0x20){
+			if (_c == 0x09){
+				for (uint8_t t = 0; t < 4; t++)
+					_out = sbf_appendSym(_out, space);
+			}
+			if(_c == 0x0A) _out = sbf_appendSym(_out, lf);
+			if(_c == 0x0C){
+				_out = sbf_appendSym(_out, cr);
+				for (uint8_t f = 0; f < 10; f++)
+					_out = sbf_appendSym(_out, lf);
+			}
+			if(_c == 0x0D) _out = sbf_appendSym(_out, cr);
+			if(_c == 0x20) _out = sbf_appendSym(_out, space);
+		}
+		if ((_c > 0x20 && _c < 'A') || _c == 0x07){
+			if (_currentMode != TTY_FIGURES){
+				_out = sbf_appendSym(_out, figs);
+				_currentMode = TTY_FIGURES;
+			}
+			_out = sbf_appendSym(_out, char_to_symFIGS[(uint8_t)_c]);
+		}
+		if (_c >= 'A'){
+			if (_currentMode != TTY_LETTERS){
+				_out = sbf_appendSym(_out, ltrs);
+				_currentMode = TTY_LETTERS;
+			}
+			_out = sbf_appendSym(_out, char_to_symLTRS[(uint8_t)_c]);
+		}
+	}
+	//free(_inStr);
+	return _out;
 }
 
 // -----------------------------------------------------------------
