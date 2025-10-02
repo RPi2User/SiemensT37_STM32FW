@@ -92,6 +92,36 @@ int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail){
 
 
 // --- CONVERT -----------------------------------------------------
+void sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
+	tty_mode_t* current_mode, uint32_t* carriage_pos, uint32_t* last_lf){
+
+	/*
+	// Handle common symbols
+	switch(symbol){
+		case cr: &carriage_pos = 0; return;
+		case space: &carriage_pos++; &target = ' '; return;
+		case ltrs: &current_mode = TTY_LETTERS; &carriage_pos++; return;
+		case figs: &current_mode = TTY_FIGURES; &carriage_pos++; return;
+	}
+
+	if (symbol == cr && &last_lf == 0){
+		&carriage_pos = 0;
+	}
+
+	// if crlf OR lfcr OR lflflfl…
+	if (symbol == lf && (target[i+1] == cr || carriage == 0)){
+		_out = str_add(_out, _newLine, 1);
+		continue;
+	}
+
+	if (_mode == TTY_LETTERS)
+		_out = str_appendChar(_out, ltrs_to_char[_inSbf[i]]);
+	else
+		_out = str_appendChar(_out, figs_to_char[_inSbf[i]]);
+	carriage++;
+	*/
+}
+
 char* sbf_convertToString(int8_t* _inSbf, char* _newLine){
 	char* _out = str_empty();
 

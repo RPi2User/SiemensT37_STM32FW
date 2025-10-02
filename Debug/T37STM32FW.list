@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000028  00000000  00000000  00006064  2**0
                   CONTENTS, READONLY
- 12 .debug_info   00008e44  00000000  00000000  0000608c  2**0
+ 12 .debug_info   00008eb9  00000000  00000000  0000608c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00001c32  00000000  00000000  0000eed0  2**0
+ 13 .debug_abbrev 00001c4d  00000000  00000000  0000ef45  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00000848  00000000  00000000  00010b08  2**3
+ 14 .debug_aranges 00000850  00000000  00000000  00010b98  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 0000064a  00000000  00000000  00011350  2**0
+ 15 .debug_rnglists 00000650  00000000  00000000  000113e8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00002146  00000000  00000000  0001199a  2**0
+ 16 .debug_macro  00002146  00000000  00000000  00011a38  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0000a401  00000000  00000000  00013ae0  2**0
+ 17 .debug_line   0000a418  00000000  00000000  00013b7e  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    0008a38d  00000000  00000000  0001dee1  2**0
+ 18 .debug_str    0008a3c8  00000000  00000000  0001df96  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  000a826e  2**0
+ 19 .comment      00000043  00000000  00000000  000a835e  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00002080  00000000  00000000  000a82b4  2**2
+ 20 .debug_frame  000020a0  00000000  00000000  000a83a4  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000059  00000000  00000000  000aa334  2**0
+ 21 .debug_line_str 00000059  00000000  00000000  000aa444  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -3610,10 +3610,11 @@ int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail){
 	...
 
 0800186c <sbf_convertToString>:
-// -----------------------------------------------------------------
+		_out = str_appendChar(_out, figs_to_char[_inSbf[i]]);
+	carriage++;
+	*/
+}
 
-
-// --- CONVERT -----------------------------------------------------
 char* sbf_convertToString(int8_t* _inSbf, char* _newLine){
  800186c:	b590      	push	{r4, r7, lr}
  800186e:	b087      	sub	sp, #28
