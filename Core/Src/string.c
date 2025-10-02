@@ -27,6 +27,13 @@ uint32_t str_len(char* str){
 	while(str[i] != '\0') i++;
 	return i;
 }
+char* str_empty(void){
+	char* _out = (char*) malloc(1 * sizeof(char));
+	if (_out == NULL) TTY_raiseMemoryError();
+	_out[0] = '\0';
+	return _out;
+
+}
 
 char* str_appendChar(char* head, char c){
 	uint32_t head_len = 0;
@@ -57,24 +64,28 @@ char* str_appendChar(char* head, char c){
 
 
 
-char* str_add(char* str1, char* str2){
-	uint32_t str1_len = str_len(str1);
-	uint32_t str2_len = str_len(str2);
+char* str_add(char* head, char* tail, uint8_t keepTail){
+	uint32_t head_len = str_len(head);
+	uint32_t tail_len = str_len(tail);
 	uint32_t len = 0;
 
-	char* _out = (char*) malloc((str1_len + str2_len + 1) * sizeof(char));
+	char* _out = (char*) malloc((head_len + tail_len + 1) * sizeof(char));
 	if (_out == NULL) TTY_raiseMemoryError();
 
-	while(str1[len] != '\0'){
-		_out[len] = str1[len];
+	while(head[len] != '\0'){
+		_out[len] = head[len];
 		len++;
 	}
 
-	while(str2[len - str1_len] != '\0'){
-		_out[len] = str2[len - str1_len];
+	while(tail[len - head_len] != '\0'){
+		_out[len] = tail[len - head_len];
 		len++;
 	}
 	_out[len] = '\0';
+
+	free(head);
+	if (keepTail != 0) free(tail);
+
 	return _out;
 }
 

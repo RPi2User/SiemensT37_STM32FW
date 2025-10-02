@@ -39,6 +39,7 @@ typedef enum E_symbols{
 	t = 16,
 	u = 7,
 	v = 30,
+	w = 19,
 	x = 29,
 	y = 21,
 	z = 17,
@@ -75,6 +76,62 @@ typedef enum E_symbols{
 
 } E_symbols;
 
+// Conversion LUTs: ------------------------------------------------
+
+static const char ltrs_to_char[32] = {
+	[a] = 'a',
+	[b] = 'b',
+	[c] = 'c',
+	[d] = 'd',
+	[e] = 'e',
+	[f] = 'f',
+	[g] = 'g',
+	[h] = 'h',
+	[i] = 'i',
+	[j] = 'j',
+	[k] = 'k',
+	[l] = 'l',
+	[m] = 'm',
+	[n] = 'n',
+	[o] = 'o',
+	[p] = 'p',
+	[q] = 'q',
+	[r] = 'r',
+	[s] = 's',
+	[t] = 't',
+	[u] = 'u',
+	[v] = 'v',
+	[w] = 'w',
+	[x] = 'x',
+	[y] = 'y',
+	[z] = 'z'
+};
+
+static const char figs_to_char[32] = {
+	[n0] = '0',
+	[n1] = '1',
+	[n2] = '2',
+	[n3] = '3',
+	[n4] = '4',
+	[n5] = '5',
+	[n6] = '6',
+	[n7] = '7',
+	[n8] = '8',
+	[n9] = '9',
+	[period] = '.',
+	[comma] = ',',
+	[plus] = '+',
+	[minus] = '-',
+	[lparen] = '(',
+	[rparen] = ')',
+	[slash] = '/',
+	[colon] = ':',
+	[quote] = 0x27,
+	[bell] = 0x07
+};
+
+// -----------------------------------------------------------------
+
 // --- Basic manipulation ------------------------------------------
 uint32_t sbf_len(int8_t* sbf);
 int8_t* sbf_createSymbolBuffer(void);
@@ -84,7 +141,7 @@ int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail);
 
 // --- CONVERT -----------------------------------------------------
 
-char* sbf_convertToString(int8_t* _inSbf);
+char* sbf_convertToString(int8_t* _inSbf, char* _newLine);
 int8_t* sbf_convertToSymbolBuffer(char* _inStr);
 
 #endif /* INC_SYMBOLBUFFER_H_ */

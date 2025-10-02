@@ -78,8 +78,8 @@ extern const tty_symbols_t symbol;
 // TTY Mode enumeration
 // maybe useless
 typedef enum {
-    TTY_MODE_LETTERS = 0,
-    TTY_MODE_FIGURES = 1
+    TTY_LETTERS = 0,
+    TTY_FIGURES = 1
 } tty_mode_t;
 
 // Conversion -> Will be moved to sbf.h

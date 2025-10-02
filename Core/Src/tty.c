@@ -6,7 +6,7 @@
 
 // --- DATA BLOCKS -------------------------------------------------
 // Teletype Variables
-uint8_t tty_mode = TTY_MODE_LETTERS;    // Init to TTY-Mode LTRS
+uint8_t tty_mode = TTY_LETTERS;    // Init to TTY-Mode LTRS
 uint8_t send_mode = 0;		// flag to send current mode again
 uint8_t loopback = 0;		// This sends bit right back to TTY
 
@@ -220,7 +220,7 @@ char toChar(int8_t _symbol){
 	if (_symbol == symbol.space)
 		return ' ';
 
-	if (tty_mode == TTY_MODE_LETTERS){
+	if (tty_mode == TTY_LETTERS){
 		return toCharLTRS(_symbol);
 	}
 	else {
@@ -337,14 +337,14 @@ void TTY_Write(int8_t _sym){
 	if (_sym == -1) return;
 
 	// Skip redundant ltrs/figs commands
-	if (_sym == TTY_MODE_FIGURES || _sym == TTY_MODE_LETTERS)
-		tty_mode = TTY_MODE_FIGURES ?
-				TTY_MODE_FIGURES : TTY_MODE_LETTERS;
+	if (_sym == TTY_FIGURES || _sym == TTY_LETTERS)
+		tty_mode = TTY_FIGURES ?
+				TTY_FIGURES : TTY_LETTERS;
 
 	// if we want to use a "ltrs"|"figs" as audio-visual thingie
 	// then we set this self-resetting flag
 	if (send_mode != 0){
-		if (tty_mode == TTY_MODE_FIGURES) _sym = symbol.figs;
+		if (tty_mode == TTY_LETTERS) _sym = symbol.figs;
 		else _sym = symbol.ltrs;
 		send_mode = 0;			// Remove Flag
 	}

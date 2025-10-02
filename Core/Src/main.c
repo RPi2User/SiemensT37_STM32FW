@@ -25,6 +25,7 @@ static void MX_USART1_UART_Init(void);
 
 char* writeBuffer;  // Create empty writeBuffer
 int* tty_symbols;	// field for all symbols (I/O), -1 Terminated
+uint8_t UART2_rxBuffer[2] = {0};
 
 
 // Mode-specific vars
@@ -161,13 +162,19 @@ void sanityCheck(){
 int debugger(){
 	int8_t* a_symbols = sbf_createSymbolBuffer();
 	int8_t* b_symbols = sbf_createSymbolBuffer();
-
+	/*
 	for (int i = 0; i < 10; i++){
 		a_symbols = sbf_appendSym(a_symbols, a);
 		b_symbols = sbf_appendSym(b_symbols, b);
 	}
+	*/
 
 	int8_t* ab_symbols = sbf_concaternate(a_symbols, b_symbols, 1);
+	ab_symbols = sbf_appendSym(ab_symbols, a);
+	ab_symbols = sbf_appendSym(ab_symbols, plus);
+	ab_symbols = sbf_appendSym(ab_symbols, a);
+	ab_symbols = sbf_appendSym(ab_symbols, plus);
+	char* hello = sbf_convertToString(ab_symbols, "\r\n");
 	ab_symbols = TTY_WRITEBUFFER(ab_symbols);
 	free(ab_symbols);
 
@@ -250,10 +257,14 @@ void init(){
     MX_GPIO_Init();
     MX_USART2_UART_Init();
     MX_USART1_UART_Init();
+
+
+
     //TODO: init ESP8266 uart
     // -------------------------------------------------------------
 
     // init vars
+
     writeBuffer = malloc(0);
     tty_symbols = malloc(0);
 
@@ -262,6 +273,8 @@ void init(){
     setLED_MLOCAL(0);
     setLED_MSERIAL(0);
 
+
+    HAL_UART_Receive_IT (&huart2, UART2_rxBuffer, 2);
 	// now we can do some UI-Stuff, like ask for bd-rate,
 	// esp-summary, termminal-width, etc.
     //booTY();	// Boot TTY
@@ -450,6 +463,11 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    HAL_UART_Transmit(&huart2, UART2_rxBuffer, 2, 100);
+    HAL_UART_Receive_IT(&huart2, UART2_rxBuffer, 2);
+}
 /* USER CODE END 4 */
 
 /**

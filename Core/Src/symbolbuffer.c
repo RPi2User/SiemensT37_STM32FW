@@ -10,9 +10,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "tty.h"
+#include "string.h"
 #include "symbolbuffer.h"
 
 const int8_t SBF_TERMINATOR = -1;
+
+// --- Private functions -------------------------------------------
+tty_mode_t _findInitialMode(int8_t* _inSbf);
 
 // --- Basic manipulation ------------------------------------------
 uint32_t sbf_len(int8_t* sbf){
@@ -84,17 +88,66 @@ int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail){
 	if (keepTail != 0) free(tail);
 	return _out;
 }
-
 // -----------------------------------------------------------------
 
 
 // --- CONVERT -----------------------------------------------------
-char* sbf_convertToString(int8_t* _inSbf){
+char* sbf_convertToString(int8_t* _inSbf, char* _newLine){
+	char* _out = str_empty();
+
+	if (_inSbf[0] == SBF_TERMINATOR) return _out;
+
+	tty_mode_t _mode = TTY_LETTERS;
+	// Its good practice to begin with a "ltrs" or "figs" symbol.
+	// But if a leading symbol is missing, we have to assume :c
+	if (_inSbf[0] != ltrs || _inSbf[0] != figs)
+		_mode = _findInitialMode(_inSbf);
+	else {
+		if(_inSbf[0] == ltrs) _mode = TTY_LETTERS;
+		else _mode = TTY_FIGURES;
+	}
+
+	uint32_t carriage = 0;	// when 0 every lf will be a newline
+	for (int i = 0; _inSbf[i] != SBF_TERMINATOR; i++){
+
+		// Handle common symbols
+		switch(_inSbf[i]){
+			case cr: carriage = 0; continue;
+			case space: str_appendChar(_out, ' '); carriage++; continue;
+			case ltrs: _mode = TTY_LETTERS; carriage++; continue;
+			case figs: _mode = TTY_FIGURES; carriage++; continue;
+		}
+
+		// if crlf OR lfcr OR lflflfl…
+		if (_inSbf[i] == lf && (_inSbf[i+1] == cr || carriage == 0)){
+			_out = str_add(_out, _newLine, 1);
+			continue;
+		}
+
+		if (_mode == TTY_LETTERS)
+			_out = str_appendChar(_out, ltrs_to_char[_inSbf[i]]);
+		else
+			_out = str_appendChar(_out, figs_to_char[_inSbf[i]]);
+		carriage++;
+	}
+
 	free(_inSbf);
-	return NULL;
+	return _out;
 }
 
 int8_t* sbf_convertToSymbolBuffer(char* _inStr){
+
 	free(_inStr);
 	return NULL;
+}
+
+// -----------------------------------------------------------------
+// PRIVATE FUNCTIONS
+void ___();
+tty_mode_t _findInitialMode(int8_t* _inSbf){
+	for (uint32_t i = 0; _inSbf[i] != SBF_TERMINATOR; i++){
+		if (_inSbf[i] == ltrs) return TTY_FIGURES;
+		if (_inSbf[i] == figs) return TTY_LETTERS;
+	}
+	return TTY_LETTERS;	// assume default value
 }
