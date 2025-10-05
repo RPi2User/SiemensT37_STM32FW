@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "main.h"
+#include "symbolbuffer.h"
 #include "tty.h"
 
 // --- DATA BLOCKS -------------------------------------------------
 // Teletype Variables
+uint8_t emerg_cnt = 0;		// Emergency Counter, reserved on stack
 uint8_t tty_mode = TTY_LETTERS;    // Init to TTY-Mode LTRS
 uint8_t send_mode = 0;		// flag to send current mode again
 uint8_t loopback = 0;		// This sends bit right back to TTY
@@ -16,12 +18,7 @@ uint8_t width = 72;			// terminal width
 uint8_t READ_TIMEOUT = 100;// Timeout of 1000ms
 float stopbit_cnt = 1.5;// booTY will be setting this correctly
 
-char* fox = "\r\n the quick brown fox jumps over the lazy dog";
-char FOX[] = {'\r', '\n', 't', 'h', 'e', ' ', 'q', 'u', 'i', 'c', 'k',
-			' ', 'b', 'r', 'o', 'w', 'n', ' ', 'f', 'o', 'x', ' ',
-			'j', 'u', 'm', 'p', 's', ' ', 'o', 'v', 'e', 'r', ' ',
-			't', 'h', 'e', ' ', 'l', 'a', 'z', 'y', ' ', 'd', 'o',
-			'g', '\0'};
+const char* fox = "\r\n the quick brown fox jumps over the lazy dog";
 
 // TTY Symbol definitions with decimal values
 const tty_symbols_t symbol = {
@@ -283,23 +280,22 @@ uint8_t getBufferLength(int8_t* head){	// returns without Terminator!
 }
 
 // -----------------------------------------------------------------
-// TODO: void TTY_printMemoryError(void)
 // Debug function prints a brown fox
-void TTY_FOX(void){
-	TTY_WRITESTRING(FOX);
+void TTY_Fox(void){
+	TTY_WriteString(FOX, 1);
 }
 
 
 // ---TTY-FUNCTIONS-------------------------------------------------
-void TTY_WRITEKEY(char key){
+void TTY_WriteKey(char key){
     int8_t* writebuffer = malloc(0);
     writebuffer = appendChar(writebuffer, key);
-    writebuffer = TTY_WRITEBUFFER(writebuffer);
+    writebuffer = TTY_WriteBuffer(writebuffer);
     free(writebuffer);
 }
 
 
-void TTY_WRITESTRING(char* str){
+void TTY_WriteString(char* str, uint_8 keepStr){
     // MAIN WRITE FUNCTION
     // only works with \0-terminated strings!!!
     int8_t* writebuffer = malloc(0);
@@ -308,12 +304,12 @@ void TTY_WRITESTRING(char* str){
         writebuffer = appendChar(writebuffer, str[i]);
     }
 
-    writebuffer = TTY_WRITEBUFFER(writebuffer);
-
-    free(writebuffer);
+    writebuffer = TTY_WriteBuffer(writebuffer);
+    if (keepStr == 0)
+    	free(writebuffer);
 }
 
-int8_t* TTY_WRITEBUFFER(int8_t* buffer){
+int8_t* TTY_WriteBuffer(int8_t* buffer){
     
     // Write all symbols in buffer
     for (uint8_t i = 0; buffer[i] != -1; i++) {
@@ -367,10 +363,10 @@ void TTY_Write(int8_t _sym){
  * the Teletype. I tried to keep this section clean but some stuff
  * is quite necessary for a stable "API" like infrastructure.
  *
- *	- TTY_READKEY() is the main function, this reads a single Symbol
+ *	- TTY_ReadKey() is the main function, this reads a single Symbol
  *				    and converts it into a char
  */
-char TTY_READKEY(){
+char TTY_ReadKey(){
 	int8_t sym0 = readSymbol();
     return toChar(sym0);
 }
@@ -485,10 +481,14 @@ void TTY_raiseMemoryError(void){
 	 * I'm very sorry for seeing that you got a Memory error.
 	 * This function get Called when your Heap is full/corrupted
 	 *
-	 * 1. Send MEM_ERR_MSG[], symbol by symbol
+	 * 1. Send SBF_MEM_ERROR[], symbol by symbol
 	 * 2. Reset CPU
 	 * 3. Hope for the best
 	 */
+	emerg_cnt = 0;
+	while(SBF_MEM_ERROR[emerg_cnt] != SBF_TERMINATOR){
+		TTY_Write(SBF_MEM_ERROR[emerg_cnt]);
+	}
 	NVIC_SystemReset();	// REBOOT CPU
 }
 

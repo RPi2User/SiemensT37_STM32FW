@@ -15,6 +15,13 @@
 
 const int8_t SBF_TERMINATOR = -1;
 
+const int8_t SBF_MEM_ERROR[] = {
+		cr, lf, ltrs, m, e, m, o, r, y, space, e, r, r, o, r, space,
+		r, e, s, e, t, t, i, n, g, space, c, p, u, figs, bell, bell,
+		SBF_TERMINATOR
+};
+
+
 // --- Private functions -------------------------------------------
 tty_mode_t _findInitialMode(int8_t* _inSbf);
 
@@ -92,21 +99,56 @@ int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail){
 
 
 // --- CONVERT -----------------------------------------------------
-void sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
+
+/*	Convert: symbol to char
+ * 	This conversion needs a lot of contextual data. Hence why the
+ * 	function head is that cluttered.
+ *
+ * 	This function returns
+ * 	   - 2 when line-terminator should be appended
+ * 	   - 1 when the char is successfully converted
+ * 	   - 0 when it sym is a "dead key" like a ltrs or figs
+ * 	   - -1	when a conversion error occurred
+ *
+ *
+ */
+int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
 	tty_mode_t* current_mode, uint32_t* carriage_pos, uint32_t* last_lf){
 
-	/*
+	if (symbol == lf) &last_lf = 0;
+	else &last_lf++;
+
 	// Handle common symbols
 	switch(symbol){
-		case cr: &carriage_pos = 0; return;
-		case space: &carriage_pos++; &target = ' '; return;
-		case ltrs: &current_mode = TTY_LETTERS; &carriage_pos++; return;
-		case figs: &current_mode = TTY_FIGURES; &carriage_pos++; return;
+		case cr: &carriage_pos = 0; &target = 0x0D; return 1;
+		case space: &carriage_pos++; &target = ' '; return 1;
+		case ltrs: &current_mode = TTY_LETTERS; return 0;
+		case figs: &current_mode = TTY_FIGURES; return 0;
 	}
 
-	if (symbol == cr && &last_lf == 0){
+	/*
+	 * There are three valid cases for a new-line Insertion.
+	 *  1. "CR LF"
+	 *  2. "LF CR"
+	 *  3. multiple "LF" (only works on carriage == 0)
+	 */
+
+	// case 1 "lfcr"
+	if (&last_lf == 0 && symbol == cr){
 		&carriage_pos = 0;
+		&last_lf = 0;
+		target = _newLine;
+		return 2;
 	}
+
+	// case 2 "crlf" AND case 3 "crlflflflf..."
+	if (&carriage_pos == 0 && symbol == lf){
+		&carriage_pos = 0;
+		&last_lf = 0;
+		target = _newLine;
+		return 2;
+	}
+	/*
 
 	// if crlf OR lfcr OR lflflfl…
 	if (symbol == lf && (target[i+1] == cr || carriage == 0)){
@@ -187,14 +229,14 @@ int8_t* sbf_convertToSymbolBuffer(char* _inStr){
 			if(_c == 0x0D) _out = sbf_appendSym(_out, cr);
 			if(_c == 0x20) _out = sbf_appendSym(_out, space);
 		}
-		if ((_c > 0x20 && _c < 'A') || _c == 0x07){
+		if ((_c > 0x20 && _c < 'A') || _c == 0x07 || _c > 'z'){
 			if (_currentMode != TTY_FIGURES){
 				_out = sbf_appendSym(_out, figs);
 				_currentMode = TTY_FIGURES;
 			}
 			_out = sbf_appendSym(_out, char_to_symFIGS[(uint8_t)_c]);
 		}
-		if (_c >= 'A'){
+		if (_c >= 'A' && _c <= 'z'){
 			if (_currentMode != TTY_LETTERS){
 				_out = sbf_appendSym(_out, ltrs);
 				_currentMode = TTY_LETTERS;

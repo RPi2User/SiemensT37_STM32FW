@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "symbolbuffer.h"	// TODO: Remove THIS
+#include "symbolbuffer.h"	// TODO: Remove THIS, all comms through tty.c
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,10 +111,13 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+	// TODO: check sym-to-sym-timings on Oscilloscope
+
 	char* test_string = "===ABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n"
 			"()+,-./0123456789=A1B2C3D4E5F6:===";
 	int8_t* testBuffer = sbf_convertToSymbolBuffer(test_string);
-	testBuffer = TTY_WRITEBUFFER(testBuffer);
+	testBuffer = TTY_WriteBuffer(testBuffer);
   }
   /* USER CODE END 3 */
 }

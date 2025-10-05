@@ -84,6 +84,7 @@ typedef enum E_symbols{
 
 } E_symbols;
 
+
 // Conversion LUTs: ------------------------------------------------
 
 static const char ltrs_to_char[32] = {
@@ -154,6 +155,12 @@ static const int8_t char_to_symCommon[128] = {
 static const int8_t char_to_symFIGS[128] = {
 	[0x07]	=	bell,
 	[0x27]	=	quote,
+	['{']	=	lparen,
+	['}']	=	rparen,
+	['<']	=	quote,
+	['>']	=	quote,
+	['[']	=	lparen,
+	[']']	=	rparen,
 	['(']	=	lparen,
 	[')']	=	rparen,
 	['+']	=	plus,

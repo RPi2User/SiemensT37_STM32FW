@@ -96,8 +96,8 @@ uint8_t getBufferLength(int8_t* head);
 void TTY_FOX(void);
 
 void TTY_WRITEKEY(char key);
-void TTY_WRITESTRING(char* str);
-int8_t* TTY_WRITEBUFFER(int8_t* buffer);
+void TTY_WriteString(char* str);
+int8_t* TTY_WriteBuffer(int8_t* buffer);
 
 void TTY_Write(int8_t _sym);
 
