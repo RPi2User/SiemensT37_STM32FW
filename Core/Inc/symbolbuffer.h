@@ -9,7 +9,7 @@
 #define INC_SYMBOLBUFFER_H_
 
 extern const int8_t SBF_TERMINATOR;
-extern const int8_t SBF_MEM_ERROR[];
+
 
 typedef enum E_lettercase{
 	LOWERCASE = 0,
@@ -67,6 +67,7 @@ typedef enum E_symbols{
 	quote = 5,
 	bell = 11,
 	equals = 30,
+	question = 25,
 
 	// Common
 	space = 4,
@@ -138,7 +139,8 @@ static const char figs_to_char[32] = {
 	[colon] = ':',
 	[quote] = 0x27,
 	[bell] = 0x07,
-	[equals] = '='
+	[equals] = '=',
+	[question] = '?'
 };
 
 static const int8_t char_to_symCommon[128] = {
@@ -180,7 +182,8 @@ static const int8_t char_to_symFIGS[128] = {
 	['8']	=	n8,
 	['9']	=	n9,
 	[':']	=	colon,
-	['=']	=	equals
+	['=']	=	equals,
+	['?']	=	question
 };
 
 static const int8_t char_to_symLTRS[128] = {

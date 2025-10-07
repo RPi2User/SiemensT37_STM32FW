@@ -127,6 +127,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_UART_Receive_IT(&huart2, UART2_Buffer, 1);
+  TTY_Init();
 
   /* USER CODE END 2 */
 
@@ -141,9 +142,6 @@ int main(void)
 	// TODO: check sym-to-sym-timings on Oscilloscope
 	char* test_string = "===ABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n"
 			"()+,-./0123456789=A1B2C3D4E5F6:===";
-	int8_t* testBuffer = sbf_convertToSymbolBuffer(test_string);
-	int8_t sym = readSymbol();
-	testBuffer = TTY_WriteBuffer(testBuffer);
   }
   /* USER CODE END 3 */
 }

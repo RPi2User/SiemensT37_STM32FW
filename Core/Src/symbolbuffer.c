@@ -15,12 +15,6 @@
 
 const int8_t SBF_TERMINATOR = -1;
 
-const int8_t SBF_MEM_ERROR[] = {
-		cr, lf, ltrs, m, e, m, o, r, y, space, e, r, r, o, r, space,
-		r, e, s, e, t, t, i, n, g, space, c, p, u, figs, bell, bell,
-		SBF_TERMINATOR
-};
-
 
 // --- Private functions -------------------------------------------
 tty_mode_t _findInitialMode(int8_t* _inSbf);
@@ -150,20 +144,6 @@ int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
 	}
 
 	return -1;
-	/*
-
-	// if crlf OR lfcr OR lflflfl…
-	if (symbol == lf && (target[i+1] == cr || carriage == 0)){
-		_out = str_add(_out, _newLine, 1);
-		continue;
-	}
-
-	if (_mode == TTY_LETTERS)
-		_out = str_appendChar(_out, ltrs_to_char[_inSbf[i]]);
-	else
-		_out = str_appendChar(_out, figs_to_char[_inSbf[i]]);
-	carriage++;
-	*/
 }
 
 char* sbf_convertToString(int8_t* _inSbf, char* _newLine){

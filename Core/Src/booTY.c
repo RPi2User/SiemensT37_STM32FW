@@ -4,12 +4,12 @@
 #include "tty.h"
 #include "booTY.h"
 #include "main.h"
+#include "symbolbuffer.h"
 
 
 // ----------------------------------------------------------------
 // SETTINGS
 uint8_t terminal_width = 72;
-uint8_t baudrate = 50;
 int8_t* linebreak;
 char* network_stats; 
 // smth like: "+++10.10.0.222/24+fe80:aab1:22/64+++"
@@ -40,16 +40,8 @@ const int8_t VALID_LINEBREAKS[] = {
 int8_t* booTYinit(int8_t* currentBuffer){
 	readBuffer = (int8_t*)malloc(1);
 	HAL_Delay(50);
-	TTY_Write(symbol.null);		// some ttys need a bit more time
+	TTY_Write(null);		// some ttys need a bit more time
 	HAL_Delay(50);				// to settle
-	for (int i = 0; i <= 5; i++){
-		currentBuffer = appendSymbol(currentBuffer, symbol.cr);
-	}
-	currentBuffer = appendSymbol(currentBuffer, symbol.lf);
-	currentBuffer = appendSymbol(currentBuffer, symbol.figs);
-	currentBuffer = appendSymbol(currentBuffer, symbol.question);
-	currentBuffer = appendSymbol(currentBuffer, symbol.ltrs);
-	currentBuffer = appendSymbol(currentBuffer, symbol.space);
 
 	return currentBuffer;
 }
@@ -68,9 +60,7 @@ int8_t* booTYshell(int8_t* currentBuffer){
 	 * 	  all others will get rejected
 	 * 3. After successful config print RDY
 	 */
-
-	currentBuffer = readCommand(symbol.question);
-	return currentBuffer;	// Returns additional stuff
+	return NULL;
 }
 
 /* This function is part of booTY it helps the user to make a correct
@@ -79,7 +69,7 @@ int8_t* booTYshell(int8_t* currentBuffer){
  *    - helps to only allow valid mode ltrs
  *    - automagically switches between ltrs and figs for user-comfort
  */  
-int8_t* readCommand(int8_t cmd_terminator){
+int8_t readCommand(int8_t cmd_terminator){
 	int8_t _sym = -1;
 	int8_t _term = -1;
 	do {
@@ -88,6 +78,5 @@ int8_t* readCommand(int8_t cmd_terminator){
 		if (_term != cmd_terminator) _sym = _term;
 	} while (_term != cmd_terminator);
 	TTY_Write(cmd_terminator);	// Gives user correct symbol as response
-	readBuffer = appendSymbol(readBuffer, _sym);
-	return readBuffer;
+	return _sym;
 }
