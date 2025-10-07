@@ -8,7 +8,8 @@
 #ifndef INC_SYMBOLBUFFER_H_
 #define INC_SYMBOLBUFFER_H_
 
-
+extern const int8_t SBF_TERMINATOR;
+extern const int8_t SBF_MEM_ERROR[];
 
 typedef enum E_lettercase{
 	LOWERCASE = 0,

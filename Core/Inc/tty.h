@@ -38,7 +38,7 @@ typedef struct {
     const int x;
     const int y;
     const int z;
-    
+
     // Numbers
     const int n0;
     const int n1;
@@ -50,7 +50,7 @@ typedef struct {
     const int n7;
     const int n8;
     const int n9;
-    
+
     // Special characters
     const int space;
     const int cr;
@@ -65,7 +65,7 @@ typedef struct {
     const int slash;
     const int colon;
     const int quote;
-    
+
     // Control
     const int ltrs;
     const int figs;
@@ -96,7 +96,7 @@ uint8_t getBufferLength(int8_t* head);
 void TTY_FOX(void);
 
 void TTY_WRITEKEY(char key);
-void TTY_WriteString(char* str);
+void TTY_WriteString(char* str, uint8_t keepStr);
 int8_t* TTY_WriteBuffer(int8_t* buffer);
 
 void TTY_Write(int8_t _sym);
@@ -109,8 +109,8 @@ uint8_t majority(Databit d);
 
 int8_t readTTY();
 void setTTY(uint8_t state);
-
-void TTY_DELAY(float cycles);
+void TTY_DelayMS(uint32_t ms);
+void TTY_Delay(float cycles);
 void TTY_Startbit();
 void TTY_Stopbit();
 

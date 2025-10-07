@@ -65,7 +65,33 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// ---I/O SECTION---------------------------------------------------
+void setLED_MLOCAL(int state){	// LED @ A0
+	if (state != 0) {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+	}
+	else {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+	}
+}
 
+void setLED_MSERIAL(int state){ // LED @ A1
+	if (state != 0) {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+	}
+	else {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+	}
+}
+
+void setLED_BSY(int state){		// LED @ A2
+	if (state != 0) {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+	}
+	else {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -113,10 +139,10 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	// TODO: check sym-to-sym-timings on Oscilloscope
-
 	char* test_string = "===ABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n"
 			"()+,-./0123456789=A1B2C3D4E5F6:===";
 	int8_t* testBuffer = sbf_convertToSymbolBuffer(test_string);
+	int8_t sym = readSymbol();
 	testBuffer = TTY_WriteBuffer(testBuffer);
   }
   /* USER CODE END 3 */

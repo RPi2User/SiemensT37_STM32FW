@@ -113,17 +113,17 @@ int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail){
  *
  */
 int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
-	tty_mode_t* current_mode, uint32_t* carriage_pos, uint32_t* last_lf){
+   tty_mode_t* current_mode, uint32_t* carriage_pos, uint32_t* last_lf){
 
-	if (symbol == lf) &last_lf = 0;
-	else &last_lf++;
+	if (symbol == lf) last_lf = 0;
+	else last_lf++;
 
 	// Handle common symbols
 	switch(symbol){
-		case cr: &carriage_pos = 0; &target = 0x0D; return 1;
-		case space: &carriage_pos++; &target = ' '; return 1;
-		case ltrs: &current_mode = TTY_LETTERS; return 0;
-		case figs: &current_mode = TTY_FIGURES; return 0;
+		case cr: *carriage_pos = 0; *target = 0x0D; return 1;
+		case space: (*carriage_pos)++; *target = ' '; return 1;
+		case ltrs: *current_mode = TTY_LETTERS; return 0;
+		case figs: *current_mode = TTY_FIGURES; return 0;
 	}
 
 	/*
@@ -134,20 +134,22 @@ int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
 	 */
 
 	// case 1 "lfcr"
-	if (&last_lf == 0 && symbol == cr){
-		&carriage_pos = 0;
-		&last_lf = 0;
+	if (*last_lf == 0 && symbol == cr){
+		*carriage_pos = 0;
+		*last_lf = 0;
 		target = _newLine;
 		return 2;
 	}
 
 	// case 2 "crlf" AND case 3 "crlflflflf..."
-	if (&carriage_pos == 0 && symbol == lf){
-		&carriage_pos = 0;
-		&last_lf = 0;
+	if (*carriage_pos == 0 && symbol == lf){
+		*carriage_pos = 0;
+		*last_lf = 0;
 		target = _newLine;
 		return 2;
 	}
+
+	return -1;
 	/*
 
 	// if crlf OR lfcr OR lflflfl…

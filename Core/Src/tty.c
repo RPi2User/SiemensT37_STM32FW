@@ -15,10 +15,10 @@ uint8_t loopback = 0;		// This sends bit right back to TTY
 uint8_t baud = 50;			// default Baudrate for TTYs
 uint8_t width = 72;			// terminal width
 
-uint8_t READ_TIMEOUT = 100;// Timeout of 1000ms
-float stopbit_cnt = 1.5;// booTY will be setting this correctly
+uint8_t READ_TIMEOUT = 100;	// Timeout of 1000ms
+float stopbit_cnt = 1.5;	// booTY will be setting this correctly
 
-const char* fox = "\r\n the quick brown fox jumps over the lazy dog";
+char* fox = "\r\n the quick brown fox jumps over the lazy dog";
 
 // TTY Symbol definitions with decimal values
 const tty_symbols_t symbol = {
@@ -282,7 +282,7 @@ uint8_t getBufferLength(int8_t* head){	// returns without Terminator!
 // -----------------------------------------------------------------
 // Debug function prints a brown fox
 void TTY_Fox(void){
-	TTY_WriteString(FOX, 1);
+	TTY_WriteString(fox, 1);
 }
 
 
@@ -295,7 +295,7 @@ void TTY_WriteKey(char key){
 }
 
 
-void TTY_WriteString(char* str, uint_8 keepStr){
+void TTY_WriteString(char* str, uint8_t keepStr){
     // MAIN WRITE FUNCTION
     // only works with \0-terminated strings!!!
     int8_t* writebuffer = malloc(0);
@@ -329,7 +329,7 @@ int8_t* TTY_WriteBuffer(int8_t* buffer){
 }
 
 void TTY_Write(int8_t _sym){
-
+	setLED_BSY(1);
 	if (_sym == -1) return;
 
 	// Skip redundant ltrs/figs commands
@@ -351,10 +351,11 @@ void TTY_Write(int8_t _sym){
     for (uint8_t i = 0; i < 5; i++) {
         uint8_t bit = ((_sym >> i) & 0x01) ^ 1;
         setTTY(bit);
-        TTY_DELAY(1);
+        TTY_Delay(1);
     }
 	// send those 5 bits
 	TTY_Stopbit();
+	setLED_BSY(0);
 }
 
 /*	==== READ OPERATIONS ===========================================
@@ -374,46 +375,29 @@ char TTY_ReadKey(){
 int8_t readSymbol() {
 	// wait for Symbol-Trigger
 	while(1){
-		if (readTTY() == 0) HAL_Delay(2);
+		if (readTTY() == 0) TTY_DelayMS(2);
 		else break;
 	}
-	/*
-	for (int i = 0; i <= READ_TIMEOUT; i+=2){
-		if (readTTY() == 0) HAL_Delay(2);
-		else break;
-	}
-
-	*/
 	// read start-bit
 	// pattern: 20ms startbit, 5x20ms Databit, 1.n stopbits
 	// STARTBIT is 20ms HIGH
-	HAL_Delay(9);	// Wait 10ms
+	TTY_DelayMS(10);	// Wait 10ms
 	uint8_t beg = readTTY();
-	HAL_Delay(14);	// Wait 5 + 10ms
+	TTY_DelayMS(15);	// Wait 5 + 10ms
 	// NOTE: the additional delay (above) is the SAMPLING OFFSET!
 
 	Databit databit[5];
 	for (uint8_t i = 0; i < 5; i++){
 		databit[i].s1 = readTTY();
-		HAL_Delay(4); // 5ms Delay
+		TTY_DelayMS(5); // 5ms Delay
 		databit[i].s2 = readTTY();
-		HAL_Delay(4); // 5ms Delay
+		TTY_DelayMS(5); // 5ms Delay
 		databit[i].s3 = readTTY();
-		HAL_Delay(9); // 10ms delay
+		TTY_DelayMS(10); // 10ms delay
 	}
 
-	// END Bit low for 1.5|1 sub-symbols
-	// Should be 20-30ms
-	// we use 5ms to determine whether or not a stopbit exists
-	HAL_Delay(5);	// get some air for calculations
+	TTY_DelayMS(5);
 
-	// we can skip entire stopbit business, we are slow af
-	// --- BUG? ---
-	// well that might not aged that well…
-	// Loopback: after an ltrs, an additional ltrs got detected/send.
-	// Assumption: all calculations should be done after 2ms.
-	// Solution: just before we return the value we wait the entire
-	//           Stopbit / "Pausenschritt" as Siemens calls it :3
 
 	uint8_t end = readTTY();
 
@@ -422,9 +406,6 @@ int8_t readSymbol() {
 		setReadError();
 		return -1;
 	}
-
-	// BUG: Dauerfeuer von y funktioniert, r's werden immernoch falsch erkannt!
-    // Konnte den BUG nicht mehr reproduzieren...
 
     uint8_t out = 0;
 
@@ -462,18 +443,25 @@ void setTTY(uint8_t state){			// TTY @ A3
 	}
 }
 
-void TTY_DELAY(float cycles){
-	HAL_Delay((uint8_t)(cycles * ( 1000 / baud)));
+void TTY_DelayMS(uint32_t ms){
+	uint32_t start = HAL_GetTick();
+	while ((HAL_GetTick() - start) < ms);
+}
+
+void TTY_Delay(float cycles){
+	uint32_t delay_ms = (cycles * ( 1000 / baud));
+	TTY_DelayMS(delay_ms);
+
 }
 
 void TTY_Startbit(){
 	setTTY(1);
-	TTY_DELAY(1.0);
+	TTY_Delay(1.0);
 }
 
 void TTY_Stopbit(){
 	setTTY(0);
-	TTY_DELAY(stopbit_cnt);
+	TTY_Delay(stopbit_cnt);
 }
 
 void TTY_raiseMemoryError(void){
