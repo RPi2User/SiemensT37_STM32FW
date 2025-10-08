@@ -13,25 +13,27 @@ E_lettercase lettercase = LOWERCASE;
 float stopbit_cnt = 1.5;
 uint8_t tabSize = 2;
 
+// dynamic vars
+int8_t* currentLine;
+uint8_t last_linefeed = 0;
+uint32_t carriage_pos = 0;
+tty_mode_t tty_mode = TTY_LETTERS;
+
 
 // System variables
 uint8_t emerg_cnt = 0;		// Emergency Counter, reserved on stack
-tty_mode_t tty_mode = TTY_LETTERS;
 uint8_t loopback = 0;		// This sends bit right back to TTY
-
 uint8_t READ_TIMEOUT = 100;	// Timeout of 1000ms
+
 char* fox = "\r\nthe quick brown fox jumps over the lazy dog";
-
 const int8_t SBF_MEM_ERROR[] = {
-		cr, lf, ltrs, m, e, m, o, r, y, space, e, r, r, o, r, space,
-		r, e, s, e, t, t, i, n, g, space, c, p, u, figs, bell, bell,
-		-1
+	cr, lf, ltrs, m, e, m, o, r, y, space, e, r, r, o, r, figs,
+	comma, ltrs, space, r, e, s, e, t, t, i, n, g, space,
+	c, p, u, figs, period, bell, bell, bell, bell, bell, -1
 };
-
 
 void TTY_Init(){
 	// this loads the contents from flash and sets the variables
-	return NULL;
 }
 
 // -----------------------------------------------------------------
@@ -60,7 +62,7 @@ void TTY_WriteString(char* str, uint8_t keepStr){
 int8_t* TTY_WriteBuffer(int8_t* buffer){
     
     // Write all symbols in buffer
-    for (uint8_t i = 0; buffer[i] != -1; i++) {
+    for (uint8_t i = 0; buffer[i] != SBF_TERMINATOR; i++) {
         TTY_Write(buffer[i]);
     }
 
@@ -70,9 +72,9 @@ int8_t* TTY_WriteBuffer(int8_t* buffer){
     // Create new empty buffer
     int8_t* out = (int8_t*)malloc(sizeof(int8_t));
     if (out == NULL) {
-        return NULL;  // malloc failed - caller must handle this!
+        TTY_raiseMemoryError();
     }
-    out[0] = -1;  // Null-terminate
+    out[0] = SBF_TERMINATOR;  // Null-terminate
     return out;
 }
 
@@ -111,6 +113,12 @@ void TTY_Write(int8_t _sym){
 char TTY_ReadKey(){
 	// TODO
 	return 'C';
+}
+
+
+// --- private -----------------------------------------------------
+uint8_t majority(Databit d) {
+    return (d.s1 + d.s2 + d.s3) >= 2 ? 1 : 0;
 }
 
 int8_t readSymbol() {
@@ -162,9 +170,6 @@ int8_t readSymbol() {
     return out;
 }
 
-uint8_t majority(Databit d) {
-    return (d.s1 + d.s2 + d.s3) >= 2 ? 1 : 0;
-}
 
 // --- Hardware Interfaces -----------------------------------------
 int8_t readTTY(){
@@ -175,33 +180,8 @@ int8_t readTTY(){
 }
 
 void setTTY(uint8_t state){			// TTY @ A3
-	if (state != 0) {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-	}
-	else {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-	}
-}
-
-void TTY_DelayMS(uint32_t ms){
-	uint32_t start = HAL_GetTick();
-	while ((HAL_GetTick() - start) < ms);
-}
-
-void TTY_Delay(float cycles){
-	uint32_t delay_ms = (cycles * ( 1000 / baudrate));
-	TTY_DelayMS(delay_ms);
-
-}
-
-void TTY_Startbit(){
-	setTTY(1);
-	TTY_Delay(1.0);
-}
-
-void TTY_Stopbit(){
-	setTTY(0);
-	TTY_Delay(stopbit_cnt);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,
+			state ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
 void TTY_raiseMemoryError(void){
@@ -216,8 +196,30 @@ void TTY_raiseMemoryError(void){
 	emerg_cnt = 0;
 	while(SBF_MEM_ERROR[emerg_cnt] != SBF_TERMINATOR){
 		TTY_Write(SBF_MEM_ERROR[emerg_cnt]);
+		emerg_cnt++;
 	}
 	NVIC_SystemReset();	// REBOOT CPU
+}
+
+// --- Timing ------------------------------------------------------
+void TTY_DelayMS(uint32_t ms){
+	uint32_t start = HAL_GetTick();
+	while ((HAL_GetTick() - start) < ms);
+}
+
+void TTY_Delay(float cycles){
+	uint32_t delay_ms = (cycles * ( 1000 / baudrate));
+	TTY_DelayMS(delay_ms);
+}
+
+void TTY_Startbit(){
+	setTTY(1);
+	TTY_Delay(1.0);
+}
+
+void TTY_Stopbit(){
+	setTTY(0);
+	TTY_Delay(stopbit_cnt);
 }
 
 void setReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 1); }

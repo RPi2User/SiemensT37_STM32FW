@@ -138,8 +138,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-	// TODO: check sym-to-sym-timings on Oscilloscope
+	HAL_Delay(3500);
+	TTY_Fox();
 	char* test_string = "===ABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n"
 			"()+,-./0123456789=A1B2C3D4E5F6:===";
   }

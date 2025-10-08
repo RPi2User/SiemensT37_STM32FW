@@ -109,8 +109,8 @@ int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail){
 int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
    tty_mode_t* current_mode, uint32_t* carriage_pos, uint32_t* last_lf){
 
-	if (symbol == lf) last_lf = 0;
-	else last_lf++;
+	if (symbol == lf) *last_lf = 0;
+	else *last_lf = 1;
 
 	// Handle common symbols
 	switch(symbol){
@@ -131,7 +131,7 @@ int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
 	if (*last_lf == 0 && symbol == cr){
 		*carriage_pos = 0;
 		*last_lf = 0;
-		target = _newLine;
+		target = _newLine;		// 'return' new-Line Pointer
 		return 2;
 	}
 
@@ -139,11 +139,24 @@ int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
 	if (*carriage_pos == 0 && symbol == lf){
 		*carriage_pos = 0;
 		*last_lf = 0;
-		target = _newLine;
+		target = _newLine;		// 'return' new-Line Pointer
 		return 2;
 	}
 
-	return -1;
+	if (symbol == lf) return 0;
+
+	if (*current_mode == TTY_LETTERS){
+		*target = ltrs_to_char[symbol];
+		(*carriage_pos)++;
+		return 1;
+	}
+	else {
+		*target = figs_to_char[symbol];
+		(*carriage_pos)++;
+		return 1;
+	}
+
+	return -1;	// If no-one returns there is an unpredictable error
 }
 
 char* sbf_convertToString(int8_t* _inSbf, char* _newLine){
@@ -151,7 +164,14 @@ char* sbf_convertToString(int8_t* _inSbf, char* _newLine){
 
 	if (_inSbf[0] == SBF_TERMINATOR) return _out;
 
-	tty_mode_t _mode = TTY_LETTERS;
+	// simulated TTY
+	tty_mode_t _mode = TTY_LETTERS;	// current Mode
+	uint32_t carriage = 0;			// current carriage_position
+	uint32_t last_lf = 0;			// was previos char lf?
+	char c = '\0';					// pre-deklaration for a char
+	int8_t result = 0;				// result of toChar()
+
+	// Finde initial Mode
 	// Its good practice to begin with a "ltrs" or "figs" symbol.
 	// But if a leading symbol is missing, we have to assume :c
 	if (_inSbf[0] != ltrs || _inSbf[0] != figs)
@@ -161,28 +181,18 @@ char* sbf_convertToString(int8_t* _inSbf, char* _newLine){
 		else _mode = TTY_FIGURES;
 	}
 
-	uint32_t carriage = 0;	// when 0 every lf will be a newline
+
 	for (int i = 0; _inSbf[i] != SBF_TERMINATOR; i++){
 
-		// Handle common symbols
-		switch(_inSbf[i]){
-			case cr: carriage = 0; continue;
-			case space: str_appendChar(_out, ' '); carriage++; continue;
-			case ltrs: _mode = TTY_LETTERS; carriage++; continue;
-			case figs: _mode = TTY_FIGURES; carriage++; continue;
-		}
+		result = sbf_convertToChar(_inSbf[i], &c, _newLine,
+				&_mode, &carriage, &last_lf);
 
-		// if crlf OR lfcr OR lflflfl…
-		if (_inSbf[i] == lf && (_inSbf[i+1] == cr || carriage == 0)){
-			_out = str_add(_out, _newLine, 1);
-			continue;
+		switch (result){
+			case -1: continue;
+			case 0: continue;
+			case 1: _out = str_appendChar(_out, c); continue;
+			case 2: _out = str_add(_out, _newLine, 1); continue;
 		}
-
-		if (_mode == TTY_LETTERS)
-			_out = str_appendChar(_out, ltrs_to_char[_inSbf[i]]);
-		else
-			_out = str_appendChar(_out, figs_to_char[_inSbf[i]]);
-		carriage++;
 	}
 
 	free(_inSbf);

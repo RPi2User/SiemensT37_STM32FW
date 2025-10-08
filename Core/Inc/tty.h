@@ -19,20 +19,9 @@ typedef enum {
 
 void TTY_Init();
 
-// Conversion -> Will be moved to sbf.h
-uint8_t toSymbol(char c);
-char toCharLTRS(uint8_t sym);
-char toCharFIGS(uint8_t sym);
-char toChar(int8_t _symbol);
-
-// Buffer manipulation
-int8_t* appendSymbol(int8_t* head, int8_t sym);
-int8_t* appendChar(int8_t* head, char c);
-uint8_t getBufferLength(int8_t* head);
-
 void TTY_FOX(void);
 
-void TTY_WRITEKEY(char key);
+void TTY_WriteKey(char key);
 void TTY_WriteString(char* str, uint8_t keepStr);
 int8_t* TTY_WriteBuffer(int8_t* buffer);
 
@@ -59,6 +48,5 @@ void setLoopback(uint8_t _loopback);
 void setBaudrate(float baudrate);
 void setTermWidth(uint8_t termwidth);
 void setStopbits(float stopbit);
-void setSendMode();
 
 #endif // TTY_H
