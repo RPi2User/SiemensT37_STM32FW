@@ -226,7 +226,8 @@ int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail);
 
 // --- CONVERT -----------------------------------------------------
 
-char* sbf_convertToString(int8_t* _inSbf, char* _newLine);
+char* sbf_convertToString(int8_t* _inSbf,
+		char* _newLine, uint8_t keepBuffer);
 int8_t* sbf_convertToSymbolBuffer(char* _inStr);
 
 #endif /* INC_SYMBOLBUFFER_H_ */

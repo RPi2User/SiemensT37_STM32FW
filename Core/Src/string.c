@@ -84,7 +84,7 @@ char* str_add(char* head, char* tail, uint8_t keepTail){
 	_out[len] = '\0';
 
 	free(head);
-	if (keepTail != 0) free(tail);
+	if (keepTail == 0) free(tail);
 
 	return _out;
 }

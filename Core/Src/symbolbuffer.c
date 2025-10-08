@@ -86,7 +86,7 @@ int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail){
 	_out[len] = SBF_TERMINATOR;
 
 	free(head);
-	if (keepTail != 0) free(tail);
+	if (keepTail == 0) free(tail);
 	return _out;
 }
 // -----------------------------------------------------------------
@@ -159,7 +159,8 @@ int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
 	return -1;	// If no-one returns there is an unpredictable error
 }
 
-char* sbf_convertToString(int8_t* _inSbf, char* _newLine){
+char* sbf_convertToString(int8_t* _inSbf,
+		char* _newLine, uint8_t keepBuffer){
 	char* _out = str_empty();
 
 	if (_inSbf[0] == SBF_TERMINATOR) return _out;
@@ -191,11 +192,11 @@ char* sbf_convertToString(int8_t* _inSbf, char* _newLine){
 			case -1: continue;
 			case 0: continue;
 			case 1: _out = str_appendChar(_out, c); continue;
-			case 2: _out = str_add(_out, _newLine, 1); continue;
+			case 2: _out = str_add(_out, _newLine, keepBuffer); continue;
 		}
 	}
 
-	free(_inSbf);
+	if (keepBuffer == 0) free(_inSbf);
 	return _out;
 }
 

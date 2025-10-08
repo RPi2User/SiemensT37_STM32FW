@@ -39,6 +39,8 @@ void TTY_Init(){
 // -----------------------------------------------------------------
 // Debug function prints a brown fox
 void TTY_Fox(void){
+	char* term = "\r\n";
+	char* str_test = sbf_convertToString(SBF_MEM_ERROR, term ,1);
 	TTY_WriteString(fox, 1);
 }
 

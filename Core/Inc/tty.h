@@ -19,7 +19,7 @@ typedef enum {
 
 void TTY_Init();
 
-void TTY_FOX(void);
+void TTY_Fox(void);
 
 void TTY_WriteKey(char key);
 void TTY_WriteString(char* str, uint8_t keepStr);
