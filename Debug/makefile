@@ -60,8 +60,8 @@ all: main-build
 main-build: T37STM32FW.elf secondary-outputs
 
 # Tool invocations
-T37STM32FW.elf T37STM32FW.map: $(OBJS) $(USER_OBJS) /home/florian/Nextcloud/gits/SiemensT37/STM32FW/STM32F042K6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "T37STM32FW.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"/home/florian/Nextcloud/gits/SiemensT37/STM32FW/STM32F042K6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="T37STM32FW.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+T37STM32FW.elf T37STM32FW.map: $(OBJS) $(USER_OBJS) /mnt/daten/PiCloud/gits/SiemensT37/STM32FW/STM32F042K6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "T37STM32FW.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"/mnt/daten/PiCloud/gits/SiemensT37/STM32FW/STM32F042K6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="T37STM32FW.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

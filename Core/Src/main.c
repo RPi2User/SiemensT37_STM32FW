@@ -51,7 +51,7 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-uint8_t UART2_Buffer[1];
+unsigned char UART2_Buffer[1];
 HAL_StatusTypeDef lastStatus;
 unsigned char rdyMSG[] = "rdy";
 /* USER CODE END PV */
@@ -141,7 +141,13 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	TTY_Fox();
+	if (lastStatus != HAL_TIMEOUT){
+		if (UART2_Buffer[0] != '\0'){
+			TTY_WriteKey(UART2_Buffer[0]);
+			UART2_Buffer[0] = '\0';
+		}
+	}
+	HAL_Delay(1);
 
 	//char* test_string = "===ABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n"
 	//		"()+,-./0123456789=A1B2C3D4E5F6:===";

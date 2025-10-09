@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include "main.h"
-#include "symbolbuffer.h"
 #include "tty.h"
 
 // --- DATA BLOCKS -------------------------------------------------
@@ -14,7 +12,7 @@ float stopbit_cnt = 1.5;
 uint8_t tabSize = 2;
 
 // dynamic vars
-int8_t* currentLine;
+sbf currentLine;
 uint32_t last_linefeed = 0;
 uint32_t carriage_pos = 0;
 tty_mode_t tty_mode = TTY_LETTERS;
@@ -26,7 +24,7 @@ uint8_t loopback = 0;		// This sends bit right back to TTY
 uint8_t READ_TIMEOUT = 100;	// Timeout of 1000ms
 
 char* fox = "\r\nthe quick brown fox jumps over the lazy dog";
-const int8_t SBF_MEM_ERROR[] = {
+const symbol SBF_MEM_ERROR[] = {
 	cr, lf, ltrs, m, e, m, o, r, y, space, e, r, r, o, r, figs,
 	comma, ltrs, space, r, e, s, e, t, t, i, n, g, space,
 	c, p, u, figs, period, bell, bell, bell, bell, bell, -1
@@ -51,7 +49,9 @@ void TTY_Fox(void){
 
 // ---TTY-FUNCTIONS-------------------------------------------------
 void TTY_WriteKey(char key){
-	//TODO
+	int8_t* _sbf = sbf_createSymbolBuffer();
+	_sbf = sbf_charToSymbolBuffer(_sbf, key, &tty_mode);
+	TTY_WriteBuffer(_sbf);
 }
 
 

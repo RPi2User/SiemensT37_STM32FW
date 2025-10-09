@@ -1,21 +1,8 @@
 #include <stdint.h>
+#include "tty_types.h"
 
 #ifndef TTY_H
 #define TTY_H
-
-extern const int8_t SBF_MEM_ERROR[];
-
-typedef struct {
-    int s1;
-    int s2;
-    int s3;
-} Databit;
-
-// TTY Mode enumeration
-typedef enum {
-    TTY_LETTERS = 0,
-    TTY_FIGURES = 1
-} tty_mode_t;
 
 void TTY_Init();
 
