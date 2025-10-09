@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "main.h"
 #include "tty.h"
+#include "symbolbuffer.h"
+
 
 // --- DATA BLOCKS -------------------------------------------------
 // Hardware Variables

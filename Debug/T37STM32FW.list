@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000028  00000000  00000000  00006068  2**0
                   CONTENTS, READONLY
- 12 .debug_info   0000a6fb  00000000  00000000  00006090  2**0
+ 12 .debug_info   0000a6e5  00000000  00000000  00006090  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00001fd0  00000000  00000000  0001078b  2**0
+ 13 .debug_abbrev 00001fb7  00000000  00000000  00010775  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00000890  00000000  00000000  00012760  2**3
+ 14 .debug_aranges 00000890  00000000  00000000  00012730  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 00000687  00000000  00000000  00012ff0  2**0
+ 15 .debug_rnglists 00000687  00000000  00000000  00012fc0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  000020b1  00000000  00000000  00013677  2**0
+ 16 .debug_macro  000020bf  00000000  00000000  00013647  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0000b33e  00000000  00000000  00015728  2**0
+ 17 .debug_line   0000b32b  00000000  00000000  00015706  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00089f4c  00000000  00000000  00020a66  2**0
+ 18 .debug_str    00089f4c  00000000  00000000  00020a31  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  000aa9b2  2**0
+ 19 .comment      00000043  00000000  00000000  000aa97d  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00002164  00000000  00000000  000aa9f8  2**2
+ 20 .debug_frame  00002164  00000000  00000000  000aa9c0  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000059  00000000  00000000  000acb5c  2**0
+ 21 .debug_line_str 00000059  00000000  00000000  000acb24  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -2831,12 +2831,12 @@ uint32_t sbf_len(sbf_t _sbf){
 
 080013a0 <sbf_createSymbolBuffer>:
 
-int8_t* sbf_createSymbolBuffer(void){
+sbf_t sbf_createSymbolBuffer(void){
  80013a0:	b580      	push	{r7, lr}
  80013a2:	b082      	sub	sp, #8
  80013a4:	af00      	add	r7, sp, #0
 	// This returns a valid and correct terminated Symbol Buffer
-	int8_t* _out = malloc((sizeof(int8_t)) * 1);
+	sbf_t _out = malloc((sizeof(symbol_t)) * 1);
  80013a6:	2001      	movs	r0, #1
  80013a8:	f002 ff14 	bl	80041d4 <malloc>
  80013ac:	0003      	movs	r3, r0
@@ -2861,7 +2861,7 @@ int8_t* sbf_createSymbolBuffer(void){
 
 080013cc <sbf_appendSym>:
 
-int8_t* sbf_appendSym(int8_t* head, int8_t sym){
+sbf_t sbf_appendSym(sbf_t head, symbol_t sym){
  80013cc:	b580      	push	{r7, lr}
  80013ce:	b086      	sub	sp, #24
  80013d0:	af00      	add	r7, sp, #0
@@ -2888,7 +2888,7 @@ int8_t* sbf_appendSym(int8_t* head, int8_t sym){
  80013f0:	687b      	ldr	r3, [r7, #4]
  80013f2:	2b00      	cmp	r3, #0
  80013f4:	d114      	bne.n	8001420 <sbf_appendSym+0x54>
-		int8_t* tail = (int8_t*) malloc(2 * sizeof(int8_t));
+		sbf_t tail = (sbf_t) malloc(2 * sizeof(symbol_t));
  80013f6:	2002      	movs	r0, #2
  80013f8:	f002 feec 	bl	80041d4 <malloc>
  80013fc:	0003      	movs	r3, r0
@@ -2921,7 +2921,7 @@ int8_t* sbf_appendSym(int8_t* head, int8_t sym){
  8001424:	f7ff ffa4 	bl	8001370 <sbf_len>
  8001428:	0003      	movs	r3, r0
  800142a:	613b      	str	r3, [r7, #16]
-	int8_t* tail = (int8_t*) malloc((head_len + 2) * sizeof(int8_t));
+	sbf_t tail = (sbf_t) malloc((head_len + 2) * sizeof(symbol_t));
  800142c:	693b      	ldr	r3, [r7, #16]
  800142e:	3302      	adds	r3, #2
  8001430:	0018      	movs	r0, r3
@@ -2999,7 +2999,7 @@ int8_t* sbf_appendSym(int8_t* head, int8_t sym){
 	return _out;
 }
 
-int8_t* sbf_charToSymbolBuffer(int8_t* _out, char _c, tty_mode_t* _currentMode){
+sbf_t sbf_charToSymbolBuffer(sbf_t _out, char _c, tty_mode_t* _currentMode){
  80014a0:	b580      	push	{r7, lr}
  80014a2:	b086      	sub	sp, #24
  80014a4:	af00      	add	r7, sp, #0
@@ -3392,14 +3392,14 @@ void TTY_WriteKey(char key){
  80016de:	0002      	movs	r2, r0
  80016e0:	1dfb      	adds	r3, r7, #7
  80016e2:	701a      	strb	r2, [r3, #0]
-	int8_t* _sbf = sbf_createSymbolBuffer();
+	sbf_t _sbf = sbf_createSymbolBuffer();
  80016e4:	f7ff fe5c 	bl	80013a0 <sbf_createSymbolBuffer>
  80016e8:	0003      	movs	r3, r0
  80016ea:	60fb      	str	r3, [r7, #12]
 	_sbf = sbf_charToSymbolBuffer(_sbf, key, &tty_mode);
- 80016ec:	1dfb      	adds	r3, r7, #7
- 80016ee:	7819      	ldrb	r1, [r3, #0]
- 80016f0:	4a07      	ldr	r2, [pc, #28]	@ (8001710 <TTY_WriteKey+0x38>)
+ 80016ec:	4a08      	ldr	r2, [pc, #32]	@ (8001710 <TTY_WriteKey+0x38>)
+ 80016ee:	1dfb      	adds	r3, r7, #7
+ 80016f0:	7819      	ldrb	r1, [r3, #0]
  80016f2:	68fb      	ldr	r3, [r7, #12]
  80016f4:	0018      	movs	r0, r3
  80016f6:	f7ff fed3 	bl	80014a0 <sbf_charToSymbolBuffer>
@@ -3423,7 +3423,7 @@ void TTY_WriteKey(char key){
     	free(str);
 }
 
-int8_t* TTY_WriteBuffer(int8_t* buffer){
+sbf_t TTY_WriteBuffer(sbf_t buffer){
  8001714:	b590      	push	{r4, r7, lr}
  8001716:	b085      	sub	sp, #20
  8001718:	af00      	add	r7, sp, #0
@@ -3473,7 +3473,7 @@ int8_t* TTY_WriteBuffer(int8_t* buffer){
  8001760:	f002 fd42 	bl	80041e8 <free>
     
     // Create new empty buffer
-    int8_t* out = (int8_t*)malloc(sizeof(int8_t));
+    sbf_t out = (sbf_t)malloc(sizeof(symbol_t));
  8001764:	2001      	movs	r0, #1
  8001766:	f002 fd35 	bl	80041d4 <malloc>
  800176a:	0003      	movs	r3, r0
@@ -3502,7 +3502,7 @@ int8_t* TTY_WriteBuffer(int8_t* buffer){
 
 08001790 <TTY_Write>:
 
-void TTY_Write(int8_t _sym){
+void TTY_Write(symbol_t _sym){
  8001790:	b590      	push	{r4, r7, lr}
  8001792:	b085      	sub	sp, #20
  8001794:	af00      	add	r7, sp, #0

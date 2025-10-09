@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include "tty_types.h"
 
 #ifndef TTY_H

@@ -8,7 +8,6 @@
  */
 
 #include <stdlib.h>
-#include <stdint.h>
 #include "tty.h"
 #include "string.h"
 #include "symbolbuffer.h"

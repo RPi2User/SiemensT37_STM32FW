@@ -26,7 +26,6 @@
 #include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 
 #include "symbolbuffer.h"	// TODO: Remove THIS, all comms through tty.c
 /* USER CODE END Includes */
