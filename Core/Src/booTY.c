@@ -40,7 +40,7 @@ const int8_t VALID_LINEBREAKS[] = {
 sbf_t booTYinit(sbf_t currentBuffer){
 	readBuffer = (sbf_t)malloc(1);
 	HAL_Delay(50);
-	TTY_Write(null);		// some ttys need a bit more time
+	TTY_WriteSymbol(null);		// some ttys need a bit more time
 	HAL_Delay(50);				// to settle
 
 	return currentBuffer;
@@ -77,6 +77,6 @@ int8_t readCommand(int8_t cmd_terminator){
 		_term = readSymbol();
 		if (_term != cmd_terminator) _sym = _term;
 	} while (_term != cmd_terminator);
-	TTY_Write(cmd_terminator);	// Gives user correct symbol as response
+	TTY_WriteSymbol(cmd_terminator);	// Gives user correct symbol as response
 	return _sym;
 }

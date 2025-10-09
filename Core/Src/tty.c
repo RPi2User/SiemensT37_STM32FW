@@ -84,7 +84,7 @@ sbf_t TTY_WriteBuffer(sbf_t buffer){
     
     // Write all symbols in buffer
     for (uint8_t i = 0; buffer[i] != SBF_TERMINATOR; i++) {
-        TTY_Write(buffer[i]);
+        TTY_WriteSymbol(buffer[i]);
     }
 
     // Free the input buffer
@@ -99,7 +99,7 @@ sbf_t TTY_WriteBuffer(sbf_t buffer){
     return out;
 }
 
-void TTY_Write(symbol_t _sym){
+void TTY_WriteSymbol(symbol_t _sym){
 	if (_sym == -1) return;
 
 	TTY_Startbit();
@@ -196,7 +196,7 @@ void TTY_raiseMemoryError(void){
 	 */
 	emerg_cnt = 0;
 	while(SBF_MEM_ERROR[emerg_cnt] != SBF_TERMINATOR){
-		TTY_Write(SBF_MEM_ERROR[emerg_cnt]);
+		TTY_WriteSymbol(SBF_MEM_ERROR[emerg_cnt]);
 		emerg_cnt++;
 	}
 	NVIC_SystemReset();	// REBOOT CPU

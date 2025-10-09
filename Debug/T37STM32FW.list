@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000028  00000000  00000000  00006068  2**0
                   CONTENTS, READONLY
- 12 .debug_info   0000a6e3  00000000  00000000  00006090  2**0
+ 12 .debug_info   0000a6e0  00000000  00000000  00006090  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00001fcd  00000000  00000000  00010773  2**0
+ 13 .debug_abbrev 00001fb6  00000000  00000000  00010770  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00000890  00000000  00000000  00012740  2**3
+ 14 .debug_aranges 00000890  00000000  00000000  00012728  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 00000686  00000000  00000000  00012fd0  2**0
+ 15 .debug_rnglists 00000686  00000000  00000000  00012fb8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  000020bf  00000000  00000000  00013656  2**0
+ 16 .debug_macro  000020bf  00000000  00000000  0001363e  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0000b322  00000000  00000000  00015715  2**0
+ 17 .debug_line   0000b322  00000000  00000000  000156fd  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00089f4c  00000000  00000000  00020a37  2**0
+ 18 .debug_str    00089f52  00000000  00000000  00020a1f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  000aa983  2**0
+ 19 .comment      00000043  00000000  00000000  000aa971  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00002164  00000000  00000000  000aa9c8  2**2
+ 20 .debug_frame  00002164  00000000  00000000  000aa9b4  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000059  00000000  00000000  000acb2c  2**0
+ 21 .debug_line_str 00000059  00000000  00000000  000acb18  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -2845,7 +2845,7 @@ sbf_t sbf_createSymbolBuffer(void){
  80013b0:	687b      	ldr	r3, [r7, #4]
  80013b2:	2b00      	cmp	r3, #0
  80013b4:	d101      	bne.n	80013ba <sbf_createSymbolBuffer+0x1a>
- 80013b6:	f000 fa3f 	bl	8001838 <TTY_raiseMemoryError>
+ 80013b6:	f000 fa29 	bl	800180c <TTY_raiseMemoryError>
 	_out[0] = SBF_TERMINATOR;
  80013ba:	2301      	movs	r3, #1
  80013bc:	425a      	negs	r2, r3
@@ -2897,7 +2897,7 @@ sbf_t sbf_appendSym(sbf_t head, symbol_t sym){
  8001400:	68bb      	ldr	r3, [r7, #8]
  8001402:	2b00      	cmp	r3, #0
  8001404:	d101      	bne.n	800140a <sbf_appendSym+0x3e>
- 8001406:	f000 fa17 	bl	8001838 <TTY_raiseMemoryError>
+ 8001406:	f000 fa01 	bl	800180c <TTY_raiseMemoryError>
 		tail[0] = sym;
  800140a:	68bb      	ldr	r3, [r7, #8]
  800140c:	1cfa      	adds	r2, r7, #3
@@ -2932,7 +2932,7 @@ sbf_t sbf_appendSym(sbf_t head, symbol_t sym){
  800143a:	68fb      	ldr	r3, [r7, #12]
  800143c:	2b00      	cmp	r3, #0
  800143e:	d101      	bne.n	8001444 <sbf_appendSym+0x78>
- 8001440:	f000 f9fa 	bl	8001838 <TTY_raiseMemoryError>
+ 8001440:	f000 f9e4 	bl	800180c <TTY_raiseMemoryError>
 
 	// Populate tail
 	uint32_t i = 0;
@@ -3380,11 +3380,11 @@ void TTY_Init(void){
 	...
 
 080016d8 <TTY_WriteKey>:
-	//TTY_WriteString(fox, 1);
+    writebuffer = TTY_WriteBuffer(writebuffer);
+    if (keepStr == 0)
+    	free(str);
 }
 
-
-// === WRITE SECTION ===============================================
 void TTY_WriteKey(char key){
  80016d8:	b580      	push	{r7, lr}
  80016da:	b084      	sub	sp, #16
@@ -3418,10 +3418,6 @@ void TTY_WriteKey(char key){
  8001710:	2000019c 	.word	0x2000019c
 
 08001714 <TTY_WriteBuffer>:
-    writebuffer = TTY_WriteBuffer(writebuffer);
-    if (keepStr == 0)
-    	free(str);
-}
 
 sbf_t TTY_WriteBuffer(sbf_t buffer){
  8001714:	b590      	push	{r4, r7, lr}
@@ -3436,7 +3432,7 @@ sbf_t TTY_WriteBuffer(sbf_t buffer){
  8001720:	2200      	movs	r2, #0
  8001722:	701a      	strb	r2, [r3, #0]
  8001724:	e00e      	b.n	8001744 <TTY_WriteBuffer+0x30>
-        TTY_Write(buffer[i]);
+        TTY_WriteSymbol(buffer[i]);
  8001726:	240f      	movs	r4, #15
  8001728:	193b      	adds	r3, r7, r4
  800172a:	781b      	ldrb	r3, [r3, #0]
@@ -3445,7 +3441,7 @@ sbf_t TTY_WriteBuffer(sbf_t buffer){
  8001730:	781b      	ldrb	r3, [r3, #0]
  8001732:	b25b      	sxtb	r3, r3
  8001734:	0018      	movs	r0, r3
- 8001736:	f000 f82b 	bl	8001790 <TTY_Write>
+ 8001736:	f000 f82b 	bl	8001790 <TTY_WriteSymbol>
     for (uint8_t i = 0; buffer[i] != SBF_TERMINATOR; i++) {
  800173a:	193b      	adds	r3, r7, r4
  800173c:	781a      	ldrb	r2, [r3, #0]
@@ -3483,7 +3479,7 @@ sbf_t TTY_WriteBuffer(sbf_t buffer){
  8001770:	2b00      	cmp	r3, #0
  8001772:	d101      	bne.n	8001778 <TTY_WriteBuffer+0x64>
         TTY_raiseMemoryError();
- 8001774:	f000 f860 	bl	8001838 <TTY_raiseMemoryError>
+ 8001774:	f000 f84a 	bl	800180c <TTY_raiseMemoryError>
     }
     out[0] = SBF_TERMINATOR;  // Null-terminate
  8001778:	4b04      	ldr	r3, [pc, #16]	@ (800178c <TTY_WriteBuffer+0x78>)
@@ -3500,9 +3496,9 @@ sbf_t TTY_WriteBuffer(sbf_t buffer){
  800178a:	bd90      	pop	{r4, r7, pc}
  800178c:	080045f8 	.word	0x080045f8
 
-08001790 <TTY_Write>:
+08001790 <TTY_WriteSymbol>:
 
-void TTY_Write(symbol_t _sym){
+void TTY_WriteSymbol(symbol_t _sym){
  8001790:	b590      	push	{r4, r7, lr}
  8001792:	b085      	sub	sp, #20
  8001794:	af00      	add	r7, sp, #0
@@ -3514,7 +3510,7 @@ void TTY_Write(symbol_t _sym){
  800179e:	781b      	ldrb	r3, [r3, #0]
  80017a0:	b25b      	sxtb	r3, r3
  80017a2:	3301      	adds	r3, #1
- 80017a4:	d02d      	beq.n	8001802 <TTY_Write+0x72>
+ 80017a4:	d02d      	beq.n	8001802 <TTY_WriteSymbol+0x72>
 
 	TTY_Startbit();
  80017a6:	f000 f8b5 	bl	8001914 <TTY_Startbit>
@@ -3524,7 +3520,7 @@ void TTY_Write(symbol_t _sym){
  80017ac:	18fb      	adds	r3, r7, r3
  80017ae:	2200      	movs	r2, #0
  80017b0:	701a      	strb	r2, [r3, #0]
- 80017b2:	e01e      	b.n	80017f2 <TTY_Write+0x62>
+ 80017b2:	e01e      	b.n	80017f2 <TTY_WriteSymbol+0x62>
         uint8_t bit = ((_sym >> i) & 0x01) ^ 1;
  80017b4:	1dfb      	adds	r3, r7, #7
  80017b6:	2200      	movs	r2, #0
@@ -3546,7 +3542,7 @@ void TTY_Write(symbol_t _sym){
  80017d4:	187b      	adds	r3, r7, r1
  80017d6:	781b      	ldrb	r3, [r3, #0]
  80017d8:	0018      	movs	r0, r3
- 80017da:	f000 f816 	bl	800180a <setTTY>
+ 80017da:	f000 f83d 	bl	8001858 <setTTY>
         TTY_Delay(1);
  80017de:	23fe      	movs	r3, #254	@ 0xfe
  80017e0:	059b      	lsls	r3, r3, #22
@@ -3562,102 +3558,106 @@ void TTY_Write(symbol_t _sym){
  80017f4:	18fb      	adds	r3, r7, r3
  80017f6:	781b      	ldrb	r3, [r3, #0]
  80017f8:	2b04      	cmp	r3, #4
- 80017fa:	d9db      	bls.n	80017b4 <TTY_Write+0x24>
+ 80017fa:	d9db      	bls.n	80017b4 <TTY_WriteSymbol+0x24>
     }
 
 	TTY_Stopbit();
  80017fc:	f000 f898 	bl	8001930 <TTY_Stopbit>
- 8001800:	e000      	b.n	8001804 <TTY_Write+0x74>
+ 8001800:	e000      	b.n	8001804 <TTY_WriteSymbol+0x74>
 	if (_sym == -1) return;
  8001802:	46c0      	nop			@ (mov r8, r8)
 }
  8001804:	46bd      	mov	sp, r7
  8001806:	b005      	add	sp, #20
  8001808:	bd90      	pop	{r4, r7, pc}
-
-0800180a <setTTY>:
-
-void setTTY(uint8_t state){			// TTY @ A3
- 800180a:	b580      	push	{r7, lr}
- 800180c:	b082      	sub	sp, #8
- 800180e:	af00      	add	r7, sp, #0
- 8001810:	0002      	movs	r2, r0
- 8001812:	1dfb      	adds	r3, r7, #7
- 8001814:	701a      	strb	r2, [r3, #0]
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,
- 8001816:	1dfb      	adds	r3, r7, #7
- 8001818:	781b      	ldrb	r3, [r3, #0]
- 800181a:	1e5a      	subs	r2, r3, #1
- 800181c:	4193      	sbcs	r3, r2
- 800181e:	b2db      	uxtb	r3, r3
- 8001820:	001a      	movs	r2, r3
- 8001822:	2390      	movs	r3, #144	@ 0x90
- 8001824:	05db      	lsls	r3, r3, #23
- 8001826:	2110      	movs	r1, #16
- 8001828:	0018      	movs	r0, r3
- 800182a:	f000 fc1f 	bl	800206c <HAL_GPIO_WritePin>
-			state ? GPIO_PIN_SET : GPIO_PIN_RESET);
-}
- 800182e:	46c0      	nop			@ (mov r8, r8)
- 8001830:	46bd      	mov	sp, r7
- 8001832:	b002      	add	sp, #8
- 8001834:	bd80      	pop	{r7, pc}
 	...
 
-08001838 <TTY_raiseMemoryError>:
-	return out;
+0800180c <TTY_raiseMemoryError>:
 }
+
 
 
 // === System Functions ============================================
 void TTY_raiseMemoryError(void){
- 8001838:	b580      	push	{r7, lr}
- 800183a:	af00      	add	r7, sp, #0
+ 800180c:	b580      	push	{r7, lr}
+ 800180e:	af00      	add	r7, sp, #0
 	 *
 	 * 1. Send SBF_MEM_ERROR[], symbol by symbol
 	 * 2. Reset CPU
 	 * 3. Hope for the best
 	 */
 	emerg_cnt = 0;
- 800183c:	4b0e      	ldr	r3, [pc, #56]	@ (8001878 <TTY_raiseMemoryError+0x40>)
- 800183e:	2200      	movs	r2, #0
- 8001840:	701a      	strb	r2, [r3, #0]
+ 8001810:	4b0e      	ldr	r3, [pc, #56]	@ (800184c <TTY_raiseMemoryError+0x40>)
+ 8001812:	2200      	movs	r2, #0
+ 8001814:	701a      	strb	r2, [r3, #0]
 	while(SBF_MEM_ERROR[emerg_cnt] != SBF_TERMINATOR){
- 8001842:	e00d      	b.n	8001860 <TTY_raiseMemoryError+0x28>
-		TTY_Write(SBF_MEM_ERROR[emerg_cnt]);
- 8001844:	4b0c      	ldr	r3, [pc, #48]	@ (8001878 <TTY_raiseMemoryError+0x40>)
- 8001846:	781b      	ldrb	r3, [r3, #0]
- 8001848:	001a      	movs	r2, r3
- 800184a:	4b0c      	ldr	r3, [pc, #48]	@ (800187c <TTY_raiseMemoryError+0x44>)
- 800184c:	569b      	ldrsb	r3, [r3, r2]
- 800184e:	0018      	movs	r0, r3
- 8001850:	f7ff ff9e 	bl	8001790 <TTY_Write>
+ 8001816:	e00d      	b.n	8001834 <TTY_raiseMemoryError+0x28>
+		TTY_WriteSymbol(SBF_MEM_ERROR[emerg_cnt]);
+ 8001818:	4b0c      	ldr	r3, [pc, #48]	@ (800184c <TTY_raiseMemoryError+0x40>)
+ 800181a:	781b      	ldrb	r3, [r3, #0]
+ 800181c:	001a      	movs	r2, r3
+ 800181e:	4b0c      	ldr	r3, [pc, #48]	@ (8001850 <TTY_raiseMemoryError+0x44>)
+ 8001820:	569b      	ldrsb	r3, [r3, r2]
+ 8001822:	0018      	movs	r0, r3
+ 8001824:	f7ff ffb4 	bl	8001790 <TTY_WriteSymbol>
 		emerg_cnt++;
- 8001854:	4b08      	ldr	r3, [pc, #32]	@ (8001878 <TTY_raiseMemoryError+0x40>)
- 8001856:	781b      	ldrb	r3, [r3, #0]
- 8001858:	3301      	adds	r3, #1
- 800185a:	b2da      	uxtb	r2, r3
- 800185c:	4b06      	ldr	r3, [pc, #24]	@ (8001878 <TTY_raiseMemoryError+0x40>)
- 800185e:	701a      	strb	r2, [r3, #0]
+ 8001828:	4b08      	ldr	r3, [pc, #32]	@ (800184c <TTY_raiseMemoryError+0x40>)
+ 800182a:	781b      	ldrb	r3, [r3, #0]
+ 800182c:	3301      	adds	r3, #1
+ 800182e:	b2da      	uxtb	r2, r3
+ 8001830:	4b06      	ldr	r3, [pc, #24]	@ (800184c <TTY_raiseMemoryError+0x40>)
+ 8001832:	701a      	strb	r2, [r3, #0]
 	while(SBF_MEM_ERROR[emerg_cnt] != SBF_TERMINATOR){
- 8001860:	4b05      	ldr	r3, [pc, #20]	@ (8001878 <TTY_raiseMemoryError+0x40>)
- 8001862:	781b      	ldrb	r3, [r3, #0]
- 8001864:	001a      	movs	r2, r3
- 8001866:	4b05      	ldr	r3, [pc, #20]	@ (800187c <TTY_raiseMemoryError+0x44>)
- 8001868:	569a      	ldrsb	r2, [r3, r2]
- 800186a:	4b05      	ldr	r3, [pc, #20]	@ (8001880 <TTY_raiseMemoryError+0x48>)
- 800186c:	781b      	ldrb	r3, [r3, #0]
- 800186e:	b25b      	sxtb	r3, r3
- 8001870:	429a      	cmp	r2, r3
- 8001872:	d1e7      	bne.n	8001844 <TTY_raiseMemoryError+0xc>
+ 8001834:	4b05      	ldr	r3, [pc, #20]	@ (800184c <TTY_raiseMemoryError+0x40>)
+ 8001836:	781b      	ldrb	r3, [r3, #0]
+ 8001838:	001a      	movs	r2, r3
+ 800183a:	4b05      	ldr	r3, [pc, #20]	@ (8001850 <TTY_raiseMemoryError+0x44>)
+ 800183c:	569a      	ldrsb	r2, [r3, r2]
+ 800183e:	4b05      	ldr	r3, [pc, #20]	@ (8001854 <TTY_raiseMemoryError+0x48>)
+ 8001840:	781b      	ldrb	r3, [r3, #0]
+ 8001842:	b25b      	sxtb	r3, r3
+ 8001844:	429a      	cmp	r2, r3
+ 8001846:	d1e7      	bne.n	8001818 <TTY_raiseMemoryError+0xc>
 	}
 	NVIC_SystemReset();	// REBOOT CPU
- 8001874:	f7ff ff18 	bl	80016a8 <__NVIC_SystemReset>
- 8001878:	2000019d 	.word	0x2000019d
- 800187c:	08004614 	.word	0x08004614
- 8001880:	080045f8 	.word	0x080045f8
+ 8001848:	f7ff ff2e 	bl	80016a8 <__NVIC_SystemReset>
+ 800184c:	2000019d 	.word	0x2000019d
+ 8001850:	08004614 	.word	0x08004614
+ 8001854:	080045f8 	.word	0x080045f8
+
+08001858 <setTTY>:
+}
+
+void setTTY(uint8_t state){			// TTY @ A3
+ 8001858:	b580      	push	{r7, lr}
+ 800185a:	b082      	sub	sp, #8
+ 800185c:	af00      	add	r7, sp, #0
+ 800185e:	0002      	movs	r2, r0
+ 8001860:	1dfb      	adds	r3, r7, #7
+ 8001862:	701a      	strb	r2, [r3, #0]
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,
+ 8001864:	1dfb      	adds	r3, r7, #7
+ 8001866:	781b      	ldrb	r3, [r3, #0]
+ 8001868:	1e5a      	subs	r2, r3, #1
+ 800186a:	4193      	sbcs	r3, r2
+ 800186c:	b2db      	uxtb	r3, r3
+ 800186e:	001a      	movs	r2, r3
+ 8001870:	2390      	movs	r3, #144	@ 0x90
+ 8001872:	05db      	lsls	r3, r3, #23
+ 8001874:	2110      	movs	r1, #16
+ 8001876:	0018      	movs	r0, r3
+ 8001878:	f000 fbf8 	bl	800206c <HAL_GPIO_WritePin>
+			state ? GPIO_PIN_SET : GPIO_PIN_RESET);
+}
+ 800187c:	46c0      	nop			@ (mov r8, r8)
+ 800187e:	46bd      	mov	sp, r7
+ 8001880:	b002      	add	sp, #8
+ 8001882:	bd80      	pop	{r7, pc}
 
 08001884 <setLoopback>:
+	out = HAL_GPIO_ReadPin(GPIOB, TTY_RECV_Pin);
+	if (loopback != 0) setTTY(out);
+	return out;
 }
 
 void setLoopback(uint8_t _loopback) {loopback = _loopback;}
@@ -3750,7 +3750,7 @@ void TTY_Startbit(){
  8001916:	af00      	add	r7, sp, #0
 	setTTY(1);
  8001918:	2001      	movs	r0, #1
- 800191a:	f7ff ff76 	bl	800180a <setTTY>
+ 800191a:	f7ff ff9d 	bl	8001858 <setTTY>
 	TTY_Delay(1.0);
  800191e:	23fe      	movs	r3, #254	@ 0xfe
  8001920:	059b      	lsls	r3, r3, #22
@@ -3769,7 +3769,7 @@ void TTY_Stopbit(){
  8001932:	af00      	add	r7, sp, #0
 	setTTY(0);
  8001934:	2000      	movs	r0, #0
- 8001936:	f7ff ff68 	bl	800180a <setTTY>
+ 8001936:	f7ff ff8f 	bl	8001858 <setTTY>
 	TTY_Delay(stopbit_cnt);
  800193a:	4b04      	ldr	r3, [pc, #16]	@ (800194c <TTY_Stopbit+0x1c>)
  800193c:	681b      	ldr	r3, [r3, #0]
