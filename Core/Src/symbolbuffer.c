@@ -13,7 +13,7 @@
 #include "string.h"
 #include "symbolbuffer.h"
 
-const int8_t SBF_TERMINATOR = -1;
+const symbol_t SBF_TERMINATOR = -1;
 
 
 // --- Private functions -------------------------------------------
@@ -28,19 +28,19 @@ uint32_t sbf_len(sbf_t _sbf){
 
 sbf_t sbf_createSymbolBuffer(void){
 	// This returns a valid and correct terminated Symbol Buffer
-	sbf_t _out = malloc((sizeof(int8_t)) * 1);
+	sbf_t _out = malloc((sizeof(symbol_t)) * 1);
 	if (!_out) TTY_raiseMemoryError();
 	_out[0] = SBF_TERMINATOR;
 	return _out;
 }
 
-sbf_t sbf_appendSym(sbf_t head, int8_t sym){
+sbf_t sbf_appendSym(sbf_t head, symbol_t sym){
 	uint32_t head_len = 0;
 
 	if (sym == SBF_TERMINATOR) return head;
 	// When head NULL, create a single symbolbuffer
 	if (head == NULL) {
-		sbf_t tail = (sbf_t) malloc(2 * sizeof(int8_t));
+		sbf_t tail = (sbf_t) malloc(2 * sizeof(symbol_t));
 		if (tail == NULL) TTY_raiseMemoryError();
 		tail[0] = sym;
 		tail[1] = SBF_TERMINATOR;
@@ -49,7 +49,7 @@ sbf_t sbf_appendSym(sbf_t head, int8_t sym){
 
 	// Create a tail with correct length
 	head_len = sbf_len(head);
-	sbf_t tail = (sbf_t) malloc((head_len + 2) * sizeof(int8_t));
+	sbf_t tail = (sbf_t) malloc((head_len + 2) * sizeof(symbol_t));
 	if (tail == NULL) TTY_raiseMemoryError();
 
 	// Populate tail
@@ -107,7 +107,7 @@ sbf_t sbf_concaternate(sbf_t head, sbf_t tail, uint8_t keepTail){
  *
  *
  */
-int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
+symbol_t sbf_convertToChar(symbol_t symbol, char* target, char* _newLine,
    uint8_t* current_mode, uint32_t* carriage_pos, uint32_t* last_lf){
 
 	if (symbol == -1) {
@@ -174,7 +174,7 @@ char* sbf_convertToString(sbf_t _inSbf,
 	uint32_t carriage = 0;			// current carriage_position
 	uint32_t last_lf = 0;			// was previos char lf?
 	char c = '\0';					// pre-deklaration for a char
-	int8_t result = 0;				// result of toChar()
+	symbol_t result = 0;				// result of toChar()
 
 	// Finde initial Mode
 	// Its good practice to begin with a "ltrs" or "figs" symbol.

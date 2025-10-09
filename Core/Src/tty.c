@@ -76,7 +76,7 @@ sbf_t TTY_WriteBuffer(sbf_t buffer){
     free(buffer);
     
     // Create new empty buffer
-    sbf_t out = (sbf_t)malloc(sizeof(int8_t));
+    sbf_t out = (sbf_t)malloc(sizeof(symbol_t));
     if (out == NULL) {
         TTY_raiseMemoryError();
     }
@@ -84,7 +84,7 @@ sbf_t TTY_WriteBuffer(sbf_t buffer){
     return out;
 }
 
-void TTY_Write(int8_t _sym){
+void TTY_Write(symbol_t _sym){
 	if (_sym == -1) return;
 
 	// Skip redundant ltrs/figs commands
@@ -130,7 +130,7 @@ uint8_t majority(Databit d) {
     return (d.s1 + d.s2 + d.s3) >= 2 ? 1 : 0;
 }
 
-int8_t readSymbol() {
+symbol_t readSymbol() {
 	// wait for Symbol-Trigger
 	while(1){
 		if (readTTY() == 0) TTY_DelayMS(2);
