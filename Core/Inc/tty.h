@@ -3,7 +3,7 @@
 #ifndef TTY_H
 #define TTY_H
 
-void TTY_Init();
+void TTY_Init(void);
 
 void TTY_Fox(void);
 

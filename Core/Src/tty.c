@@ -32,7 +32,7 @@ const symbol_t SBF_MEM_ERROR[] = {
 	c, p, u, figs, period, bell, bell, bell, bell, bell, -1
 };
 
-void TTY_Init(){
+void TTY_Init(void){
 	// this loads the contents from flash and sets the variables
 }
 
@@ -49,7 +49,7 @@ void TTY_Fox(void){
 }
 
 
-// ---TTY-FUNCTIONS-------------------------------------------------
+// === WRITE SECTION ===============================================
 void TTY_WriteKey(char key){
 	sbf_t _sbf = sbf_createSymbolBuffer();
 	_sbf = sbf_charToSymbolBuffer(_sbf, key, &tty_mode);
@@ -89,23 +89,23 @@ sbf_t TTY_WriteBuffer(sbf_t buffer){
 void TTY_Write(symbol_t _sym){
 	if (_sym == -1) return;
 
-	// Skip redundant ltrs/figs commands
-	if (_sym == TTY_FIGURES || _sym == TTY_LETTERS)
-		tty_mode = TTY_FIGURES ?
-				TTY_FIGURES : TTY_LETTERS;
-
-    // ---TRANSMIT--------------------------------------------------
 	TTY_Startbit();
 
-	// LSB FIRST!
-    for (uint8_t i = 0; i < 5; i++) {
+    for (uint8_t i = 0; i < 5; i++) {	// send data, bit by bit
         uint8_t bit = ((_sym >> i) & 0x01) ^ 1;
         setTTY(bit);
         TTY_Delay(1);
     }
-	// send those 5 bits
+
 	TTY_Stopbit();
 }
+
+void setTTY(uint8_t state){			// TTY @ A3
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,
+			state ? GPIO_PIN_SET : GPIO_PIN_RESET);
+}
+
+// =================================================================
 
 /*	==== READ OPERATIONS ===========================================
  *
@@ -190,10 +190,7 @@ int8_t readTTY(){
 	return out;
 }
 
-void setTTY(uint8_t state){			// TTY @ A3
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,
-			state ? GPIO_PIN_SET : GPIO_PIN_RESET);
-}
+
 
 void TTY_raiseMemoryError(void){
 	/* Oh no. you managed to see this :c
