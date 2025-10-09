@@ -13,22 +13,11 @@ sbf_t TTY_WriteBuffer(sbf_t buffer);
 
 void TTY_Write(symbol_t _sym);
 
-
 char TTY_ReadKey();
 symbol_t readSymbol();
 
-uint8_t majority(Databit d);
-
-symbol_t readTTY();
-void setTTY(uint8_t state);
-void TTY_DelayMS(uint32_t ms);
-void TTY_Delay(float cycles);
-void TTY_Startbit();
-void TTY_Stopbit();
 
 void TTY_raiseMemoryError(void);
-void setReadError();
-void clearReadError();
 
 void setLoopback(uint8_t _loopback);
 void setBaudrate(float baudrate);

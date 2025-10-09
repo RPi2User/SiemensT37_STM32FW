@@ -4,8 +4,6 @@
 #include "tty.h"
 #include "symbolbuffer.h"
 
-
-// --- DATA BLOCKS -------------------------------------------------
 // Hardware Variables
 float baudrate = 50.0;		// default values
 uint32_t lineWidth = 70;
@@ -19,7 +17,6 @@ uint32_t last_linefeed = 0;
 uint32_t carriage_pos = 0;
 tty_mode_t tty_mode = TTY_LETTERS;
 
-
 // System variables
 uint8_t emerg_cnt = 0;		// Emergency Counter, reserved on stack
 uint8_t loopback = 0;		// This sends bit right back to TTY
@@ -31,6 +28,23 @@ const symbol_t SBF_MEM_ERROR[] = {
 	comma, ltrs, space, r, e, s, e, t, t, i, n, g, space,
 	c, p, u, figs, period, bell, bell, bell, bell, bell, -1
 };
+
+// --- private function definitions --------------------------------
+
+uint8_t majority(Databit d);
+
+void TTY_DelayMS(uint32_t ms);
+void TTY_Delay(float cycles);
+void TTY_Startbit();
+void TTY_Stopbit();
+
+void setTTY(uint8_t state);
+symbol_t readTTY();
+
+void setReadError();
+void clearReadError();
+
+// -----------------------------------------------------------------
 
 void TTY_Init(void){
 	// this loads the contents from flash and sets the variables
@@ -50,13 +64,6 @@ void TTY_Fox(void){
 
 
 // === WRITE SECTION ===============================================
-void TTY_WriteKey(char key){
-	sbf_t _sbf = sbf_createSymbolBuffer();
-	_sbf = sbf_charToSymbolBuffer(_sbf, key, &tty_mode);
-	TTY_WriteBuffer(_sbf);
-}
-
-
 void TTY_WriteString(char* str, uint8_t keepStr){
     // MAIN WRITE FUNCTION
     // keepStr is used when you don't want to clear a constant
@@ -65,6 +72,12 @@ void TTY_WriteString(char* str, uint8_t keepStr){
     writebuffer = TTY_WriteBuffer(writebuffer);
     if (keepStr == 0)
     	free(str);
+}
+
+void TTY_WriteKey(char key){
+	sbf_t _sbf = sbf_createSymbolBuffer();
+	_sbf = sbf_charToSymbolBuffer(_sbf, key, &tty_mode);
+	TTY_WriteBuffer(_sbf);
 }
 
 sbf_t TTY_WriteBuffer(sbf_t buffer){
@@ -99,12 +112,6 @@ void TTY_Write(symbol_t _sym){
 
 	TTY_Stopbit();
 }
-
-void setTTY(uint8_t state){			// TTY @ A3
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,
-			state ? GPIO_PIN_SET : GPIO_PIN_RESET);
-}
-
 // =================================================================
 
 /*	==== READ OPERATIONS ===========================================
@@ -124,12 +131,6 @@ char TTY_ReadKey(){
 		&tty_mode, &carriage_pos, &last_linefeed);
 
 	return _out;
-}
-
-
-// --- private -----------------------------------------------------
-uint8_t majority(Databit d) {
-    return (d.s1 + d.s2 + d.s3) >= 2 ? 1 : 0;
 }
 
 symbol_t readSymbol() {
@@ -182,16 +183,8 @@ symbol_t readSymbol() {
 }
 
 
-// --- Hardware Interfaces -----------------------------------------
-int8_t readTTY(){
-	int8_t out = -1;
-	out = HAL_GPIO_ReadPin(GPIOB, TTY_RECV_Pin);
-	if (loopback != 0) setTTY(out);
-	return out;
-}
 
-
-
+// === System Functions ============================================
 void TTY_raiseMemoryError(void){
 	/* Oh no. you managed to see this :c
 	 * I'm very sorry for seeing that you got a Memory error.
@@ -208,6 +201,35 @@ void TTY_raiseMemoryError(void){
 	}
 	NVIC_SystemReset();	// REBOOT CPU
 }
+
+void setTTY(uint8_t state){			// TTY @ A3
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,
+			state ? GPIO_PIN_SET : GPIO_PIN_RESET);
+}
+
+int8_t readTTY(){
+	int8_t out = -1;
+	out = HAL_GPIO_ReadPin(GPIOB, TTY_RECV_Pin);
+	if (loopback != 0) setTTY(out);
+	return out;
+}
+
+void setLoopback(uint8_t _loopback) {loopback = _loopback;}
+void setBaudrate(float baudrate) {baudrate = baudrate;}
+void setTermWidth(uint8_t termwidth) {lineWidth = termwidth;}
+void setStopbits(float stopbit) {stopbit_cnt = stopbit;}
+// TODO add Lower/Uppercase "switch"
+
+
+// === Private Functions ===========================================
+
+uint8_t majority(Databit d) {
+    return (d.s1 + d.s2 + d.s3) >= 2 ? 1 : 0;
+}
+
+// ReadError-LED
+void setReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 1); }
+void clearReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 0); }
 
 // --- Timing ------------------------------------------------------
 void TTY_DelayMS(uint32_t ms){
@@ -229,13 +251,3 @@ void TTY_Stopbit(){
 	setTTY(0);
 	TTY_Delay(stopbit_cnt);
 }
-
-void setReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 1); }
-void clearReadError(){ HAL_GPIO_WritePin(GPIOA, TTY_READERR_Pin, 0); }
-
-// --- System Properties -------------------------------------------
-void setLoopback(uint8_t _loopback) {loopback = _loopback;}
-void setBaudrate(float baudrate) {baudrate = baudrate;}
-void setTermWidth(uint8_t termwidth) {lineWidth = termwidth;}
-void setStopbits(float stopbit) {stopbit_cnt = stopbit;}
-// TODO add Lower/Uppercase "switch"
