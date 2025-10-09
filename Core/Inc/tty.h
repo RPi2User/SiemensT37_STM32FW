@@ -10,7 +10,7 @@ void TTY_Fox(void);
 
 void TTY_WriteKey(char key);
 void TTY_WriteString(char* str, uint8_t keepStr);
-int8_t* TTY_WriteBuffer(int8_t* buffer);
+sbf_t TTY_WriteBuffer(sbf_t buffer);
 
 void TTY_Write(int8_t _sym);
 

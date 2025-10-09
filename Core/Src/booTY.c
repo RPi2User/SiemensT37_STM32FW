@@ -10,10 +10,10 @@
 // ----------------------------------------------------------------
 // SETTINGS
 uint8_t terminal_width = 72;
-int8_t* linebreak;
+sbf_t linebreak;
 char* network_stats; 
 // smth like: "+++10.10.0.222/24+fe80:aab1:22/64+++"
-int8_t* readBuffer;
+sbf_t readBuffer;
 // -----------------------------------------------------------------
 
 const int8_t VALID_MODES[] = {
@@ -37,8 +37,8 @@ const int8_t VALID_LINEBREAKS[] = {
  *    - 1x ltrs to let the user in ltrs-mode
  *    - 1x space for visual appeal
  */
-int8_t* booTYinit(int8_t* currentBuffer){
-	readBuffer = (int8_t*)malloc(1);
+sbf_t booTYinit(sbf_t currentBuffer){
+	readBuffer = (sbf_t)malloc(1);
 	HAL_Delay(50);
 	TTY_Write(null);		// some ttys need a bit more time
 	HAL_Delay(50);				// to settle
@@ -54,7 +54,7 @@ int8_t* booTYinit(int8_t* currentBuffer){
  *    - all illegal chars won't be echoed
  *    - duplicate ltrs (a-z) will be ignored
  */
-int8_t* booTYshell(int8_t* currentBuffer){
+sbf_t booTYshell(sbf_t currentBuffer){
 	/* 1. Time runs out or ONE key get pressed
 	 * 2. Users are only allowed to press correct keys
 	 * 	  all others will get rejected

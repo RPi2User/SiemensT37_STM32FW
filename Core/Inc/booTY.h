@@ -14,8 +14,8 @@ const int VALID_MODES[];
 const int VALID_LINEBREAKS[];
 */
 
-int8_t* booTYinit(int8_t* currentBuffer);
-int8_t* booTYshell(int8_t* currentBuffer);
+sbf_t booTYinit(sbf_t currentBuffer);
+sbf_t booTYshell(sbf_t currentBuffer);
 int8_t readCommand(int8_t cmd_terminator);
 
 #endif /* INC_BOOTY_H_ */

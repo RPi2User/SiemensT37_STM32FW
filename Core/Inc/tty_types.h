@@ -10,10 +10,10 @@
 #ifndef INC_TTY_TYPES_H_
 #define INC_TTY_TYPES_H_
 
-typedef int8_t symbol;
-typedef int8_t* sbf;
+typedef int8_t symbol_t;
+typedef int8_t* sbf_t;
 
-extern const symbol SBF_TERMINATOR;
+extern const symbol_t SBF_TERMINATOR;
 
 typedef enum {
     TTY_LETTERS = 0,
@@ -156,7 +156,7 @@ static const char figs_to_char[32] = {
 	[question] = '?'
 };
 
-static const symbol char_to_symCommon[128] = {
+static const symbol_t char_to_symCommon[128] = {
 	[0x03]	=	null, // strg+c
 	[0x04] 	=	null, // strg+d
 	[0x05]	=	enq,
@@ -168,7 +168,7 @@ static const symbol char_to_symCommon[128] = {
 	[0x20]	= 	space
 };
 
-static const symbol char_to_symFIGS[128] = {
+static const symbol_t char_to_symFIGS[128] = {
 	[0x07]	=	bell,
 	[0x27]	=	quote,
 	['{']	=	lparen,
@@ -199,7 +199,7 @@ static const symbol char_to_symFIGS[128] = {
 	['?']	=	question
 };
 
-static const symbol char_to_symLTRS[128] = {
+static const symbol_t char_to_symLTRS[128] = {
 	['A']	=	a,
 	['B']	=	b,
 	['C']	=	c,

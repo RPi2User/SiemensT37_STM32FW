@@ -12,7 +12,7 @@ float stopbit_cnt = 1.5;
 uint8_t tabSize = 2;
 
 // dynamic vars
-sbf currentLine;
+sbf_t currentLine;
 uint32_t last_linefeed = 0;
 uint32_t carriage_pos = 0;
 tty_mode_t tty_mode = TTY_LETTERS;
@@ -24,7 +24,7 @@ uint8_t loopback = 0;		// This sends bit right back to TTY
 uint8_t READ_TIMEOUT = 100;	// Timeout of 1000ms
 
 char* fox = "\r\nthe quick brown fox jumps over the lazy dog";
-const symbol SBF_MEM_ERROR[] = {
+const symbol_t SBF_MEM_ERROR[] = {
 	cr, lf, ltrs, m, e, m, o, r, y, space, e, r, r, o, r, figs,
 	comma, ltrs, space, r, e, s, e, t, t, i, n, g, space,
 	c, p, u, figs, period, bell, bell, bell, bell, bell, -1
@@ -37,7 +37,7 @@ void TTY_Init(){
 // -----------------------------------------------------------------
 // Debug function prints a brown fox
 void TTY_Fox(void){
-	int8_t* cl = sbf_createSymbolBuffer();
+	sbf_t cl = sbf_createSymbolBuffer();
 	while(1) {
 		// current issue: We read slower than we think
 		uint8_t sym = readSymbol();
@@ -49,7 +49,7 @@ void TTY_Fox(void){
 
 // ---TTY-FUNCTIONS-------------------------------------------------
 void TTY_WriteKey(char key){
-	int8_t* _sbf = sbf_createSymbolBuffer();
+	sbf_t _sbf = sbf_createSymbolBuffer();
 	_sbf = sbf_charToSymbolBuffer(_sbf, key, &tty_mode);
 	TTY_WriteBuffer(_sbf);
 }
@@ -58,14 +58,14 @@ void TTY_WriteKey(char key){
 void TTY_WriteString(char* str, uint8_t keepStr){
     // MAIN WRITE FUNCTION
     // keepStr is used when you don't want to clear a constant
-    int8_t* writebuffer = malloc(0);
+    sbf_t writebuffer = malloc(0);
     writebuffer = sbf_convertToSymbolBuffer(str);
     writebuffer = TTY_WriteBuffer(writebuffer);
     if (keepStr == 0)
     	free(str);
 }
 
-int8_t* TTY_WriteBuffer(int8_t* buffer){
+sbf_t TTY_WriteBuffer(sbf_t buffer){
     
     // Write all symbols in buffer
     for (uint8_t i = 0; buffer[i] != SBF_TERMINATOR; i++) {
@@ -76,7 +76,7 @@ int8_t* TTY_WriteBuffer(int8_t* buffer){
     free(buffer);
     
     // Create new empty buffer
-    int8_t* out = (int8_t*)malloc(sizeof(int8_t));
+    sbf_t out = (sbf_t)malloc(sizeof(int8_t));
     if (out == NULL) {
         TTY_raiseMemoryError();
     }

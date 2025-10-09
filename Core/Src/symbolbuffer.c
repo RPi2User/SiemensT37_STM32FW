@@ -17,30 +17,30 @@ const int8_t SBF_TERMINATOR = -1;
 
 
 // --- Private functions -------------------------------------------
-tty_mode_t _findInitialMode(int8_t* _inSbf);
+tty_mode_t _findInitialMode(sbf_t _inSbf);
 
 // --- Basic manipulation ------------------------------------------
-uint32_t sbf_len(int8_t* sbf){
+uint32_t sbf_len(sbf_t _sbf){
 	uint32_t out = 0;
-	while(sbf[out] != SBF_TERMINATOR) out++;
+	while(_sbf[out] != SBF_TERMINATOR) out++;
 	return out;
 }
 
-int8_t* sbf_createSymbolBuffer(void){
+sbf_t sbf_createSymbolBuffer(void){
 	// This returns a valid and correct terminated Symbol Buffer
-	int8_t* _out = malloc((sizeof(int8_t)) * 1);
+	sbf_t _out = malloc((sizeof(int8_t)) * 1);
 	if (!_out) TTY_raiseMemoryError();
 	_out[0] = SBF_TERMINATOR;
 	return _out;
 }
 
-int8_t* sbf_appendSym(int8_t* head, int8_t sym){
+sbf_t sbf_appendSym(sbf_t head, int8_t sym){
 	uint32_t head_len = 0;
 
 	if (sym == SBF_TERMINATOR) return head;
 	// When head NULL, create a single symbolbuffer
 	if (head == NULL) {
-		int8_t* tail = (int8_t*) malloc(2 * sizeof(int8_t));
+		sbf_t tail = (sbf_t) malloc(2 * sizeof(int8_t));
 		if (tail == NULL) TTY_raiseMemoryError();
 		tail[0] = sym;
 		tail[1] = SBF_TERMINATOR;
@@ -49,7 +49,7 @@ int8_t* sbf_appendSym(int8_t* head, int8_t sym){
 
 	// Create a tail with correct length
 	head_len = sbf_len(head);
-	int8_t* tail = (int8_t*) malloc((head_len + 2) * sizeof(int8_t));
+	sbf_t tail = (sbf_t) malloc((head_len + 2) * sizeof(int8_t));
 	if (tail == NULL) TTY_raiseMemoryError();
 
 	// Populate tail
@@ -65,11 +65,11 @@ int8_t* sbf_appendSym(int8_t* head, int8_t sym){
 	return tail;
 }
 
-int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail){
+sbf_t sbf_concaternate(sbf_t head, sbf_t tail, uint8_t keepTail){
 	uint32_t head_len = sbf_len(head);
 	uint32_t tail_len = sbf_len(tail);
 
-	int8_t* _out = malloc(sizeof(int8_t*) * (head_len + tail_len + 1));
+	sbf_t _out = malloc(sizeof(sbf_t) * (head_len + tail_len + 1));
 	if (_out == NULL) TTY_raiseMemoryError();
 
 	uint32_t len = 0;
@@ -163,7 +163,7 @@ int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
 	return -1;	// If no-one returns there is an unpredictable error
 }
 
-char* sbf_convertToString(int8_t* _inSbf,
+char* sbf_convertToString(sbf_t _inSbf,
 		char* _newLine, uint8_t keepBuffer){
 	char* _out = str_empty();
 
@@ -204,7 +204,7 @@ char* sbf_convertToString(int8_t* _inSbf,
 	return _out;
 }
 
-int8_t* sbf_charToSymbolBuffer(int8_t* _out, char _c, tty_mode_t* _currentMode){
+sbf_t sbf_charToSymbolBuffer(sbf_t _out, char _c, tty_mode_t* _currentMode){
 	if (_c <= 0x20){
 		if (_c == 0x09){
 			for (uint8_t t = 0; t < 4; t++)
@@ -236,9 +236,9 @@ int8_t* sbf_charToSymbolBuffer(int8_t* _out, char _c, tty_mode_t* _currentMode){
 	return _out;
 }
 
-int8_t* sbf_convertToSymbolBuffer(char* _inStr){
+sbf_t sbf_convertToSymbolBuffer(char* _inStr){
 	//str_toUpper(_inStr);	// we just have a uppercase LUT
-	int8_t* _out = sbf_createSymbolBuffer();
+	sbf_t _out = sbf_createSymbolBuffer();
 	_out = sbf_appendSym(_out, ltrs);
 	tty_mode_t _currentMode = TTY_LETTERS;
 	for (uint32_t i = 0; _inStr[i] != '\0'; i++){
@@ -251,7 +251,7 @@ int8_t* sbf_convertToSymbolBuffer(char* _inStr){
 // -----------------------------------------------------------------
 // PRIVATE FUNCTIONS
 void ___();
-tty_mode_t _findInitialMode(int8_t* _inSbf){
+tty_mode_t _findInitialMode(sbf_t _inSbf){
 	for (uint32_t i = 0; _inSbf[i] != SBF_TERMINATOR; i++){
 		if (_inSbf[i] == ltrs) return TTY_FIGURES;
 		if (_inSbf[i] == figs) return TTY_LETTERS;
