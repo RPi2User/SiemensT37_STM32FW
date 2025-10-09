@@ -5,6 +5,8 @@
  *      Author: florian
  */
 
+#include "tty.h"
+
 #ifndef INC_SYMBOLBUFFER_H_
 #define INC_SYMBOLBUFFER_H_
 
@@ -221,11 +223,11 @@ static const int8_t char_to_symLTRS[128] = {
 uint32_t sbf_len(int8_t* sbf);
 int8_t* sbf_createSymbolBuffer(void);
 
-int8_t* sbf_appendSym(int8_t* head, uint8_t sym);
+int8_t* sbf_appendSym(int8_t* head, int8_t sym);
 int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail);
 
 // --- CONVERT -----------------------------------------------------
-
+int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine, uint8_t* current_mode, uint32_t* carriage_pos, uint32_t* last_lf);
 char* sbf_convertToString(int8_t* _inSbf,
 		char* _newLine, uint8_t keepBuffer);
 int8_t* sbf_convertToSymbolBuffer(char* _inStr);

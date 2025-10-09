@@ -28,7 +28,7 @@ int8_t* TTY_WriteBuffer(int8_t* buffer);
 void TTY_Write(int8_t _sym);
 
 
-char TTY_READKEY();
+char TTY_ReadKey();
 int8_t readSymbol();
 
 uint8_t majority(Databit d);

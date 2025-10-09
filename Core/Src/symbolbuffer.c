@@ -34,9 +34,10 @@ int8_t* sbf_createSymbolBuffer(void){
 	return _out;
 }
 
-int8_t* sbf_appendSym(int8_t* head, uint8_t sym){
+int8_t* sbf_appendSym(int8_t* head, int8_t sym){
 	uint32_t head_len = 0;
 
+	if (sym == SBF_TERMINATOR) return head;
 	// When head NULL, create a single symbolbuffer
 	if (head == NULL) {
 		int8_t* tail = (int8_t*) malloc(2 * sizeof(int8_t));
@@ -107,8 +108,11 @@ int8_t* sbf_concaternate(int8_t* head, int8_t* tail, uint8_t keepTail){
  *
  */
 int8_t sbf_convertToChar(int8_t symbol, char* target, char* _newLine,
-   tty_mode_t* current_mode, uint32_t* carriage_pos, uint32_t* last_lf){
+   uint8_t* current_mode, uint32_t* carriage_pos, uint32_t* last_lf){
 
+	if (symbol == -1) {
+		return -1;
+	}
 	if (symbol == lf) *last_lf = 0;
 	else *last_lf = 1;
 

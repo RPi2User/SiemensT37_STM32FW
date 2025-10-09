@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "tty.h"
 #include "writeBuffer.h"
+#include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -52,6 +53,7 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 uint8_t UART2_Buffer[1];
 HAL_StatusTypeDef lastStatus;
+unsigned char rdyMSG[] = "rdy";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -128,7 +130,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_UART_Receive_IT(&huart2, UART2_Buffer, 1);
   TTY_Init();
-
+  HAL_UART_Transmit(&huart2, rdyMSG, 3, 20);
+  setLoopback(1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -138,10 +141,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	HAL_Delay(3500);
 	TTY_Fox();
-	char* test_string = "===ABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n"
-			"()+,-./0123456789=A1B2C3D4E5F6:===";
+
+	//char* test_string = "===ABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n"
+	//		"()+,-./0123456789=A1B2C3D4E5F6:===";
   }
   /* USER CODE END 3 */
 }

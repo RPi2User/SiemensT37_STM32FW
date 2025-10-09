@@ -15,7 +15,7 @@ uint8_t tabSize = 2;
 
 // dynamic vars
 int8_t* currentLine;
-uint8_t last_linefeed = 0;
+uint32_t last_linefeed = 0;
 uint32_t carriage_pos = 0;
 tty_mode_t tty_mode = TTY_LETTERS;
 
@@ -39,9 +39,13 @@ void TTY_Init(){
 // -----------------------------------------------------------------
 // Debug function prints a brown fox
 void TTY_Fox(void){
-	char* term = "\r\n";
-	char* str_test = sbf_convertToString(SBF_MEM_ERROR, term ,1);
-	TTY_WriteString(fox, 1);
+	int8_t* cl = sbf_createSymbolBuffer();
+	while(1) {
+		// current issue: We read slower than we think
+		uint8_t sym = readSymbol();
+		cl = sbf_appendSym(cl, sym);
+	}
+	//TTY_WriteString(fox, 1);
 }
 
 
@@ -81,7 +85,6 @@ int8_t* TTY_WriteBuffer(int8_t* buffer){
 }
 
 void TTY_Write(int8_t _sym){
-	setLED_BSY(1);
 	if (_sym == -1) return;
 
 	// Skip redundant ltrs/figs commands
@@ -100,7 +103,6 @@ void TTY_Write(int8_t _sym){
     }
 	// send those 5 bits
 	TTY_Stopbit();
-	setLED_BSY(0);
 }
 
 /*	==== READ OPERATIONS ===========================================
@@ -113,8 +115,13 @@ void TTY_Write(int8_t _sym){
  *				    and converts it into a char
  */
 char TTY_ReadKey(){
-	// TODO
-	return 'C';
+
+	int sym = readSymbol();
+	char _out = -1;
+	sbf_convertToChar(sym, &_out, "\r\n",
+		&tty_mode, &carriage_pos, &last_linefeed);
+
+	return _out;
 }
 
 
@@ -168,7 +175,7 @@ int8_t readSymbol() {
 
     clearReadError();
 
-    HAL_Delay(10);	// Stobbit should be <20ms
+    //HAL_Delay(10);	// Stobbit should be <20ms
     return out;
 }
 
